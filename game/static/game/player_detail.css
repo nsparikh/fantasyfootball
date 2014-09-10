@@ -1,0 +1,168 @@
+/* 
+BACKGROUND COLORS
+Dark black (site bg): #111214 / 17,18,20
+Gray (tile bg): #2A2A2A / 42,42,42
+Dark gray (tile header bg): #232323 / 39,39,39
+
+TEXT COLORS
+White gray (main text): #D4D4D4 / 212,212,212
+Gray (tile headers): #828282 / 130,130,130
+
+ACCENT COLORS
+Blue: #21BDCD / 33,189,205
+Red: #D3343A / 211,52,58
+Orange: #FF9836 / 255,152,54
+Green: #74AB58 / 116,171,88
+*/
+
+/********************/
+/* Player Info Tile */
+/********************/
+.player-info-tile {
+	height: 400px;
+	width: 300px;
+}
+
+.player-image {
+	width: 150px;
+	float: left;
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+
+.player-info-container {
+	text-align: left;
+	padding: 5px 0 0 15px;
+	float: left;
+}
+
+.player-info-text {
+	margin: 0;
+	padding: 0;
+	color: #D4D4D4;
+	font-size: 20px;
+}
+
+.player-season-table-container {
+	clear: both;
+	padding-top: 10px;
+}
+
+.player-season-table-container h5 {
+	padding: 0;
+	margin: 0;
+	text-align: left;
+	font-size: 14px;
+}
+
+/***************************/
+/* Weekly Performance Tile */
+/***************************/
+.weekly-performance-tile {
+	height: 400px;
+	width: 400px;
+}
+
+.graph-container {
+	padding: 0;
+	margin: 10px 0;
+	width: 100%;
+	height: 70%;
+}
+
+.green-line {
+	stroke: #74AB58;
+}
+
+.orange-line {
+	stroke: #FF9836;
+}
+
+.red-line {
+	stroke: #D3343A;
+}
+
+.blue-line {
+	stroke: #21BDCD;
+}
+
+.green-circle {
+	fill: #74AB58;
+}
+
+.orange-circle {
+	fill: #FF9836;
+}
+
+.red-circle {
+	fill: #D3343A;
+}
+
+.blue-circle {
+	fill: #21BDCD;
+}
+
+
+.legend-container {
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	height: 20%;
+}
+
+.legend-header {
+	fill: #828282;
+	text-transform: uppercase;
+	font-weight: 700;
+	font-size: 14px;
+}
+
+.legend-text {
+	font-weight: 400;
+	font-size: 16px;
+}
+
+.overlay {
+	fill: none;
+	pointer-events: all;
+}
+
+.focus text {
+	font-size: 14px;
+	text-anchor: middle;
+}
+
+#hover-box-header {
+	font-weight: 700;
+}
+
+/********************/
+/* Projections Tile */
+/********************/
+.projections-tile {
+	height: 200px;
+}
+
+.proj-col {
+	width: 200px;
+	text-align: left;
+	float: left;
+}
+
+.proj-col h3 {
+	font-size: 20px;
+	margin: 0;
+	padding: 0 0 2px 0;
+}
+
+.projection-number {
+	font-size: 70px;
+	margin: 0;
+	padding: 0;
+	position: relative;
+	top: -20px;
+	left: -5px;
+}
+
+

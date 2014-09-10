@@ -1,0 +1,319 @@
+/* 
+BACKGROUND COLORS
+Dark black (site bg): #111214 / 17,18,20
+Gray (tile bg): #2A2A2A / 42,42,42
+Dark gray (tile header bg): #232323 / 39,39,39
+
+TEXT COLORS
+White gray (main text): #D4D4D4 / 212,212,212
+Gray (tile headers): #828282 / 130,130,130
+
+ACCENT COLORS
+Blue: #21BDCD / 33,189,205
+Red: #D3343A / 211,52,58
+Orange: #FF9836 / 255,152,54
+Green: #74AB58 / 116,171,88
+Darker blue: #157680;
+*/
+
+/*****************/
+/* GENERAL RULES */
+/*****************/
+html, body {
+	background-color: #111214;
+	font-family: 'Open Sans Condensed', sans-serif;
+}
+
+a:link, a:visited {
+	text-decoration: none;
+	color: #828282;
+}
+
+.white-link, .white-link:link, .white-link:visited {
+	cursor: pointer;
+	text-decoration: none;
+	color: #D4D4D4;
+}
+
+.white-text {
+	color: #D4D4D4;
+}
+
+a:hover, a:active, .white-link:hover, .white-link:active {
+	color: #21BDCD;
+}
+
+.filter, .filter:link, .filter:visited {
+	cursor: pointer;
+	color: #D4D4D4;
+}
+
+.filter:hover, .filter:active, .filter-selected, .filter-selected:link, .filter-selected:visited {
+	color: #D4D4D4;
+	text-decoration: underline;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+	color: #828282;
+	text-transform: uppercase;
+	font-weight: 700;
+	margin: 0;
+	padding: 0;
+}
+
+.span-header {
+	color: #828282;
+	text-transform: uppercase;
+	font-weight: 700;
+}
+
+hr {
+	border-color: #828282;
+}
+
+#container {
+	min-width: 800px;
+	min-height: 1000px;
+}
+
+p {
+	margin: 0;
+	padding: 0;
+	text-align: left;
+	font-size: 20px;
+}
+
+.invisible {
+	display: none;
+}
+
+.right {
+	float: right;
+}
+
+/*******************/
+/* CUSTOM ELEMENTS */
+/*******************/
+
+.display-table {
+	width: 100%;
+	text-align: center;
+	border-spacing: 2px;
+}
+
+.display-table th {
+	text-transform: uppercase;
+	background-color: #21BDCD;
+	color: #D4D4D4;
+	font-size: 20px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.table-subheader th {
+	font-weight: 400;
+	background-color: #157680;
+	font-size: 16px;
+}
+
+.display-table td {
+	background-color: #232323;
+	color: #D4D4D4;
+	font-size: 20px;
+	width: 50px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.td-wide {
+	padding: 0 5px;
+}
+
+svg {
+	margin: 0;
+	padding: 0;
+}
+
+.custom-select {
+	padding: 5px;
+
+	font-family: inherit;
+	font-weight: 700;
+	font-size: 18px; 
+	outline: none;
+	background: #2A2A2A; 
+	color: #D4D4D4; 
+	border: 1px solid #828282; 
+}
+
+.custom-textbox {
+	padding: 0 5px;
+
+	font-family: inherit;
+	font-size: 18px; 
+	outline: none;
+	background: #2A2A2A; 
+	color: #D4D4D4; 
+	border: 1px solid #828282;
+}
+
+.span-button {
+	text-transform: uppercase;
+	color: #828282;
+	border: 1px solid #828282;
+	padding: 0 5px;
+	cursor: pointer;
+	font-size: 18px;
+}
+
+.span-button:hover, .span-button:active {
+	color: #21BDCD;
+	border: 1px solid #21BDCD;
+}
+
+.checkbox {
+	fill: #2A2A2A;
+	stroke: #828282;
+	stroke-width: 2;
+	shape-rendering: crispEdges;
+}
+
+.checkbox-inner {
+	fill: #828282;
+	stroke-width: 1;
+	shape-rendering: crispEdges;
+}
+
+/******************/
+/* NAVIGATION BAR */
+/******************/
+#nav-container {
+	margin-top: 40px;
+	text-align: center;
+}
+
+.nav-button {
+	width: 100px;
+	display: inline-block;
+	padding: 10px;
+	margin: 5px;
+	background-color: #232323;
+	text-transform: uppercase;
+
+	font-weight: 700;
+	font-size: 20px;
+
+	border-bottom: 4px solid #232323;
+}
+
+.nav-button:hover {
+	border-bottom: 4px solid #21BDCD;
+}
+
+.nav-button:hover a {
+	color: #21BDCD;
+}
+
+.nav-selected {
+	border-bottom: 4px solid #21BDCD;
+	color: #21BDCD;
+}
+
+.hidden {
+	display: none;
+}
+
+#year-select-container {
+	margin: 15px auto;
+	text-align: center;
+}
+
+#year-select-label {
+	font-size: 20px;
+	padding: 0;
+	margin: 0;
+}
+
+#year-select {
+	margin: 0 0 0 15px;
+}
+
+#week-select-container {
+	float: right;
+}
+
+/**********************/
+/* GENERAL TILE RULES */
+/**********************/
+#tiles-container {
+	text-align: center;
+	margin: 40px auto;
+}
+
+#tiles-table {
+	margin: auto;
+	width: 780px;
+}
+
+.tile {
+	background: #2A2A2A;
+	margin: 5px;
+	padding: 10px;
+	text-align: left;
+}
+
+.tile-header {
+	margin: 0;
+	width: 100%;
+	padding: 5px 10px 5px 10px;
+	position: relative;
+	top: -10px;
+	left: -10px;
+
+	background: #232323;
+	text-align: left;
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.tile-title {
+	text-transform: capitalize;
+	font-size: 28px;
+	line-height: 28px;
+	color: #D4D4D4;
+	padding: 0;
+	margin: 0;
+	display: inline-block;
+	text-align: left;
+}
+
+/******************/
+/* VISUALIZATIONS */
+/******************/
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: #828282;
+	stroke-width: 1;
+	shape-rendering: crispEdges;
+}
+
+.axis text {
+	font-size: 11px;
+	fill: #828282;
+}
+
+.axis-label {
+	text-transform: uppercase;
+	font-weight: 700;
+	font-size: 12px;
+	fill: #828282;
+}
+
+.line {
+	stroke-width: 2;
+	fill: none;
+}
+

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}Players{% endblock %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'game/players.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<tr>
+	<td><div class="tile" id="scoring-leaders-tile">
+		<h4 class="tile-header">&#9702; Scoring Leaders</h4>
+
+		<div class="right">
+			<a href="{% url 'game:players' %}"><span class="span-button" id="toggle-view">View Table</span></a>
+		</div>
+
+		<div id="players-graph-container"></div>
+		<div id="players-legend-container"></div>
+
+		<div id="player-tooltip" class="hidden">
+			<h3 id="player-name"></h3>
+			<span id="player-pts-header">Point Difference: </span><span id="player-pts"></span><br/>
+		</div>
+
+	</div></td>
+</tr>
+{% endblock %}
+
+
+{% block js %}
+<script>
+	var dataset = {{ player_list_json | safe }};
+	var team_url = "{% url 'game:teams' %}";
+	var position_url = "{% url 'game:positions' %}";
+</script>
+<script type="text/javascript" src="{% static 'game/players_graph.js' %}"></script>
+{% endblock %}
+

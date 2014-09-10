@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load add_get_parameter %}
+
+{% block title %}Players{% endblock %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'game/players.css' %}">
+{% endblock %}
+
+{% block content %}
+<tr>
+	<td><div class="tile" id="scoring-leaders-tile">
+		<h4 class="tile-header">&#9702; Scoring Leaders</h4>
+		<div id="positions-container">
+			<span class="span-header" id="positions-header">Position</span>
+			{% for pos in posList %}
+				{% if pos == curPos %}
+				<a href="{% url 'game:players' %}?pos={{pos}}"><span class="filter-pos filter filter-selected">{{pos}}</span></a>
+				{% else %}
+				<a href="{% url 'game:players' %}?pos={{pos}}"><span class="filter-pos filter">{{pos}}</span></a>
+				{% endif %}
+			{% endfor %}
+
+			<div class="right">
+				<input type="text" placeholder="Search" id="positions-search" class="custom-textbox" onkeydown="searchAndFilter();"/>
+				<a href="{% url 'game:players' %}graph"><span class="span-button" id="toggle-view">View Graph</span></a>
+			</div>
+			
+		</div>
+		<hr>
+
+		<table border="0" class="display-table" id="scoring-leaders-table">
+			<thead>
+				<tr class="table-mainheader">
+					<th colspan="3">Player</th>
+					<th colspan="4">Passing</th>
+					<th colspan="3">Rushing</th>
+					<th colspan="4">Receiving</th>
+					<th colspan="3">Misc</th>
+					<th colspan="1">Total</th>
+				</tr>
+				<tr class="table-subheader">
+					{% for param in sortList %}
+						{% if param.0 == curSort %}
+							{% if param.0 == 'passC' %}
+							<th><span id="passC" class="filter-th filter filter-selected"><a href="{% add_get sort=param.0 %}" class="filter filter-selected">C</a></span> / <span id="passA" class="filter-th filter"><a href="{% add_get sort='passA' %}" class="filter">A</a></th>
+							{% elif param.0 == 'passA' %}
+							<th><span id="passC" class="filter-th filter"><a href="{% add_get sort='passC' %}" class="filter">C</a></span> / <span id="passA" class="filter-th filter filter-selected"><a href="{% add_get sort=param.0 %}" class="filter filter-selected">A</a></span></th>
+							{% else %}
+							<th id="{{param.0}}" class="filter-th"><a href="{% add_get sort=param.0 %}" class="filter filter-selected">{{param.1}}</a></th>
+							{% endif %}
+						{% else %}
+							{% if param.0 == 'passC' %}
+								{% if curSort != 'passA' %}
+								<th><span id="passC" class="filter-th filter"><a href="{% add_get sort=param.0 %}" class="filter">C</a></span> / <span id="passA" class="filter-th filter"><a href="{% add_get sort='passA' %}" class="filter">A</a></span></th>
+								{% endif %}
+							{% elif param.0 == 'passA' %}
+							{% else %}
+							<th id="{{param.0}}" class="filter-th"><a href="{% add_get sort=param.0 %}" class="filter">{{param.1}}</a></th>
+							{% endif %}
+						{% endif %}
+					{% endfor %}
+				</tr>
+			</thead>
+
+		</table>
+	</div></td>
+</tr>
+{% endblock %}
+
+{% block js %}
+<script>
+	var dataset = {{ player_list_json | safe }};
+	var team_url = "{% url 'game:teams' %}";
+	var position_url = "{% url 'game:positions' %}";
+</script>
+<script type="text/javascript" src="{% static 'game/players.js' %}"></script>
+{% endblock %}
+
+

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}{{ player.name }}{% endblock %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'game/player_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<tr>
+	<td><div class="tile player-info-tile">
+		<h4 class="tile-header">&#9702; Player Info</h4>
+		<h2 class="tile-title">{{ player.name }}</h2>
+		<hr>
+		<img src="{% static image_path %}" class="player-image"/>
+		<div class="player-info-container">
+			<p class="player-info-text">#{{ player.number }} <a href="#" class="white-link">{{ player.position.abbr }}</a></p>
+			<p class="player-info-text">{{feet}}'{{inches}}", {{ player.weight }} lbs</p>
+			<p class="player-info-text">Age: {{ age }}</p>
+			<p class="player-info-text"><a href="#" class="white-link">{{ player.team.name }}</a></p>
+		</div>
+		<div class="player-season-table-container">
+			{% include player_detail_table_path %}
+		</div>
+	</div></td>
+
+	<td><div class="tile weekly-performance-tile">
+		<h4 class="tile-header">&#9702; Weekly Performance</h4>
+		<div id="player-graph-container" class="graph-container"></div>
+		<div id="player-legend-container" class="legend-container"></div>
+	</div></td>
+</tr>
+<tr>
+	<td colspan="2"><div class="tile projections-tile">
+		<h4 class="tile-header">&#9702; Fantasy Projections</h4>
+		<div class="proj-col">
+			<h3>TEAM vs. TEAM</h3>
+			<p class="player-info-text">mm/dd/yy, time ET</p>
+			<p class="player-info-text">Stadium, City, STATE</p>
+			<br/>
+			<h3>Previous matchup</h3>
+			<p class="player-info-text">Result</p>
+		</div>
+		<div class="proj-col">
+			<h3>Our Projection</h3>
+			<p class="player-info-text projection-number">xxx</p>
+		</div>
+		<div class="proj-col">
+			<h3>Other Projections</h3>
+			<table border="0" class="display-table">
+				<tr>
+					<th>ESPN</th>
+					<th>Yahoo</th>
+					<th>CBS</th>
+				</tr>
+				<tr>
+					<td>xxx</td>
+					<td>xxx</td>
+					<td>xxx</td>
+				</tr>
+			</table>
+		</div>
+		<div id="week-select-container">
+			<select id="week-select" class="custom-select">
+				<option value="Week1">Week 1</option>
+				<option value="Week2">Week 2</option>
+				<option value="Week3">Week 3</option>
+				<option value="Week4">Week 4</option>
+				<option value="Week5">Week 5</option>
+				<option value="Week6">Week 6</option>
+				<option value="Week7">Week 7</option>
+				<option value="Week8">Week 8</option>
+				<option value="Week9">Week 9</option>
+				<option value="Week10">Week 10</option>
+				<option value="Week11">Week 11</option>
+				<option value="Week12">Week 12</option>
+				<option value="Week13">Week 13</option>
+				<option value="Week14">Week 14</option>
+				<option value="Week15">Week 15</option>
+				<option value="Week16">Week 16</option>
+			</select>
+		</div>
+	</div></td>
+</tr>
+{% endblock %}
+
+
+{% block js %}
+<script>
+	var dataset = {{ cur_season_gamedata | safe }};
+	var playerTeam = '{{ player.team.abbr }}';
+	var pos = '{{ player.position.abbr }}';
+</script>
+<script type="text/javascript" src="{% static 'game/player_detail_weekly_graph.js' %}"></script>
+{% endblock %}
+
+

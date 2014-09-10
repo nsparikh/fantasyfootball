@@ -1,0 +1,55 @@
+/* 
+BACKGROUND COLORS
+Dark black (site bg): #111214 / 17,18,20
+Gray (tile bg): #2A2A2A / 42,42,42
+Dark gray (tile header bg): #232323 / 39,39,39
+
+TEXT COLORS
+White gray (main text): #D4D4D4 / 212,212,212
+Gray (tile headers): #828282 / 130,130,130
+
+ACCENT COLORS
+Blue: #21BDCD / 33,189,205
+Red: #D3343A / 211,52,58
+Orange: #FF9836 / 255,152,54
+Green: #74AB58 / 116,171,88
+*/
+
+#wr-depth-tile {
+	overflow: auto;
+	text-align: left;
+}
+
+#wr-depth-table {
+	float: left;
+	width: 485px;
+}
+
+#wr-depth-detail {
+	width: 250px;
+	height: 250px;
+	margin-left: 5px;
+	float: left;
+
+	position: relative;
+
+	font-size: 20px;
+	text-align: center;
+	color: #D4D4D4;
+}
+
+#wr-detail-header {
+	margin: 0;
+	padding: 0;
+	font-size: 24px;
+}
+
+#wr-depth-detail p {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+
+#wr-detail-image {
+	width: 200px;
+}

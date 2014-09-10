@@ -1,0 +1,119 @@
+/* 
+BACKGROUND COLORS
+Dark black (site bg): #111214 / 17,18,20
+Gray (tile bg): #2A2A2A / 42,42,42
+Dark gray (tile header bg): #232323 / 39,39,39
+
+TEXT COLORS
+White gray (main text): #D4D4D4 / 212,212,212
+Gray (tile headers): #828282 / 130,130,130
+
+ACCENT COLORS
+Blue: #21BDCD / 33,189,205
+Red: #D3343A / 211,52,58
+Orange: #FF9836 / 255,152,54
+Green: #74AB58 / 116,171,88
+*/
+
+#scoring-leaders-tile {
+	width: 780px;
+	overflow: auto;
+}
+
+#scoring-leaders-table {
+	border-spacing: 2px;
+}
+
+#scoring-leaders-table th {
+	padding: 0 5px;
+}
+
+#scoring-leaders-table td {
+	font-size: 14px;
+}
+
+#positions-container {
+	margin: 5px 0;
+	text-align: left;
+	font-size: 20px;
+}
+
+#positions-header {
+	padding-right: 15px;
+}
+
+#positions-container a {
+	padding: 0 2px;
+	text-transform: uppercase;
+}
+
+.filter-pos {
+	padding: 0 2px;
+}
+
+#positions-search {
+	display: inline-block;
+}
+
+#toggle-view {
+	display: inline-block;
+}
+
+/*********/
+/* GRAPH */
+/*********/
+
+#players-graph-container {
+	float: left;
+}
+
+#players-svg {
+	margin: auto;
+}
+
+#players-axis line {
+	opacity: 0;
+}
+
+#player-tooltip {
+	position: absolute;
+	width: 150px;
+	height: auto;
+	padding: 10px;
+	background-color: #232323;
+	color: #D4D4D4;
+	font-size: 14px;
+	text-align: center;
+
+	border: 3px solid #828282;
+
+	pointer-events: none;
+}
+
+.axis text {
+	font-size: 14px;
+}
+
+.xAxis line {
+	display: none;
+}
+
+/**********/
+/* LEGEND */
+/**********/
+
+#players-legend-container {
+	float: left;
+}
+
+.legend-text {
+	font-weight: 400;
+	font-size: 16px;
+	fill: #828282;
+}
+
+.legend-text-small {
+	font-weight: 400;
+	font-size: 14px;
+	fill: #828282;
+}

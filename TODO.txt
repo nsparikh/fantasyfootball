@@ -1,0 +1,87 @@
+TO DO LIST
+==========
+
+- Fix GameData with null date / espn game ID that aren't Bye weeks
+- Fix Garrett Hartley 2013 Game Data
+	- Check for other similar cases (all gamedata is falsely BYE bc was on a team but now FA )
+	- FIgure out actual BYE weeks for these players
+- Fix Johnnie Lee Higgins (middle name issue)
+- Fix yeardata for 2 zach millers / 2 steve smiths / 2 mike williams
+- Update current team for all players
+	- Add team to yeardata? 
+
+High Priority:
+- Complete individual player pages
+	- Figure out individual pages for D/ST, Kickers; get necessary data
+- Get rest of data
+	- Fantasy points / projections (historic)
+	- Create CareerData model? Would have to keep it updated throughout the season	
+- Add pagination to players table (also to graph?)
+	- see https://docs.djangoproject.com/en/1.6/topics/pagination/
+- Fix search box on players table page
+- Draft rest of position analysis pages (QB, TE, RB, D/ST, K)
+	- TE, RB, QB, K(?) will be like WR page
+	- D/ST will be like graph from paper (for now)
+- Make players graph better -- use a different metric for normalization?
+- Add request params to specify year / week? Or handle through sessions: https://docs.djangoproject.com/en/1.6/topics/http/sessions/
+- Figure out why left axis line disappears on player detail graph
+- Figure out Bye weeks for each team and add in blank data points for all players
+
+Quick Fixes:
+- Fix teams, positions pages to display from database (rather than hardcoded positions/teams)
+- Add tooltips to player table headers
+- Highlight selected tab in nav bar on players/positions/teams pages
+- Change date format on player detail page hover box
+- Add color to hover box text
+- Clean up code in player_detail_weekly_graph.js (particulary in mousemove function)
+- Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
+
+
+Low Priority:
+- don't include players with null values in sort -- always leave at end
+- Change url paths to use names instead of IDs for positions, teams, maybe players?
+- figure out how to "toggle" links from asc/desc when clicked again
+- figure out which players don't have images and find alternatives ?
+- fix players with height=0 or weight=0, no DOB, no number
+	- double check players' positions
+- Add more info to player pages
+	- Depth chart position
+	- Current status (i.e. injured)
+- Make it so clicking on a week on player_detail graph opens ESPN game log for that game
+
+Eventual:
+- Get 2014 data. Set up something to get it automatically each week
+- Machine learning stuff
+	- augment game data with projection info
+- Get historical data for past 5 years
+- Add side-by-side comparison page
+- User model -- see https://docs.djangoproject.com/en/1.6/topics/auth/
+- Make sure everything works on other browsers
+
+--------------------------------------------------------------------------------------------
+
+Finished:
+- Reorganize / clean up code to draw from base template
+	- see http://docs.django-cms.org/en/2.2/getting_started/tutorial.html
+- Fix links
+	- players table
+	- players graph
+	- positions page
+- Figure out URL params for players table -- use to filter/sort data (instead of doing on frontend)
+	- see https://docs.djangoproject.com/en/1.6/ref/request-response/
+- Send request for players page based on user actions
+	- underline appropriate column for sorting
+	- underline appropriate position - DONE
+	- see https://djangosnippets.org/snippets/2428/
+- Fix alex smith the TE from Cin
+- Get ESPN IDs for players w/o them -- find links from http://games.espn.go.com/ffl/leaders
+	- Get necessary images for all players
+- Fix WR and TE game data (switch rec/recYds/recTDs with rush/rushYds/rushTDs)
+	- Get recTar game data for WR/TE
+- FInish player_tables structure for other positions
+- Fix Alex Smith TE data
+- change "abbreviation" in positions/teams model to "abbr"
+- Change priority keys on players so they're not the same as ESPN IDs
+- Redo YearData2013 with new player IDs
+- Switch ordering of gameData PKs so week # is last (so a player has a consecutive chunk of points)
+- Host on Heroku: https://devcenter.heroku.com/articles/getting-started-with-django
