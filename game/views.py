@@ -1,11 +1,13 @@
 from django.shortcuts import get_object_or_404, render, render_to_response
 from django.core.urlresolvers import reverse
 from django.views import generic
+from django.db.models import Count
 from datetime import date
 import json
 
 from game.models import Player, Position, Team
 from data.models import YearData, GameData, DataPoint
+
 
 def players(request):
 	player_list = None
@@ -53,7 +55,9 @@ def players(request):
 	else:
 		player_list = YearData.objects.all()
 	
-	player_list = player_list.order_by(sort, 'player__name')[0:10]
+	player_list = player_list.annotate(
+		null_sort=Count(sort.replace('-', ''))).order_by(
+		'-null_sort', sort, 'player__name')[0:10]
 
 	# Put into JSON format for javascript access
 	player_list_json = json.dumps([ obj.as_dict() for obj in player_list ])
@@ -102,7 +106,9 @@ class PlayerDetailView(generic.DetailView):
 
 		# TODO: change to get current year from selection
 		cur_season_gamedata = GameData.objects.filter(
-			player__id=self.object.id, year=2013
+			player__id=self.object.id, year=2013, bye=False
+		).exclude(
+			data=1
 		)
 		cur_season_gamedata_json = json.dumps([ obj.as_dict() for obj in cur_season_gamedata ])
 		context['cur_season_gamedata'] = cur_season_gamedata_json

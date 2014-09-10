@@ -13,16 +13,13 @@ var w = 400;
 var h = 275;
 var totalH = 350;
 var legH = 100;
+var topPadding = 5;
 var padding = 40;
 var bottomPadding = 30;
 var sidePadding = 10;
 var cbDim = 15;
 var hoverDim = 120;
 
-// Helper method
-function getDate(d) {
-	return new Date(d['date']);
-}
 
 // Determine scale based on position
 // TODO: figure out what we want to show for D/ST and K
@@ -46,38 +43,43 @@ var yAxisRTextMap = {'QB':'Passing yards', 'RB':'Rushing Yards', 'WR':'Receiving
 'TE':'Receiving Yards', 'D/ST':'Points', 'K':'Points'};
 
 // Scales for axes
-var minDate = getDate(dataset[0]),
+/*var minDate = getDate(dataset[0]),
     maxDate = getDate(dataset[dataset.length-1]);
 var bisectDate = d3.bisector(function(d) { return getDate(d); }).right;
 var xScale = d3.time.scale()
 	.domain([minDate, maxDate])
+	.range([padding, w-padding]);*/
+var xScale = d3.scale.linear()
+	.domain([1, 17])
 	.range([padding, w-padding]);
-/*var maxYScaleL = Math.max(d3.max(dataset, function(d) {return d.data.points;}), 
-						  d3.max(dataset, function(d) {return d.data.recYds / 10.0;})) + 1;*/
-var maxYScaleL = Math.max(d3.max(dataset, function(d) {return d['data'][redMap[pos]];}), 
-						  d3.max(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;})) + 1;;
+var minYScale = Math.min(d3.min(dataset, function(d) {return d['data'][redMap[pos]];}), 
+						  d3.min(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}),
+						  d3.min(dataset, function(d) {return d['data']['points'];})) - 1;
+var maxYScale = Math.max(d3.max(dataset, function(d) {return d['data'][redMap[pos]];}), 
+						  d3.max(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}),
+						  d3.max(dataset, function(d) {return d['data']['points'];})) + 1;
 var yScaleL = d3.scale.linear()
-	.domain([0, maxYScaleL])
-	.range([h-bottomPadding, 0])
+	.domain([minYScale, maxYScale])
+	.range([h-bottomPadding, topPadding])
 var yScaleR = d3.scale.linear()
-	.domain([0, maxYScaleL*10])
-	.range([h-bottomPadding, 0])
+	.domain([minYScale*10, maxYScale*10])
+	.range([h-bottomPadding, topPadding])
 
 // Functions for drawing connector lines
-/*var fpLineFunc = d3.svg.line()
-	.x(function(d) {return xScale(getDate(d));})
-	.y(function(d) {return yScaleL(d.fp);})
-	.interpolate('linear');*/
+var fpLineFunc = d3.svg.line()
+	.x(function(d) {return xScale(d['week_number']);})
+	.y(function(d) {return yScaleL(d['data']['points']);})
+	.interpolate('linear');
 var orangeLineFunc = d3.svg.line()
-	.x(function(d) {return xScale(getDate(d));})
+	.x(function(d) {return xScale(d['week_number']);})
 	.y(function(d) {return yScaleR(d['data'][orangeMap[pos]]);})
 	.interpolate('linear');
 var redLineFunc = d3.svg.line()
-	.x(function(d) {return xScale(getDate(d));})
+	.x(function(d) {return xScale(d['week_number']);})
 	.y(function(d) {return yScaleL(d['data'][redMap[pos]]);})
 	.interpolate('linear');
 var blueLineFunc = d3.svg.line()
-	.x(function(d) {return xScale(getDate(d));})
+	.x(function(d) {return xScale(d['week_number']);})
 	.y(function(d) {return yScaleL(d['data'][blueMap[pos]]);})
 	.interpolate('linear');
 
@@ -91,8 +93,8 @@ var svg = d3.select('#player-graph-container')
 var xAxis = d3.svg.axis()
 	.scale(xScale)
 	.orient('bottom')
-	.tickValues(dataset.map(function(d) {return getDate(d);}))
-	.tickFormat(d3.time.format('%m/%d'));
+	.tickValues(dataset.map(function(d) {return d['week_number'];}))
+	.tickFormat(function(d) { return 'W'+d; });
 
 // Define Y axes
 var yAxisL = d3.svg.axis()
@@ -105,9 +107,10 @@ var yAxisR = d3.svg.axis()
 	.ticks(10);
 
 // Draw axes
+var xTranslate = yScaleL(0);
 svg.append('g')
 	.attr('class', 'axis')
-	.attr('transform', 'translate(0,' + (h - bottomPadding) + ')')
+	.attr('transform', 'translate(0,' + xTranslate + ')')
 	.call(xAxis)
 	.selectAll('text')  
 	.style('text-anchor', 'end')
@@ -143,25 +146,25 @@ svg.append('text')
     .text(yAxisRTextMap[pos]);
 
 // Draw circles
-/*svg.selectAll('.fp-circle')
+svg.selectAll('.green-circle')
 	.data(dataset)
 	.enter()
 	.append('circle')
-	.attr('class', 'fp-circle')
+	.attr('class', 'green-circle')
 	.attr('cx', function(d) {
-		return xScale(getDate(d));
+		return xScale(d['week_number']);
 	})
 	.attr('cy', function(d) {
-		return yScaleL(d.fp);
+		return yScaleL(d['data']['points']);
 	})
-	.attr('r', 3);*/
+	.attr('r', 3);
 svg.selectAll('.orange-circle')
 	.data(dataset)
 	.enter()
 	.append('circle')
 	.attr('class', 'orange-circle')
 	.attr('cx', function(d) {
-		return xScale(getDate(d));
+		return xScale(d['week_number']);
 	})
 	.attr('cy', function(d) {
 		return yScaleR(d['data'][orangeMap[pos]]);
@@ -173,7 +176,7 @@ svg.selectAll('.red-circle')
 	.append('circle')
 	.attr('class', 'red-circle')
 	.attr('cx', function(d) {
-		return xScale(getDate(d));
+		return xScale(d['week_number']);
 	})
 	.attr('cy', function(d) {
 		return yScaleL(d['data'][redMap[pos]]);
@@ -185,7 +188,7 @@ svg.selectAll('.blue-circle')
 	.append('circle')
 	.attr('class', 'blue-circle')
 	.attr('cx', function(d) {
-		return xScale(getDate(d));
+		return xScale(d['week_number']);
 	})
 	.attr('cy', function(d) {
 		return yScaleL(d['data'][blueMap[pos]]);
@@ -193,9 +196,9 @@ svg.selectAll('.blue-circle')
 	.attr('r', 3);
 
 // Draw connecting lines
-/*svg.append('path')
+svg.append('path')
 	.attr('d', fpLineFunc(dataset))
-	.attr('class', 'line green-line');*/
+	.attr('class', 'line green-line');
 svg.append('path')
 	.attr('d', orangeLineFunc(dataset))
 	.attr('class', 'line orange-line');
@@ -423,23 +426,20 @@ svg.append('rect')
   	.on('mousemove', mousemove);
 
 function mousemove() {
-	var x0 = xScale.invert(d3.mouse(this)[0]);
-	var i = bisectDate(dataset, x0, 1, dataset.length);
+	var i = Math.min(17, Math.max(1, Math.round(xScale.invert(d3.mouse(this)[0]))));
 	var d;
-	if (i == dataset.length) {
-		d = dataset[dataset.length-1]; 
-		i = i-1;
-	} else {
-		var d0 = dataset[i - 1];
-		var d1 = dataset[i];
-		d = x0 - getDate(d0) > getDate(d1) - x0 ? d1 : d0;
-		i = d == d0 ? i-1 : i;
+	for (var t = Math.max(0,i-2); t < dataset.length; t++) {
+		if (dataset[t]['week_number'] == i) {
+			d = dataset[t];
+			break;
+		}
 	}
+	if (d == null) return;
 	
 	var hoverTrans = -60;
 	hoverTrans += (dataset.length/2 - i) * 3.5;
 
-	focus.attr('transform', 'translate(' + xScale(getDate(d)) + ',' + padding + ')');
+	focus.attr('transform', 'translate(' + xScale(d['week_number']) + ',' + padding + ')');
 	focus.select('#hover-line').attr('transform', 'translate(0,' + (-1*padding) + ')');
 	focus.selectAll('.hover-box-content').attr('transform', 'translate(' + hoverTrans + ',0)');
 
@@ -448,7 +448,7 @@ function mousemove() {
 	focus.select('#hover-box-header').text(playerTeam + loc + d['opponent']['abbr']);
 	focus.select('#hover-box-date').text(d['date']);
 	focus.select('#hover-box-result').text(win + ' ' + d['pointsFor'] + '-' + d['pointsAgainst']);
-	focus.select('#hover-box-greentext').text('Fantasy Points: ' + 'N/A'); // TODO: add fanatsy points
+	focus.select('#hover-box-greentext').text('Fantasy Points: ' + d['data']['points']); 
 	focus.select('#hover-box-orangetext').text(orangeTextMap[pos] + ': ' + d['data'][orangeMap[pos]]);
 	focus.select('#hover-box-redtext').text(redTextMap[pos] + ': ' + d['data'][redMap[pos]]);
 	focus.select('#hover-box-bluetext').text(blueTextMap[pos] + ': ' + d['data'][blueMap[pos]]);

@@ -104,7 +104,7 @@ class GameData(models.Model):
 			"date": str(self.date),
 			"week_number": self.week_number,
 			"bye": self.bye,
-			"opponent": self.opponent.as_dict(),
+			"opponent": self.opponent.as_dict() if self.opponent is not None else None,
 			"home_game": self.home_game,
 			"win": self.win,
 			"pointsFor": self.pointsFor,
