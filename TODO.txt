@@ -1,14 +1,16 @@
 TO DO LIST
 ==========
 
+- Create data app through django
 - Fix GameData with null date / espn game ID that aren't Bye weeks
 - Fix Garrett Hartley 2013 Game Data
 	- Check for other similar cases (all gamedata is falsely BYE bc was on a team but now FA )
 	- FIgure out actual BYE weeks for these players
-- Fix Johnnie Lee Higgins (middle name issue)
+- Fix Johnnie Lee Higgins GameData (middle name issue)
 - Fix yeardata for 2 zach millers / 2 steve smiths / 2 mike williams
 - Update current team for all players
 	- Add team to yeardata? 
+
 
 High Priority:
 - Complete individual player pages
