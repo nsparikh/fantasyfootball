@@ -1,15 +1,13 @@
 TO DO LIST
 ==========
 
-- Create data app through django
+Data issues:
 - Fix GameData with null date / espn game ID that aren't Bye weeks
 - Fix Garrett Hartley 2013 Game Data
 	- Check for other similar cases (all gamedata is falsely BYE bc was on a team but now FA )
 	- FIgure out actual BYE weeks for these players
 - Fix Johnnie Lee Higgins GameData (middle name issue)
 - Fix yeardata for 2 zach millers / 2 steve smiths / 2 mike williams
-- Update current team for all players
-	- Add team to yeardata? 
 
 
 High Priority:
@@ -27,7 +25,9 @@ High Priority:
 - Make players graph better -- use a different metric for normalization?
 - Add request params to specify year / week? Or handle through sessions: https://docs.djangoproject.com/en/1.6/topics/http/sessions/
 - Figure out why left axis line disappears on player detail graph
-- Figure out Bye weeks for each team and add in blank data points for all players
+- Update current team for all players
+	- Add team to yeardata? 
+	
 
 Quick Fixes:
 - Fix teams, positions pages to display from database (rather than hardcoded positions/teams)
@@ -87,3 +87,4 @@ Finished:
 - Redo YearData2013 with new player IDs
 - Switch ordering of gameData PKs so week # is last (so a player has a consecutive chunk of points)
 - Host on Heroku: https://devcenter.heroku.com/articles/getting-started-with-django
+- Figure out Bye weeks for each team and add in blank data points for all players
