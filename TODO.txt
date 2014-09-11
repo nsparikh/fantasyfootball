@@ -3,11 +3,9 @@ TO DO LIST
 
 Data issues:
 - Fix GameData with null date / espn game ID that aren't Bye weeks
-- Fix Garrett Hartley 2013 Game Data
-	- Check for other similar cases (all gamedata is falsely BYE bc was on a team but now FA )
+- Fix Garrett Hartley 2013 Game Data (was on a team but now FA)
 	- FIgure out actual BYE weeks for these players
 - Fix Johnnie Lee Higgins GameData (middle name issue)
-- Fix yeardata for 2 zach millers / 2 steve smiths / 2 mike williams
 
 
 High Priority:
@@ -27,6 +25,7 @@ High Priority:
 - Figure out why left axis line disappears on player detail graph
 - Update current team for all players
 	- Add team to yeardata? 
+- Fix hover box on player detail graph so that it doens't obscure the graph so much
 	
 
 Quick Fixes:
@@ -37,6 +36,8 @@ Quick Fixes:
 - Add color to hover box text
 - Clean up code in player_detail_weekly_graph.js (particulary in mousemove function)
 - Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
+- Fix links on player detail page (to position and team)
+- Add links to ESPN game pages for each week on player detail graph
 
 
 Low Priority:
@@ -55,10 +56,12 @@ Eventual:
 - Get 2014 data. Set up something to get it automatically each week
 - Machine learning stuff
 	- augment game data with projection info
+	- for games in the past, add actual points to projections tab
 - Get historical data for past 5 years
 - Add side-by-side comparison page
 - User model -- see https://docs.djangoproject.com/en/1.6/topics/auth/
 - Make sure everything works on other browsers
+- Look into ESPN terms of service...are we breaking any rules? for data / images?
 
 --------------------------------------------------------------------------------------------
 
