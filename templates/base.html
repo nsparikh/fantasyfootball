@@ -18,26 +18,38 @@
 	<body>
 
 		<div id="container">
-			<div id="nav-container">
-				<a href="{% url 'game:players' %}"><div class="nav-button">Players</div></a>
-				<a href="{% url 'game:positions' %}"><div class="nav-button">Positions</div></a>
-				<a href="{% url 'game:teams' %}"><div class="nav-button">Teams</div></a>
-			</div>
+			<div id="header-container">
+				<img src="{% static 'game/FantasyAI.png' %}" id="logo"/>
 
-			<div id="year-select-container">
-				<span id="year-select-label" class="span-header">Season:</span>
-				<select id="year-select" class="custom-select">
-					<option value="2013">2013</option>
-					<option value="2012">2012</option>
-					<option value="2011">2011</option>
-					<option value="2010">2010</option>
-					<option value="2009">2009</option>
-					<option value="2008">2008</option>
-				</select>
+				<div id="header-nav-links">
+					<a href="#"><div class="nav-button">Stuff</div></a>
+					<a href="#"><div class="nav-button">Other stuff</div></a>
+					<a href="#"><div class="nav-button">Login</div></a>
+				</div>
 			</div>
 
 			<div id="tiles-container">
 				<table border="0" id="tiles-table">
+					<tr><td id="nav-container-td"><div id="nav-container" class="tile">
+						<div id="nav-links">
+							<span class="span-header" id="nfl-span-header">NFL</span>
+							<a href="{% url 'game:players' %}"><div class="nav-button">Players</div></a>
+							<a href="{% url 'game:positions' %}"><div class="nav-button">Positions</div></a>
+							<a href="{% url 'game:teams' %}"><div class="nav-button">Teams</div></a>
+						</div>
+
+						<div id="year-select-container">
+							<span id="year-select-label" class="span-header">Season:</span>
+							<select id="year-select" class="custom-select">
+								<option value="2013">2013</option>
+								<option value="2012">2012</option>
+								<option value="2011">2011</option>
+								<option value="2010">2010</option>
+								<option value="2009">2009</option>
+								<option value="2008">2008</option>
+							</select>
+						</div>
+					</div></td></tr>
 					{% block content %}{% endblock %}
 				</table>
 			</div>

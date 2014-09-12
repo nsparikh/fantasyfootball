@@ -9,16 +9,22 @@ var darkGray = '#232323';
 var whiteText = '#D4D4D4';
 
 // Width and height
-var w = 400;
-var h = 275;
-var totalH = 350;
+var w = 450;
+var h = 350;
+var totalW = 600;
 var legH = 100;
+var legW = 100;
 var topPadding = 5;
 var padding = 40;
 var bottomPadding = 30;
 var sidePadding = 10;
+var legPadding = 15;
 var cbDim = 15;
 var hoverDim = 120;
+
+// Have to set the colspan of the nav link to 2 for this page
+d3.select('#nav-container-td')
+	.attr('colspan', 2);
 
 
 // Determine scale based on position
@@ -27,14 +33,14 @@ var orangeMap = {'QB':'passYds', 'RB':'rushYds', 'WR':'recYds',
 'TE':'recYds', 'D/ST':'points', 'K':'points'}; 
 var redMap = {'QB':'rushTDs', 'RB':'rush', 'WR':'rec', 
 'TE':'rec', 'D/ST':'points', 'K':'points'};
-var blueMap = {'QB':'passTDs', 'RB':'rushTDs', 'WR':'recTDs', 
+var greenMap = {'QB':'passTDs', 'RB':'rushTDs', 'WR':'recTDs', 
 'TE':'recTDs', 'D/ST':'points', 'K':'points'};
 
 var orangeTextMap = {'QB':'Passing Yards', 'RB':'Rushing Yards', 'WR':'Receiving Yards', 
 'TE':'Receiving Yards', 'D/ST':'Points', 'K':'Points'};
 var redTextMap = {'QB':'Rushing TDs', 'RB':'Rushing Attempts', 'WR':'Total Receptions', 
 'TE':'Total Receptions', 'D/ST':'Points', 'K':'Points'};
-var blueTextMap = {'QB':'Passing TDs', 'RB':'Touchdowns', 'WR':'Touchdowns', 
+var greenTextMap = {'QB':'Passing TDs', 'RB':'Touchdowns', 'WR':'Touchdowns', 
 'TE':'Touchdowns', 'D/ST':'Touchdowns', 'K':'Touchdowns'};
 
 var yAxisLTextMap = {'QB':'Fantasy Points, Rush TDs, Pass TDs', 'RB':'Fantasy Points, Rush, TDs', 
@@ -66,7 +72,7 @@ var yScaleR = d3.scale.linear()
 	.range([h-bottomPadding, topPadding])
 
 // Functions for drawing connector lines
-var fpLineFunc = d3.svg.line()
+var blueLineFunc = d3.svg.line()
 	.x(function(d) {return xScale(d['week_number']);})
 	.y(function(d) {return yScaleL(d['data']['points']);})
 	.interpolate('linear');
@@ -78,16 +84,16 @@ var redLineFunc = d3.svg.line()
 	.x(function(d) {return xScale(d['week_number']);})
 	.y(function(d) {return yScaleL(d['data'][redMap[pos]]);})
 	.interpolate('linear');
-var blueLineFunc = d3.svg.line()
+var greenLineFunc = d3.svg.line()
 	.x(function(d) {return xScale(d['week_number']);})
-	.y(function(d) {return yScaleL(d['data'][blueMap[pos]]);})
+	.y(function(d) {return yScaleL(d['data'][greenMap[pos]]);})
 	.interpolate('linear');
 
 // Create SVG element
 var svg = d3.select('#player-graph-container')
 	.append('svg')
-	.attr('width', w)
-	.attr('height', totalH);
+	.attr('width', totalW)
+	.attr('height', h);
 
 // Define X axis
 var xAxis = d3.svg.axis()
@@ -140,17 +146,17 @@ svg.append('text')
 svg.append('text')
 	.attr('class', 'axis-label')
     .attr('x', (h/2))
-    .attr('y', sidePadding-w)
+    .attr('y', 5-w)
     .attr('transform', 'rotate(90) translate(0, 0)')
     .style('text-anchor', 'middle')
     .text(yAxisRTextMap[pos]);
 
 // Draw circles
-svg.selectAll('.green-circle')
+svg.selectAll('.blue-circle')
 	.data(dataset)
 	.enter()
 	.append('circle')
-	.attr('class', 'green-circle')
+	.attr('class', 'blue-circle')
 	.attr('cx', function(d) {
 		return xScale(d['week_number']);
 	})
@@ -182,23 +188,23 @@ svg.selectAll('.red-circle')
 		return yScaleL(d['data'][redMap[pos]]);
 	})
 	.attr('r', 3);
-svg.selectAll('.blue-circle')
+svg.selectAll('.green-circle')
 	.data(dataset)
 	.enter()
 	.append('circle')
-	.attr('class', 'blue-circle')
+	.attr('class', 'green-circle')
 	.attr('cx', function(d) {
 		return xScale(d['week_number']);
 	})
 	.attr('cy', function(d) {
-		return yScaleL(d['data'][blueMap[pos]]);
+		return yScaleL(d['data'][greenMap[pos]]);
 	})
 	.attr('r', 3);
 
 // Draw connecting lines
 svg.append('path')
-	.attr('d', fpLineFunc(dataset))
-	.attr('class', 'line green-line');
+	.attr('d', blueLineFunc(dataset))
+	.attr('class', 'line blue-line');
 svg.append('path')
 	.attr('d', orangeLineFunc(dataset))
 	.attr('class', 'line orange-line');
@@ -206,15 +212,16 @@ svg.append('path')
 	.attr('d', redLineFunc(dataset))
 	.attr('class', 'line red-line');
 svg.append('path')
-	.attr('d', blueLineFunc(dataset))
-	.attr('class', 'line blue-line');
+	.attr('d', greenLineFunc(dataset))
+	.attr('class', 'line green-line');
 
 // Create legend SVG element
 var legSvg = svg.append('svg')
 	.attr('class', 'leg-svg')
-	.attr('w', w)
+	.attr('w', legW)
 	.attr('h', legH)
-	.attr('y', h+sidePadding);
+	.attr('x', w+legPadding)
+	.attr('y', h-bottomPadding-legH);
 legSvg.append('text')
 	.attr('class', 'legend-header')
 	.attr('text-anchor', 'left')
@@ -225,27 +232,27 @@ legSvg.append('text')
 // Add checkboxes for legend
 var curX = sidePadding;
 var curY = 20;
-var greenBox = legSvg.append('g')
+var blueBox = legSvg.append('g')
 	.attr('class', 'checkbox-container')
-	.attr('id', 'green-box')
+	.attr('id', 'blue-box')
 	.attr('transform', 'translate('+curX+','+curY+')');
-greenBox.append('rect')
+blueBox.append('rect')
 	.attr('class', 'checkbox')
 	.attr('width', cbDim)
 	.attr('height', cbDim);
-greenBox.append('rect')
+blueBox.append('rect')
 	.attr('class', 'checkbox-inner')
 	.attr('width', cbDim-6)
 	.attr('height', cbDim-6)
 	.attr('transform', 'translate(3,3)')
 	.attr('visibility', 'visible');
-greenBox.append('text')
+blueBox.append('text')
 	.attr('class', 'legend-text')
 	.attr('text-anchor', 'left')
 	.attr('transform', 'translate('+(cbDim+5)+','+13+')')
-	.attr('fill', green)
+	.attr('fill', blue)
 	.text('Fantasy Points');
-curX += w/2;
+curY += cbDim + 10;
 var redBox = legSvg.append('g')
 	.attr('class', 'checkbox-container')
 	.attr('id', 'red-box')
@@ -266,7 +273,6 @@ redBox.append('text')
 	.attr('transform', 'translate('+(cbDim+5)+','+13+')')
 	.attr('fill', red)
 	.text(redTextMap[pos]);
-curX -= (w/2);
 curY += cbDim + 10;
 var orangeBox = legSvg.append('g')
 	.attr('class', 'checkbox-container')
@@ -288,27 +294,27 @@ orangeBox.append('text')
 	.attr('transform', 'translate('+(cbDim+5)+','+13+')')
 	.attr('fill', orange)
 	.text(orangeTextMap[pos]);
-curX += w/2;
-var blueBox = legSvg.append('g')
+curY += cbDim + 10;
+var greenBox = legSvg.append('g')
 	.attr('class', 'checkbox-container')
-	.attr('id', 'blue-box')
+	.attr('id', 'green-box')
 	.attr('transform', 'translate('+curX+','+curY+')');
-blueBox.append('rect')
+greenBox.append('rect')
 	.attr('class', 'checkbox')
 	.attr('width', cbDim)
 	.attr('height', cbDim);
-blueBox.append('rect')
+greenBox.append('rect')
 	.attr('class', 'checkbox-inner')
 	.attr('width', cbDim-6)
 	.attr('height', cbDim-6)
 	.attr('transform', 'translate(3,3)')
 	.attr('visibility', 'visible');
-blueBox.append('text')
+greenBox.append('text')
 	.attr('class', 'legend-text')
 	.attr('text-anchor', 'left')
 	.attr('transform', 'translate('+(cbDim+5)+','+13+')')
-	.attr('fill', blue)
-	.text(blueTextMap[pos]);
+	.attr('fill', green)
+	.text(greenTextMap[pos]);
 
 
 // Add functionality to checkboxes
@@ -451,6 +457,6 @@ function mousemove() {
 	focus.select('#hover-box-greentext').text('Fantasy Points: ' + d['data']['points']); 
 	focus.select('#hover-box-orangetext').text(orangeTextMap[pos] + ': ' + d['data'][orangeMap[pos]]);
 	focus.select('#hover-box-redtext').text(redTextMap[pos] + ': ' + d['data'][redMap[pos]]);
-	focus.select('#hover-box-bluetext').text(blueTextMap[pos] + ': ' + d['data'][blueMap[pos]]);
+	focus.select('#hover-box-bluetext').text(greenTextMap[pos] + ': ' + d['data'][greenMap[pos]]);
 }
 

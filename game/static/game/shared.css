@@ -22,6 +22,8 @@ Darker blue: #157680;
 html, body {
 	background-color: #111214;
 	font-family: 'Open Sans Condensed', sans-serif;
+	margin: 0;
+	padding: 0;
 }
 
 a:link, a:visited {
@@ -73,8 +75,9 @@ hr {
 }
 
 #container {
-	min-width: 800px;
-	min-height: 1000px;
+	min-width: 1000px;
+	margin: 0;
+	padding: 0;
 }
 
 p {
@@ -85,6 +88,10 @@ p {
 }
 
 .invisible {
+	display: none;
+}
+
+.hidden {
 	display: none;
 }
 
@@ -127,7 +134,8 @@ p {
 }
 
 .td-wide {
-	padding: 0 5px;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 svg {
@@ -139,7 +147,6 @@ svg {
 	padding: 5px;
 
 	font-family: inherit;
-	font-weight: 700;
 	font-size: 18px; 
 	outline: none;
 	background: #2A2A2A; 
@@ -185,52 +192,58 @@ svg {
 	shape-rendering: crispEdges;
 }
 
-/******************/
-/* NAVIGATION BAR */
-/******************/
+/*****************************/
+/* HEADER AND NAVIGATION BAR */
+/*****************************/
+#header-container {
+	text-align: left;
+	padding: 15px;
+	height: 40px;
+}
+
+#logo {
+	height: 30px;
+	margin-top: 5px;
+}
+
+#header-nav-links {
+	float: right;
+	padding: 10px;
+}
+
 #nav-container {
-	margin-top: 40px;
-	text-align: center;
+	height: 30px;
+	background-color: #232323;
+}
+
+#nav-links {
+	float: left;
+	padding-top: 2px;
+}
+
+#nfl-span-header {
+	font-size: 18px;
 }
 
 .nav-button {
-	width: 100px;
 	display: inline-block;
-	padding: 10px;
-	margin: 5px;
-	background-color: #232323;
+	padding: 0 10px;
 	text-transform: uppercase;
-
-	font-weight: 700;
-	font-size: 20px;
-
-	border-bottom: 4px solid #232323;
-}
-
-.nav-button:hover {
-	border-bottom: 4px solid #21BDCD;
+	text-align: center;
+	font-size: 18px;
 }
 
 .nav-button:hover a {
 	color: #21BDCD;
 }
 
-.nav-selected {
-	border-bottom: 4px solid #21BDCD;
-	color: #21BDCD;
-}
-
-.hidden {
-	display: none;
-}
-
 #year-select-container {
-	margin: 15px auto;
+	float: right;
 	text-align: center;
 }
 
 #year-select-label {
-	font-size: 20px;
+	font-size: 18px;
 	padding: 0;
 	margin: 0;
 }
@@ -248,17 +261,18 @@ svg {
 /**********************/
 #tiles-container {
 	text-align: center;
-	margin: 40px auto;
+	margin: 20px auto;
 }
 
 #tiles-table {
 	margin: auto;
-	width: 780px;
+	width: 980px;
+	border-spacing: 15px;
 }
 
 .tile {
 	background: #2A2A2A;
-	margin: 5px;
+	margin: 0px;
 	padding: 10px;
 	text-align: left;
 }
@@ -301,7 +315,7 @@ svg {
 }
 
 .axis text {
-	font-size: 11px;
+	font-size: 12px;
 	fill: #828282;
 }
 

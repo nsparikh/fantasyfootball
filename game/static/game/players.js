@@ -45,6 +45,7 @@ rowData.append("td")
 		}
 		return null;
 	})
+	.attr('class', 'td-wide')
 	.filter(function(d) {
 		return d.column == "name" || d.column == "team" || d.column == "position";
 	})
