@@ -14,7 +14,7 @@
 		<hr>
 		<img src="{% static image_path %}" class="player-image"/>
 		<div class="player-info-container">
-			<p class="player-info-text">#{{ player.number }} <a href="#" class="white-link">{{ player.position.abbr }}</a></p>
+			<p class="player-info-text">#{{ player.number }} <a href="{% url 'game:positions' %}{{ player.position.id }}" class="white-link">{{ player.position.abbr }}</a></p>
 			<p class="player-info-text">{{feet}}'{{inches}}", {{ player.weight }} lbs</p>
 			<p class="player-info-text">Age: {{ age }}</p>
 			<p class="player-info-text"><a href="#" class="white-link">{{ player.team.name }}</a></p>
