@@ -197,13 +197,14 @@ svg {
 /*****************************/
 #header-container {
 	text-align: left;
-	padding: 15px;
-	height: 40px;
+	padding: 10px 15px;
 }
 
 #logo {
-	height: 30px;
-	margin-top: 5px;
+	font-family: 'Patua One', sans-serif;
+	font-size: 40px;
+	padding-left: 5px;
+	color: #D4D4D4;
 }
 
 #header-nav-links {

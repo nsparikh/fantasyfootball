@@ -13,7 +13,7 @@ var w = 450;
 var h = 350;
 var totalW = 600;
 var legH = 100;
-var legW = 100;
+var legW = 120;
 var topPadding = 5;
 var padding = 40;
 var bottomPadding = 30;
@@ -60,7 +60,7 @@ var xScale = d3.scale.linear()
 	.range([padding, w-padding]);
 var minYScale = Math.min(d3.min(dataset, function(d) {return d['data'][redMap[pos]];}), 
 						  d3.min(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}),
-						  d3.min(dataset, function(d) {return d['data']['points'];})) - 1;
+						  d3.min(dataset, function(d) {return d['data']['points'];}));
 var maxYScale = Math.max(d3.max(dataset, function(d) {return d['data'][redMap[pos]];}), 
 						  d3.max(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}),
 						  d3.max(dataset, function(d) {return d['data']['points'];})) + 1;
@@ -99,8 +99,7 @@ var svg = d3.select('#player-graph-container')
 var xAxis = d3.svg.axis()
 	.scale(xScale)
 	.orient('bottom')
-	.tickValues(dataset.map(function(d) {return d['week_number'];}))
-	.tickFormat(function(d) { return 'W'+d; });
+	.tickValues(dataset.map(function(d) {return d['week_number'];}));
 
 // Define Y axes
 var yAxisL = d3.svg.axis()
@@ -119,12 +118,12 @@ svg.append('g')
 	.attr('transform', 'translate(0,' + xTranslate + ')')
 	.call(xAxis)
 	.selectAll('text')  
-	.style('text-anchor', 'end')
-	.attr('dx', '-.8em')
+	.style('text-anchor', 'end');
+	/*.attr('dx', '-.8em')
 	.attr('dy', '.15em')
 	.attr('transform', function(d) {
 	    return 'rotate(-65)' 
-	});
+	});*/
 svg.append('g')
 	.attr('class', 'axis')
 	.attr('id', 'yAxisLG')
@@ -135,7 +134,13 @@ svg.append('g')
 	.attr('transform', 'translate(' + (w-padding) + ',0)')
 	.call(yAxisR);
 
-// Y axis labels
+// X and Y axis labels
+svg.append('text')
+	.attr('class', 'axis-label')
+    .attr('x', w/2)
+    .attr('y', h)
+    .style('text-anchor', 'middle')
+    .text('Week Number');
 svg.append('text')
 	.attr('class', 'axis-label')
     .attr('x', 0-(h/2))
@@ -217,15 +222,15 @@ svg.append('path')
 
 // Create legend SVG element
 var legSvg = svg.append('svg')
-	.attr('class', 'leg-svg')
+	.attr('id', 'leg-svg')
 	.attr('w', legW)
 	.attr('h', legH)
 	.attr('x', w+legPadding)
 	.attr('y', h-bottomPadding-legH);
 legSvg.append('text')
 	.attr('class', 'legend-header')
-	.attr('text-anchor', 'left')
-	.attr('x', sidePadding)
+	.attr('text-anchor', 'middle')
+	.attr('x', legW/2)
 	.attr('y', sidePadding)
 	.text('Legend')
 
