@@ -28,6 +28,7 @@ High Priority:
 	- Add team to yeardata? 
 - Fix hover box on player detail graph so that it doens't obscure the graph so much
 - Add "blank" image for players who don't have one
+- Add average # fantasy points per game to player page ?
 	
 
 Quick Fixes:

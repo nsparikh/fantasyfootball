@@ -12,6 +12,7 @@ class Player(models.Model):
 
 	team = models.ForeignKey('Team')
 	position = models.ForeignKey('Position')
+	depth_position = models.IntegerField(null=True)
 	number = models.IntegerField()
 	espn_id = models.IntegerField()
 
@@ -57,6 +58,7 @@ class Team(models.Model):
 	espn_id = models.IntegerField()
 	abbr = models.CharField(max_length=200)
 	stadium = models.CharField(max_length=200)
+	division = models.CharField(max_length=200, null=True)
 
 	def __unicode__(self):
 		return self.name

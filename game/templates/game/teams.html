@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% load filters %}
 
 {% block title %}Teams{% endblock %}
 {% block css %}
@@ -11,86 +12,25 @@
 	<td><div class="tile">
 		<h4 class="tile-header">&#9702; Teams</h4>
 		<table border="0" class="display-table" id="teams-table">
+
+			{% for dir in directionList %}
+			{% with dirIndex=forloop.counter|minus:1|times:4 %}
 			<tr class="table-mainheader">
-				<th>NFC East</th>
-				<th>AFC East</th>
+				<th>NFC {{ dir }}</th>
+				<th>AFC {{ dir }}</th>
 			</tr>
 			<tr>
-				<td><a href="#" class="white-link">Dallas Cowboys</a></td>
-				<td><a href="#" class="white-link">Buffalo Bills</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">New York Giants</a></td>
-				<td><a href="#" class="white-link">Miami Dolphins</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Philadelphia Eagles</a></td>
-				<td><a href="#" class="white-link">New England Patriots</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Washington Redskins</a></td>
-				<td><a href="#" class="white-link">New York Jets</a></td>
-			</tr>
-			<tr class="table-mainheader">
-				<th>NFC West</th>
-				<th>AFC West</th>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Arizona Cardinals</a></td>
-				<td><a href="#" class="white-link">Denver Broncos</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">San Francisco 49ers</a></td>
-				<td><a href="#" class="white-link">Kansas City Chiefs</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Seattle Seahawks</a></td>
-				<td><a href="#" class="white-link">Oakland Raiders</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">St. Louis Rams</a></td>
-				<td><a href="#" class="white-link">San Diego Chargers</a></td>
-			</tr>
-			<tr class="table-mainheader">
-				<th>NFC North</th>
-				<th>AFC North</th>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Chicago Bears</a></td>
-				<td><a href="#" class="white-link">Baltimore Ravens</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Detriot Lions</a></td>
-				<td><a href="#" class="white-link">Cincinnati Bengals</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Green Bay Packers</a></td>
-				<td><a href="#" class="white-link">Cleveland Browns</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Minnesota Vikings</a></td>
-				<td><a href="#" class="white-link">Pittsburgh Steelers</a></td>
-			</tr>
-			<tr class="table-mainheader">
-				<th>NFC South</th>
-				<th>AFC South</th>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Atlanta Falcons</a></td>
-				<td><a href="#" class="white-link">Houston Texans</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Carolina Panthers</a></td>
-				<td><a href="#" class="white-link">Indianapolis Colts</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">New Orleans Saints</a></td>
-				<td><a href="#" class="white-link">Jacksonville Jaguars</a></td>
-			</tr>
-			<tr>
-				<td><a href="#" class="white-link">Tampa Bay Buccaneers</a></td>
-				<td><a href="#" class="white-link">Tennessee Titans</a></td>
-			</tr>
+				{% for c in 4|count %}
+				{% with i=c|add:dirIndex %}{% with j=i|add:16 %}
+				<tr>
+					<td><a href="{{ i|add:1 }}" class="white-link">{{ team_list|index:i }}</a></td>
+					<td><a href="{{ j|add:1 }}" class="white-link">{{ team_list|index:j }}</a></td>
+				</tr>
+				{% endwith %}{% endwith %}
+				{% endfor %}
+			{% endwith %}
+			{% endfor %}
+			
 		</table>
 	</div></td>
 </tr>

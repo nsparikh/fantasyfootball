@@ -149,10 +149,13 @@ class PositionDetailView(generic.DetailView):
 
 class TeamView(generic.ListView):
 	template_name = 'game/teams.html'
+	queryset = Team.objects.all()
 	context_object_name = 'team_list'
 
-	def get_queryset(self):
-		return Team.objects.all()
+	def get_context_data(self, **kwargs):
+		context = super(TeamView, self).get_context_data(**kwargs)
+		context['directionList'] = ['East', 'West', 'North', 'South']
+		return context
 
 class TeamDetailView(generic.DetailView):
 	template_name = 'game/teams.html'

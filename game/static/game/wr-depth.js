@@ -33,7 +33,7 @@ var dataset = [
 	{"off":"TEN", "def":"DEN", "WR1":-13.71, "WR2":-17.76, "WR3":4.02, "TE":11.73},
 	{"off":"WAS", "def":"KAN", "WR1":36.79, "WR2":-37.36, "WR3":-3.38, "TE":-33.88}
 ];
-var columns = ["off", "def", "WR1", "WR2", "WR3", "TE"];
+var columns = ["off", "def", "WR1", "WR2", "WR3"];
 
 // Colors
 var green = "#74AB58";
@@ -42,9 +42,9 @@ var white = "#D4D4D4"
 var grayText = "#828282";
 var darkGray = "#232323";
 var colorScale = d3.scale.linear()
-	.domain([d3.min(dataset, function(d) {return Math.min(d.WR1, d.WR2, d.WR3, d.TE);}),
+	.domain([d3.min(dataset, function(d) {return Math.min(d.WR1, d.WR2, d.WR3);}),
 			 0, 
-			 d3.max(dataset, function(d) {return Math.max(d.WR1, d.WR2, d.WR3, d.TE);})])
+			 d3.max(dataset, function(d) {return Math.max(d.WR1, d.WR2, d.WR3);})])
 	.range([red, white, green]);
 
 // Add elements to table
