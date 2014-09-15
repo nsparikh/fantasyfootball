@@ -17,7 +17,7 @@
 			<p class="player-info-text">#{{ player.number }} <a href="{% url 'game:positions' %}{{ player.position.id }}" class="white-link">{{ player.position.abbr }}</a></p>
 			<p class="player-info-text">{{feet}}'{{inches}}", {{ player.weight }} lbs</p>
 			<p class="player-info-text">Age: {{ age }}</p>
-			<p class="player-info-text"><a href="#" class="white-link">{{ player.team.name }}</a></p>
+			<p class="player-info-text"><a href="{% url 'game:teams' %}{{ player.team.id }}" class="white-link">{{ player.team.name }}</a></p>
 		</div>
 		<div class="player-season-table-container">
 			{% include player_detail_table_path %}
@@ -26,8 +26,19 @@
 
 	<td><div class="tile weekly-performance-tile">
 		<h4 class="tile-header">&#9702; Weekly Performance</h4>
-		<div id="player-graph-container" class="graph-container"></div>
-		<div id="player-legend-container" class="legend-container"></div>
+		<div id="player-graph-container"></div>
+		<div id="player-legend-container"></div>
+
+		<div id="hover-box" class="hidden">
+			<span id="hover-box-header" class="hover-box-content"></span><br/>
+			<span id="hover-box-date" class="hover-box-content"></span><br/>
+			<span id="hover-box-result" class="hover-box-content"></span><br/>
+			<hr/>
+			<span id="hover-box-bluetext-header" class="bluetext">Fantasy Points: </span><span id="hover-box-bluetext" class="hover-box-content"></span><br/>
+			<span id="hover-box-redtext-header" class="redtext"></span><span id="hover-box-redtext" class="hover-box-content"></span><br/>
+			<span id="hover-box-orangetext-header" class="orangetext"></span><span id="hover-box-orangetext" class="hover-box-content"></span><br/>
+			<span id="hover-box-greentext-header" class="greentext"></span><span id="hover-box-greentext" class="hover-box-content"></span><br/>
+		</div>
 	</div></td>
 </tr>
 <tr>

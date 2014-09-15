@@ -99,6 +99,37 @@ p {
 	float: right;
 }
 
+.bluetext {
+	color: #21BDCD;
+	fill: #21BDCD;
+}
+
+.redtext {
+	color: #D3343A;
+	fill: #D3343A;
+}
+
+.orangetext {
+	color: #FF9836;
+	fill: #FF9836;
+}
+
+.greentext {
+	color: #74AB58;
+	fill: #74AB58;
+}
+
+.whitetext {
+	color: #D4D4D4;
+	fill: #D4D4D4;
+}
+
+.graytext {
+	color: #828282;
+	fill: #828282;
+}
+
+
 /*******************/
 /* CUSTOM ELEMENTS */
 /*******************/

@@ -158,5 +158,31 @@ class TeamView(generic.ListView):
 		return context
 
 class TeamDetailView(generic.DetailView):
-	template_name = 'game/teams.html'
+	template_name = 'game/team_detail.html'
 	model = Team
+	context_object_name = 'team'
+
+	def get_context_data(self, **kwargs):
+		context = super(TeamDetailView, self).get_context_data(**kwargs)
+		players = Player.objects.all().filter(team=self.object.id)
+		context['QB'] = players.filter(position=1)
+		context['RB'] = players.filter(position=2)
+		context['WR'] = players.filter(position=3)
+		context['TE'] = players.filter(position=4)
+		context['DST'] = players.filter(position=5)
+		context['K'] = players.filter(position=6)
+
+		context['numQB'] = len(context['QB'])
+		context['numRB'] = len(context['RB'])
+		context['numWR'] = len(context['WR'])
+		context['numTE'] = len(context['TE'])
+		context['numDST'] = len(context['DST'])
+		context['numK'] = len(context['K'])
+
+		context['numRows'] = max(context['numQB'], context['numRB'], context['numWR'], 
+			context['numTE'], context['numDST'], context['numK'])
+		return context
+
+
+
+

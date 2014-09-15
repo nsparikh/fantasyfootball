@@ -3,9 +3,6 @@
 {% load filters %}
 
 {% block title %}Teams{% endblock %}
-{% block css %}
-<link rel="stylesheet" type="text/css" href="{% static 'game/players.css' %}">
-{% endblock %}
 
 {% block content %}
 <tr>
@@ -30,7 +27,7 @@
 				{% endfor %}
 			{% endwith %}
 			{% endfor %}
-			
+
 		</table>
 	</div></td>
 </tr>

@@ -32,7 +32,6 @@ High Priority:
 	
 
 Quick Fixes:
-- Fix teams, positions pages to display from database (rather than hardcoded positions/teams)
 - Add tooltips to player table headers
 - Highlight selected tab in nav bar on players/positions/teams pages
 - Change date format on player detail page hover box
@@ -95,3 +94,5 @@ Finished:
 - don't include players with null values in sort -- always leave at end
 - Add pagination to players table 
 - Change player pages to use image URL instead of downloaded images
+- Fix hover issue on player page (ie http://127.0.0.1:8000/players/16285/)
+- Fix teams, positions pages to display from database (rather than hardcoded positions/teams)

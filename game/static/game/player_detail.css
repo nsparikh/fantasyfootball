@@ -64,11 +64,24 @@ Green: #74AB58 / 116,171,88
 	width: 600px;
 }
 
-.graph-container {
+#player-graph-container {
+	float: left;
+	width: 450px;
+	height: 350px;
+	margin: 5px;
 	padding: 0;
-	margin: 10px;
-	width: 100%;
-	height: 70%;
+}
+
+#player-legend-container {
+	float: left;
+	width: 120px;
+	height: 350px;
+	margin: 5px;
+	padding: 0 5px;
+}
+
+.line {
+	opacity: 0.6;
 }
 
 .green-line {
@@ -103,14 +116,6 @@ Green: #74AB58 / 116,171,88
 	fill: #21BDCD;
 }
 
-
-.legend-container {
-	padding: 0;
-	margin: 0;
-	width: 100%;
-	height: 20%;
-}
-
 .legend-header {
 	fill: #828282;
 	text-transform: uppercase;
@@ -120,7 +125,7 @@ Green: #74AB58 / 116,171,88
 
 .legend-text {
 	font-weight: 400;
-	font-size: 16px;
+	font-size: 15px;
 }
 
 .overlay {
@@ -128,9 +133,8 @@ Green: #74AB58 / 116,171,88
 	pointer-events: all;
 }
 
-.focus text {
-	font-size: 14px;
-	text-anchor: middle;
+.hover-box-content {
+	font-size: 15px;
 }
 
 #hover-box-header {

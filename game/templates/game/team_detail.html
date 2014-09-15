@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load filters %}
+
+{% block title %}{{ team.name }}{% endblock %}
+
+{% block content %}
+<tr>
+	<td><div class="tile">
+		<h4 class="tile-header">&#9702; Players</h4>
+		<table border="0" class="display-table" id="players-table">
+			<tr>
+				<th>Quarterbacks</th>
+				<th>Runningbacks</th>
+				<th>Wide Receivers</th>
+				<th>Tight Ends</th>
+				<th>Defense / Special Teams</th>
+				<th>Kickers</th>
+			</tr>
+
+			{% for i in numRows|count %}
+			<tr id="row{{i}}">
+				{% if i < numQB %}{% with p1=QB|index:i %}
+				<td><a href="{% url 'game:players' %}{{p1.id}}" class="white-link">{{ p1 }}</a></td>
+				{% endwith %}
+				{% else %}
+				<td>&nbsp;</td>
+				{% endif %}
+
+				{% if i < numRB %}{% with p2=RB|index:i %}
+				<td><a href="{% url 'game:players' %}{{p2.id}}" class="white-link">{{ p2 }}</a></td>
+				{% endwith %}
+				{% else %}
+				<td>&nbsp;</td>
+				{% endif %}
+
+				{% if i < numWR %}{% with p3=WR|index:i %}
+				<td><a href="{% url 'game:players' %}{{p3.id}}" class="white-link">{{ p3 }}</a></td>
+				{% endwith %}
+				{% else %}
+				<td>&nbsp;</td>
+				{% endif %}
+
+				{% if i < numTE %}{% with p4=TE|index:i %}
+				<td><a href="{% url 'game:players' %}{{p4.id}}" class="white-link">{{ p4 }}</a></td>
+				{% endwith %}
+				{% else %}
+				<td>&nbsp;</td>
+				{% endif %}
+
+				{% if i < numDST %}{% with p5=DST|index:i %}
+				<td><a href="{% url 'game:players' %}{{p5.id}}" class="white-link">{{ p5 }}</a></td>
+				{% endwith %}
+				{% else %}
+				<td>&nbsp;</td>
+				{% endif %}
+
+				{% if i < numK %}{% with p6=K|index:i %}
+				<td><a href="{% url 'game:players' %}{{p6.id}}" class="white-link">{{ p6 }}</a></td>
+				{% endwith %}
+				{% else %}
+				<td>&nbsp;</td>
+				{% endif %}
+			</tr>
+			{% endfor %}
+
+		</table>
+	</div></td>
+</tr>
+{% endblock %}
+
