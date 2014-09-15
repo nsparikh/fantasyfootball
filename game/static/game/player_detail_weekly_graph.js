@@ -60,7 +60,8 @@ var xScale = d3.scale.linear()
 	.range([padding, w-padding]);
 var minYScale = Math.min(d3.min(dataset, function(d) {return d['data'][redMap[pos]];}), 
 						  d3.min(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}),
-						  d3.min(dataset, function(d) {return d['data']['points'];}));
+						  d3.min(dataset, function(d) {return d['data']['points'];}),
+						  d3.min(dataset, function(d) {return d['data'][greenMap[pos]];}));
 var maxYScale = Math.max(d3.max(dataset, function(d) {return d['data'][redMap[pos]];}), 
 						  d3.max(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}),
 						  d3.max(dataset, function(d) {return d['data']['points'];})) + 1;
