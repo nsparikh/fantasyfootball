@@ -90,7 +90,9 @@ def players(request):
 	})
 
 def players_graph(request):
-	player_list = YearData.objects.all().order_by('-data__points')
+	player_list = YearData.objects.all().annotate(
+		null_sort=Count('data__points')).order_by(
+		'-null_sort', '-data__points', 'player__name')[0:200]
 	player_list_json = json.dumps([ obj.as_dict() for obj in player_list ])
 	return render(request, 'game/players_graph.html', {
 		'player_list_json': player_list_json
