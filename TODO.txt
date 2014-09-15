@@ -23,10 +23,8 @@ High Priority:
 	- D/ST will be like graph from paper (for now)
 - Make players graph better -- use a different metric for normalization?
 - Add request params to specify year / week? Or handle through sessions: https://docs.djangoproject.com/en/1.6/topics/http/sessions/
-- Figure out why left axis line disappears on player detail graph
 - Update current team for all players
 	- Add team to yeardata? 
-- Fix hover box on player detail graph so that it doens't obscure the graph so much
 - Add "blank" image for players who don't have one
 - Add average # fantasy points per game to player page ?
 	
@@ -35,7 +33,6 @@ Quick Fixes:
 - Add tooltips to player table headers
 - Highlight selected tab in nav bar on players/positions/teams pages
 - Change date format on player detail page hover box
-- Add color to hover box text
 - Clean up code in player_detail_weekly_graph.js (particulary in mousemove function)
 - Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
 - Fix links on player detail page (to position and team)
@@ -96,3 +93,5 @@ Finished:
 - Change player pages to use image URL instead of downloaded images
 - Fix hover issue on player page (ie http://127.0.0.1:8000/players/16285/)
 - Fix teams, positions pages to display from database (rather than hardcoded positions/teams)
+- Add color to hover box text
+- Fix hover box on player detail graph so that it doens't obscure the graph so much

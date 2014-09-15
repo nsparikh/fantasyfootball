@@ -475,8 +475,8 @@ svg.on('mousemove', function() {
 	legSvg.select('#hover-box-greentext-header').text(greenTextMap[pos] + ': ');
 	legSvg.select('#hover-box-greentext').text(d['data'][greenMap[pos]]);
 
-});
-/*.on('mouseout', function() {
+})
+.on('mouseout', function() {
 	if (curSelection != null) {
 		d3.selectAll('#circle'+curSelection)
 			.attr('r', smallRadius)
@@ -494,7 +494,7 @@ svg.on('mousemove', function() {
 	legSvg.select('#hover-box-redtext').text('');
 	legSvg.select('#hover-box-greentext-header').text('');
 	legSvg.select('#hover-box-greentext').text('');
-});*/
+});
 
 
 
