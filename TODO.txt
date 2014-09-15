@@ -59,6 +59,8 @@ Eventual:
 - User model -- see https://docs.djangoproject.com/en/1.6/topics/auth/
 - Make sure everything works on other browsers
 - Look into ESPN terms of service...are we breaking any rules? for data / images?
+- Figure out AWS for storing images, etc.
+	- https://devcenter.heroku.com/articles/s3
 
 --------------------------------------------------------------------------------------------
 
@@ -90,3 +92,4 @@ Finished:
 - Figure out Bye weeks for each team and add in blank data points for all players
 - don't include players with null values in sort -- always leave at end
 - Add pagination to players table 
+- Change player pages to use image URL instead of downloaded images

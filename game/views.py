@@ -110,7 +110,8 @@ class PlayerDetailView(generic.DetailView):
 		today = date.today()
 		context['age'] = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
-		context['image_path'] = 'game/player_images/' + str(self.object.espn_id) + '.png'
+		#context['image_path'] = 'game/player_images/' + str(self.object.espn_id) + '.png'
+		context['image_path'] = 'http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/' + str(self.object.espn_id) + '.png'
 
 		# TODO: change to get current year data
 		context['cur_season_yeardata'] = YearData.objects.filter(

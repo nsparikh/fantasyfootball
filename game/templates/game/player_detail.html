@@ -12,7 +12,7 @@
 		<h4 class="tile-header">&#9702; Player Info</h4>
 		<h2 class="tile-title">{{ player.name }}</h2>
 		<hr>
-		<img src="{% static image_path %}" class="player-image"/>
+		<img src="{{ image_path }}" class="player-image"/>
 		<div class="player-info-container">
 			<p class="player-info-text">#{{ player.number }} <a href="{% url 'game:positions' %}{{ player.position.id }}" class="white-link">{{ player.position.abbr }}</a></p>
 			<p class="player-info-text">{{feet}}'{{inches}}", {{ player.weight }} lbs</p>
