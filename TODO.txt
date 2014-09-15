@@ -25,7 +25,8 @@ High Priority:
 - Add request params to specify year / week? Or handle through sessions: https://docs.djangoproject.com/en/1.6/topics/http/sessions/
 - Update current team for all players
 	- Add team to yeardata? 
-- Add "blank" image for players who don't have one
+- Add "blank" image for players who don't have one (or show team photo?)
+	- Get images for D/ST (i.e. team logos)
 - Add average # fantasy points per game to player page ?
 	
 
