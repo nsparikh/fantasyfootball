@@ -64,6 +64,16 @@
 			</thead>
 
 		</table>
+
+		<div class="pagination">
+		    {% if player_list.has_previous %}
+		        <a href="?{% url_replace 'page' player_list.previous_page_number %}" id="prev-step-link" class="white-link step-link">&larr;previous</a>
+		    {% endif %}
+
+		    {% if player_list.has_next %}
+		        <a href="?{% url_replace 'page' player_list.next_page_number %}" id="next-step-link" class="white-link step-link">next&rarr;</a>
+		    {% endif %}
+		</div>
 	</div></td>
 </tr>
 {% endblock %}

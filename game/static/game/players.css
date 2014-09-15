@@ -58,6 +58,23 @@ Green: #74AB58 / 116,171,88
 	display: inline-block;
 }
 
+.pagination {
+	float: right;
+	padding: 2px 0 0 0;
+}
+
+.step-link {
+	text-transform: uppercase;
+}
+
+#prev-step-link {
+	padding-right: 3px;
+}
+
+#next-step-link {
+	padding-left: 3px;
+}
+
 /*********/
 /* GRAPH */
 /*********/

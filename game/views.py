@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.db.models import Count
 from datetime import date
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import json
 
 from game.models import Player, Position, Team
@@ -54,14 +55,26 @@ def players(request):
 		)
 	else:
 		player_list = YearData.objects.all()
-	
+
+	# Place any players with null data at the end
 	player_list = player_list.annotate(
 		null_sort=Count(sort.replace('-', ''))).order_by(
-		'-null_sort', sort, 'player__name')[0:10]
+		'-null_sort', sort, 'player__name')
+
+	# Paginate player_list
+	paginator = Paginator(player_list, 50) # show 50 players per page
+	page = request.GET.get('page')
+	try:
+		player_list = paginator.page(page)
+	except PageNotAnInteger:
+		player_list = paginator.page(1)
+	except EmptyPage:
+		player_list = paginator.page(paginator.num_pages)
 
 	# Put into JSON format for javascript access
 	player_list_json = json.dumps([ obj.as_dict() for obj in player_list ])
 	return render(request, 'game/players.html', {
+		'player_list': player_list,
 		'player_list_json': player_list_json,
 		'posList': ['ALL', 'QB', 'RB', 'WR', 'TE', 'DST', 'K', 'FLEX'],
 		'curPos': pos,
