@@ -4,7 +4,7 @@ from game.models import Player, Position, Team
 class PlayerAdmin(admin.ModelAdmin):
 	fieldsets = [
 		('Demographic Information', {'fields': ['name', 'height', 'weight', 'dob']}),
-		('Player Information', {'fields': ['team', 'position', 'number']})
+		('Player Information', {'fields': ['team', 'position', 'depth_position', 'number']})
 	]
 	list_display = ('name', 'position', 'team')
 	search_fields = ['name']

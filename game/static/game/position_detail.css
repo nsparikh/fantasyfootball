@@ -22,10 +22,15 @@ Green: #74AB58 / 116,171,88
 
 #wr-depth-table {
 	float: left;
-	width: 485px;
+	width: 670px;
+	font-size: 14px;
 }
 
-#wr-depth-detail {
+#wr-depth-table th {
+	font-size: 18px;
+}
+
+#wr-depth-detail, #wr-detail-filler {
 	width: 250px;
 	height: 250px;
 	margin-left: 5px;
@@ -38,10 +43,14 @@ Green: #74AB58 / 116,171,88
 	color: #D4D4D4;
 }
 
+#wr-detail-filler {
+	margin-top: 30px;
+}
+
 #wr-detail-header {
 	margin: 0;
 	padding: 0;
-	font-size: 24px;
+	font-size: 20px;
 }
 
 #wr-depth-detail p {

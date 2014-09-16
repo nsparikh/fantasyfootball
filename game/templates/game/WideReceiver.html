@@ -37,16 +37,17 @@
 		<hr>
 		<table border="0" class="display-table" id="wr-depth-table">
 			<thead><tr>
-				<th>Offense</th>
-				<th>Defense</th>
-				<th>WR1</th>
-				<th>WR2</th>
-				<th>WR3+</th>
+				<th>Off</th>
+				<th>Def</th>
+				<th colspan="2">WR1</th>
+				<th colspan="2">WR2</th>
+				<th colspan="2">WR3</th>
+				<th colspan="1">WR4</th>
 			</tr></thead>
 		</table>
 
-		<div id="wr-depth-detail">
-			<p id="wr-detail-filler">Hover over the chart to see details.</p>
+		<p id="wr-detail-filler">Hover over a player to see details.</p>
+		<div id="wr-depth-detail" class="hidden">
 			<h4 id="wr-detail-header"></h4>
 			<p id="wr-detail-subheader"></p>
 			<img id="wr-detail-image"/>
@@ -57,5 +58,12 @@
 {% endblock %}
 
 {% block js %}
+<script type="text/javascript">
+	var dataset = {{ team_map_list_json | safe }};
+	var teams = {{ teams_json | safe }};
+	var team_url = "{% url 'game:teams' %}";
+	var player_url = "{% url 'game:players' %}";
+	var image_url_prefix = "http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/";
+</script>
 <script type="text/javascript" src="{% static 'game/wr-depth.js' %}"></script>
 {% endblock %}

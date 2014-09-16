@@ -144,7 +144,6 @@ p {
 	text-transform: uppercase;
 	background-color: #21BDCD;
 	color: #D4D4D4;
-	font-size: 20px;
 	white-space: nowrap;
 	overflow: hidden;
 }
@@ -158,10 +157,12 @@ p {
 .display-table td {
 	background-color: #232323;
 	color: #D4D4D4;
-	font-size: 20px;
-	width: 50px;
 	white-space: nowrap;
 	overflow: hidden;
+}
+
+.table-bigtext td, .table-bigtext th {
+	font-size: 20px;
 }
 
 .td-wide {

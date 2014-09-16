@@ -9,7 +9,7 @@ import json
 from game.models import Player, Position, Team
 from data.models import YearData, GameData, DataPoint
 
-
+# TODO: Clean up this code!!
 def players(request):
 	player_list = None
 	# Request parameters:
@@ -145,6 +145,33 @@ class PositionView(generic.ListView):
 class PositionDetailView(generic.DetailView):
 	template_name = 'game/WideReceiver.html'
 	model = Position
+	context_object_name = 'position'
+
+	def get_context_data(self, **kwargs):
+		context = super(PositionDetailView, self).get_context_data(**kwargs)
+
+		teams = Team.objects.all().exclude(id=33) # We don't want FA
+		context['teams_json'] = json.dumps([ obj.as_dict() for obj in teams ])
+		teams = teams.order_by('name')
+
+		wr_list = Player.objects.all().filter(
+			position=3).exclude(depth_position__isnull=True)
+
+		team_map_list = [] # List of each team id mapped to an ordered list of WRs
+		for t in teams:
+			wr_depth_list = [None]*7
+			team_wr = wr_list.filter(team=t.id)
+			for wr in team_wr:
+				index = wr.depth_position - 1
+				if wr_depth_list[index*2] is None:
+					wr_depth_list[index*2] = wr.as_dict()
+				else: wr_depth_list[index*2 + 1] = wr.as_dict()
+			team_map = { "team_id" : t.id }
+			team_map["wide_receivers"] = wr_depth_list
+			team_map_list.append(team_map)
+		context['team_map_list_json'] = json.dumps(team_map_list)
+
+		return context
 
 
 class TeamView(generic.ListView):
@@ -167,7 +194,9 @@ class TeamDetailView(generic.DetailView):
 		players = Player.objects.all().filter(team=self.object.id)
 		context['QB'] = players.filter(position=1)
 		context['RB'] = players.filter(position=2)
-		context['WR'] = players.filter(position=3)
+		context['WR'] = players.filter(position=3).annotate(
+			null_sort=Count('depth_position')).order_by(
+				'-null_sort', 'depth_position', 'name')
 		context['TE'] = players.filter(position=4)
 		context['DST'] = players.filter(position=5)
 		context['K'] = players.filter(position=6)

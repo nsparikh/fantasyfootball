@@ -9,7 +9,6 @@ class Player(models.Model):
 	height = models.IntegerField() # height in inches
 	weight = models.IntegerField() # weight in lbs
 	dob = models.DateField('Date of Birth')
-
 	team = models.ForeignKey('Team')
 	position = models.ForeignKey('Position')
 	depth_position = models.IntegerField(null=True)
@@ -28,6 +27,7 @@ class Player(models.Model):
 			"dob": str(self.dob),
 			"team": self.team.as_dict(),
 			"position": self.position.as_dict(),
+			"depth_position": self.depth_position,
 			"number": self.number,
 			"espn_id": self.espn_id
 		}

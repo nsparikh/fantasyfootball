@@ -37,6 +37,7 @@ Quick Fixes:
 - Clean up code in player_detail_weekly_graph.js (particulary in mousemove function)
 - Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
 - Fix links on player detail page (to position and team)
+- Fix 'F. Lastname' on positiond detail page for players with middle name or suffix
 
 
 Low Priority:
