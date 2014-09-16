@@ -129,7 +129,7 @@ class PlayerDetailView(generic.DetailView):
 		cur_season_gamedata_json = json.dumps([ obj.as_dict() for obj in cur_season_gamedata ])
 		context['cur_season_gamedata'] = cur_season_gamedata_json
 
-		context['player_detail_table_path'] = "game/player_table_" + self.object.position.abbr.replace("/", "").lower() + ".html"
+		context['player_detail_table_path'] = 'game/player_table_' + self.object.position.abbr.replace('/', '').lower() + '.html'
 
 		return context
 		
@@ -143,9 +143,12 @@ class PositionView(generic.ListView):
 		return Position.objects.all()
 
 class PositionDetailView(generic.DetailView):
-	template_name = 'game/WideReceiver.html'
+	template_name = 'game/position_detail.html'
 	model = Position
 	context_object_name = 'position'
+
+	# How many players of each position can a team have
+	posDepthLength = {'QB':3, 'RB':4, 'WR':7, 'TE':5, 'D/ST':1, 'K':1}
 
 	def get_context_data(self, **kwargs):
 		context = super(PositionDetailView, self).get_context_data(**kwargs)
@@ -154,22 +157,32 @@ class PositionDetailView(generic.DetailView):
 		context['teams_json'] = json.dumps([ obj.as_dict() for obj in teams ])
 		teams = teams.order_by('name')
 
-		wr_list = Player.objects.all().filter(
-			position=3).exclude(depth_position__isnull=True)
+		posId = self.object.id
 
-		team_map_list = [] # List of each team id mapped to an ordered list of WRs
+		# Get the players that are of this position and have a depth chart position
+		player_list = Player.objects.all().filter(
+			position=posId).exclude(depth_position__isnull=True)
+
+		team_map_list = [] # List of each team id mapped to an ordered list of players
 		for t in teams:
-			wr_depth_list = [None]*7
-			team_wr = wr_list.filter(team=t.id)
-			for wr in team_wr:
-				index = wr.depth_position - 1
-				if wr_depth_list[index*2] is None:
-					wr_depth_list[index*2] = wr.as_dict()
-				else: wr_depth_list[index*2 + 1] = wr.as_dict()
-			team_map = { "team_id" : t.id }
-			team_map["wide_receivers"] = wr_depth_list
+			depth_list = [None] * self.posDepthLength[self.object.abbr]
+			team_players = player_list.filter(team=t.id)
+			for p in team_players:
+				index = p.depth_position - 1
+				if self.object.id == 3: # WR have multiple in a single depth position
+					index = (p.depth_position - 1) * 2
+					if depth_list[index] is not None: index += 1
+				elif self.object.id == 4: # TE have multiple in depth position 1
+					index = p.depth_position if p.depth_position > 1 else p.depth_position - 1
+					if depth_list[index] is not None: index += 1
+				depth_list[index] = p.as_dict() # QB, RB, D/ST, K
+
+			team_map = { 'team_id' : t.id }
+			team_map['players'] = depth_list
 			team_map_list.append(team_map)
 		context['team_map_list_json'] = json.dumps(team_map_list)
+
+		context['position_detail_table_path'] = 'game/position_table_' + self.object.abbr.replace('/', '').lower() + '.html'
 
 		return context
 

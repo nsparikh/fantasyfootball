@@ -23,7 +23,7 @@ var darkGray = '#232323';
 	.range([red, white, green]);*/
 
 // Add rows to table (one for each team)
-var table = d3.select('#wr-depth-table');
+var table = d3.select('#depth-table');
 var tbody = table.append('tbody');
 var rows = tbody.selectAll('tr')
 	.data(dataset)
@@ -33,29 +33,28 @@ var rows = tbody.selectAll('tr')
 // Add cells to each row
 rows.selectAll('td')
 	.data(function(row) {
-		return [row['team_id'], row['team_id']].concat(row['wide_receivers']);
+		return [row['team_id'], row['team_id']].concat(row['players']);
 	})
 	.enter()
 	.append('td')
 	.attr('class', 'td-wide')
 	.on('mouseover', function(d, i) {
 		if (i > 1 && d != null) {
-			d3.select('#wr-detail-filler').classed('hidden', true);
-			d3.select('#wr-depth-detail').classed('hidden', false);
+			d3.select('#detail-filler').classed('hidden', true);
+			d3.select('#depth-detail').classed('hidden', false);
 
-			d3.select('#wr-detail-header').text(d['name']);
-			d3.select('#wr-detail-subheader').text('#' + d['number'] + ' ' + d['position']['abbr'] + ' | ' + d['team']['name']);
-			d3.select('#wr-detail-image').attr('src', image_url_prefix + d['espn_id'] + '.png');
-			d3.select('#wr-detail-score').text('Performance Score: 0.00');
+			d3.select('#detail-header').text(d['name']);
+			d3.select('#detail-subheader').text('#' + d['number'] + ' ' + d['position']['abbr'] + ' | ' + d['team']['name']);
+			d3.select('#detail-image').attr('src', image_url_prefix + d['espn_id'] + '.png');
+			d3.select('#detail-score').text('Performance Score: 0.00');
 
-
-			d3.select('#wr-depth-detail').style('top', (Math.min(getAlphIndexByTeamId(d['team']['id']),23)*23)+'px');
+			d3.select('#depth-detail').style('top', (Math.min(getAlphIndexByTeamId(d['team']['id']),23)*23)+'px');
 		}
 		
 	})
 	.on('mouseout', function(d) {
-		d3.select('#wr-detail-filler').classed('hidden', false);
-		d3.select('#wr-depth-detail').classed('hidden', true);
+		d3.select('#detail-filler').classed('hidden', false);
+		d3.select('#depth-detail').classed('hidden', true);
 	})
 	.append('a')
 	.attr('class', 'white-link')

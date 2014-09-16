@@ -8,6 +8,7 @@ Data issues:
 - Fix Johnnie Lee Higgins GameData (middle name issue)
 - fix players with height=0 or weight=0, no DOB, no number
 	- double check players' positions
+- missing players -- get from depth charts
 
 
 High Priority:
@@ -19,7 +20,7 @@ High Priority:
 - Add pagination to graph?
 - Fix search box on players table page
 - Draft rest of position analysis pages (QB, TE, RB, D/ST, K)
-	- TE, RB, QB, K(?) will be like WR page
+	- TE, RB, QB will be like WR page
 	- D/ST will be like graph from paper (for now)
 - Make players graph better -- use a different metric for normalization?
 - Add request params to specify year / week? Or handle through sessions: https://docs.djangoproject.com/en/1.6/topics/http/sessions/
