@@ -15,8 +15,14 @@
 		<img src="{{ image_path }}" class="player-image"/>
 		<div class="player-info-container">
 			<p class="player-info-text">#{{ player.number }} <a href="{% url 'game:positions' %}{{ player.position.id }}" class="white-link">{{ player.position.abbr }}</a></p>
+			{% if player.weight > 0 %}
 			<p class="player-info-text">{{feet}}'{{inches}}", {{ player.weight }} lbs</p>
+			{% endif %}
+
+			{% if age %}
 			<p class="player-info-text">Age: {{ age }}</p>
+			{% endif %}
+
 			<p class="player-info-text"><a href="{% url 'game:teams' %}{{ player.team.id }}" class="white-link">{{ player.team.name }}</a></p>
 		</div>
 		<div class="player-season-table-container">

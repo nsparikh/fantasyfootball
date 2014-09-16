@@ -3,12 +3,11 @@ TO DO LIST
 
 Data issues:
 - Fix GameData with null date / espn game ID that aren't Bye weeks
-- Fix Garrett Hartley 2013 Game Data (was on a team but now FA)
+- Fix Garrett Hartley 2013 Game Data (was on a team but now FA), find similar players?
 	- FIgure out actual BYE weeks for these players
-- Fix Johnnie Lee Higgins GameData (middle name issue)
+- Get Johnnie Lee Higgins GameData (middle name issue)
 - fix players with height=0 or weight=0, no DOB, no number
 	- double check players' positions
-- missing players -- get from depth charts
 
 
 High Priority:
@@ -19,8 +18,7 @@ High Priority:
 	- Create CareerData model? Would have to keep it updated throughout the season	
 - Add pagination to graph?
 - Fix search box on players table page
-- Draft rest of position analysis pages (QB, TE, RB, D/ST, K)
-	- TE, RB, QB will be like WR page
+- Draft D/ST, K pages
 	- D/ST will be like graph from paper (for now)
 - Make players graph better -- use a different metric for normalization?
 - Add request params to specify year / week? Or handle through sessions: https://docs.djangoproject.com/en/1.6/topics/http/sessions/
@@ -63,38 +61,3 @@ Eventual:
 - Figure out AWS for storing images, etc.
 	- https://devcenter.heroku.com/articles/s3
 
---------------------------------------------------------------------------------------------
-
-Finished:
-- Reorganize / clean up code to draw from base template
-	- see http://docs.django-cms.org/en/2.2/getting_started/tutorial.html
-- Fix links
-	- players table
-	- players graph
-	- positions page
-- Figure out URL params for players table -- use to filter/sort data (instead of doing on frontend)
-	- see https://docs.djangoproject.com/en/1.6/ref/request-response/
-- Send request for players page based on user actions
-	- underline appropriate column for sorting
-	- underline appropriate position - DONE
-	- see https://djangosnippets.org/snippets/2428/
-- Fix alex smith the TE from Cin
-- Get ESPN IDs for players w/o them -- find links from http://games.espn.go.com/ffl/leaders
-	- Get necessary images for all players
-- Fix WR and TE game data (switch rec/recYds/recTDs with rush/rushYds/rushTDs)
-	- Get recTar game data for WR/TE
-- FInish player_tables structure for other positions
-- Fix Alex Smith TE data
-- change "abbreviation" in positions/teams model to "abbr"
-- Change priority keys on players so they're not the same as ESPN IDs
-- Redo YearData2013 with new player IDs
-- Switch ordering of gameData PKs so week # is last (so a player has a consecutive chunk of points)
-- Host on Heroku: https://devcenter.heroku.com/articles/getting-started-with-django
-- Figure out Bye weeks for each team and add in blank data points for all players
-- don't include players with null values in sort -- always leave at end
-- Add pagination to players table 
-- Change player pages to use image URL instead of downloaded images
-- Fix hover issue on player page (ie http://127.0.0.1:8000/players/16285/)
-- Fix teams, positions pages to display from database (rather than hardcoded positions/teams)
-- Add color to hover box text
-- Fix hover box on player detail graph so that it doens't obscure the graph so much

@@ -8,7 +8,7 @@ class Player(models.Model):
 	name = models.CharField(max_length=200)
 	height = models.IntegerField() # height in inches
 	weight = models.IntegerField() # weight in lbs
-	dob = models.DateField('Date of Birth')
+	dob = models.DateField('Date of Birth', null=True)
 	team = models.ForeignKey('Team')
 	position = models.ForeignKey('Position')
 	depth_position = models.IntegerField(null=True)
