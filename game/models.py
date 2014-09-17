@@ -71,3 +71,37 @@ class Team(models.Model):
 			"abbr": self.abbr,
 			"stadium": self.stadium
 		}
+
+# PK FORMAT: t1t2yyww
+# t1, t2 = teams playing ordered by PK
+# t1 may be 1-digit (bc can't have leading 0's)
+# if BYE week, then format will be tt00yyww
+class Matchup(models.Model):
+	espn_game_id = models.IntegerField(null=True)
+	year = models.IntegerField()
+	date = models.DateField(null=True)
+	week_number = models.IntegerField()
+	bye = models.BooleanField(default=None)
+	home_team = models.ForeignKey('game.Team', related_name='home_team')
+	away_team = models.ForeignKey('game.Team', null=True, related_name='away_team')
+	win = models.BooleanField(default=None) # True if home_team wins
+	home_team_points = models.IntegerField(null=True) # Points for home_team
+	away_team_points = models.IntegerField(null=True) # Points for away_team
+
+	def __unicode__(self):
+		return self.home_team.name + ' vs ' + self.away_team.name + ', ' + self.date
+
+	def as_dict(self):
+		return {
+			"id": self.id,
+			"espn_game_id": self.espn_game_id,
+			"year": self.year,
+			"date": self.date,
+			"week_number": self.week_number,
+			"bye": self.bye,
+			"home_team": self.home_team.as_dict(),
+			"away_team": self.away_team.as_dict(),
+			"win": self.win,
+			"home_team_points": self.home_team_points,
+			"away_team_points": self.away_team_points
+		}

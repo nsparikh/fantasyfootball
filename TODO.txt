@@ -27,6 +27,7 @@ High Priority:
 - Add "blank" image for players who don't have one (or show team photo?)
 	- Get images for D/ST (i.e. team logos)
 - Add average # fantasy points per game to player page ?
+- Create Matchup model to record weekly matchups (remove info from GameData model)
 	
 
 Quick Fixes:
