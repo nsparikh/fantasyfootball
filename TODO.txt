@@ -1,6 +1,9 @@
 TO DO LIST
 ==========
 
+FIX GameData2013 to use Matchup model!
+	- will need to find last year teams for players 
+
 Data issues:
 - Fix GameData with null date / espn game ID that aren't Bye weeks
 - Fix Garrett Hartley 2013 Game Data (was on a team but now FA), find similar players?
