@@ -1,0 +1,10 @@
+{% load staticfiles %}
+
+<div id="dst-graph-container">
+</div>
+
+<script type="text/javascript">
+	var dataset = {{ team_map_list_json | safe }};
+	var teams = {{ teams_json | safe }};
+</script>
+<script type="text/javascript" src="{% static 'game/dst_graph.js' %}"></script>

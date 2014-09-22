@@ -62,3 +62,15 @@ Green: #74AB58 / 116,171,88
 #detail-image {
 	width: 200px;
 }
+
+#dst-graph-container {
+	text-align: center;
+}
+
+#dst-svg .tick line {
+	display: none;
+}
+
+.no-text text {
+	display: none;
+}

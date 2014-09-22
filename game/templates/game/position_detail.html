@@ -11,7 +11,7 @@
 <tr>
 	<td><div class="tile" id="depth-tile">
 		<h4 class="tile-header">&#9702; Depth Chart Analysis</h4>
-		<h2 class="tile-title">{{ position.name }}s</h2>
+		<h2 class="tile-title">{{ position.name }} Comparison</h2>
 
 		<div id="week-select-container">
 			<form method="get"><select id="week-select" name="week" class="custom-select" onchange="this.form.submit()">
@@ -28,6 +28,7 @@
 		<hr>
 		{% include position_detail_table_path %}
 
+		{% if position.id >= 1 and position.id <= 4 %}
 		<p id="detail-filler">Hover over a player to see details.</p>
 		<div id="depth-detail" class="hidden">
 			<h4 id="detail-header"></h4>
@@ -35,6 +36,7 @@
 			<img id="detail-image"/>
 			<p id="detail-score"></p>
 		</div>
+		{% endif %}
 	</div></td>
 </tr>
 {% endblock %}

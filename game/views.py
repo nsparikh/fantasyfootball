@@ -1,10 +1,10 @@
 from django.shortcuts import get_object_or_404, render, render_to_response
 from django.core.urlresolvers import reverse
 from django.views import generic
-from django.db.models import Count
 from datetime import date
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Count, Avg, Sum, Q
 import json
 
 from game.models import Player, Position, Team, Matchup
@@ -90,6 +90,8 @@ def players(request):
 		'curSort': originalSort
 	})
 
+# Called on the players graph page
+# Retrieves the top 200 performing players (based on fantasy pts)
 def players_graph(request):
 	player_list = YearData.objects.all().annotate(
 		null_sort=Count('data__points')).order_by(
@@ -99,31 +101,45 @@ def players_graph(request):
 		'player_list_json': player_list_json
 	})
 
+# Called for the player detail pages
 class PlayerDetailView(generic.DetailView):
 	template_name = 'game/player_detail.html'
 	model = Player
 	context_object_name = 'player'
 
+	# Retrieves the necessary data for the player detail page
 	def get_context_data(self, **kwargs):
 		context = super(PlayerDetailView, self).get_context_data(**kwargs)
+
+		# If the user changed the week number, it will be in the get request
+		# We need to update the record in the session
+		if self.request.GET.get('week'):
+			self.request.session['week_number'] = int(self.request.GET.get('week'))
+		week_number = self.request.session.get('week_number', 1)
+
+		# Compute total feet and inches (from height in inches)
 		context['feet'] = self.object.height / 12
 		context['inches'] = self.object.height % 12
 
+		# Compute the player's current age based on DOB
 		dob = self.object.dob
 		today = date.today()
 		if dob is not None:
 			context['age'] = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 		else: context['age'] = None
 
+		# TODO: figure out where to store images? For now, get directly from ESPN url
 		#context['image_path'] = 'game/player_images/' + str(self.object.espn_id) + '.png'
 		context['image_path'] = 'http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/' + str(self.object.espn_id) + '.png'
 
 		# TODO: change to get current year data
+		# Get this player's current year's data 
 		yd = YearData.objects.filter(player__id=self.object.id, year=2013)[0]
 		context['cur_season_yeardata'] = yd
 		context['cur_season_team'] = yd.team.abbr
 
 		# TODO: change to get current year from selection
+		# Get this player's full set of current season data
 		cur_season_gamedata = GameData.objects.filter(
 			player__id=self.object.id, matchup__year=2013, matchup__bye=False
 		).exclude(
@@ -137,7 +153,7 @@ class PlayerDetailView(generic.DetailView):
 		return context
 		
 
-
+# Called for the positions list page
 class PositionView(generic.ListView):
 	template_name = 'game/positions.html'
 	context_object_name = 'position_list'
@@ -145,6 +161,7 @@ class PositionView(generic.ListView):
 	def get_queryset(self):
 		return Position.objects.all()
 
+# Called for the position detail page
 class PositionDetailView(generic.DetailView):
 	template_name = 'game/position_detail.html'
 	model = Position
@@ -153,20 +170,24 @@ class PositionDetailView(generic.DetailView):
 	# How many players of each position can a team have
 	posDepthLength = {'QB':3, 'RB':4, 'WR':7, 'TE':5, 'D/ST':1, 'K':1}
 
+	# Retrieves the necessary data for the position detail page
 	def get_context_data(self, **kwargs):
 		context = super(PositionDetailView, self).get_context_data(**kwargs)
 
+		# Get the list of all of the teams
 		teams = Team.objects.all().exclude(id=33) # We don't want FA
 		context['teams_json'] = json.dumps([ obj.as_dict() for obj in teams ])
 		teams = teams.order_by('name')
 
 		posId = self.object.id
 
+		# If the user changed the week number, it will be in the get request
+		# We need to update the record in the session
 		if self.request.GET.get('week'):
 			self.request.session['week_number'] = int(self.request.GET.get('week'))
 		week_number = self.request.session.get('week_number', 1)
 
-		# Get the matchups for the week
+		# Get the matchups for the selected week
 		matchups = Matchup.objects.all().filter(
 			week_number=week_number)
 
@@ -174,14 +195,21 @@ class PositionDetailView(generic.DetailView):
 		player_list = Player.objects.all().filter(
 			position=posId).exclude(depth_position__isnull=True)
 
-		team_map_list = [] # List of each team id mapped to an ordered list of players
+		# Create a map of each team to an ordered list of players of this position
+		team_map_list = [] 
 		for t in teams:
+			# Figure out the opponent from the matchups (if it's not a BYE week)
 			opponent = None
 			for m in matchups:
 				if m.bye: continue
-				if m.home_team.id == t.id: opponent = m.away_team.id
-				elif m.away_team.id == t.id: opponent = m.home_team.id
+				if m.home_team.id == t.id: 
+					opponent = m.away_team.id
+					break
+				elif m.away_team.id == t.id: 
+					opponent = m.home_team.id
+					break
 
+			# Ordered list of players for this team of the position
 			depth_list = [None] * self.posDepthLength[self.object.abbr]
 			team_players = player_list.filter(team=t.id)
 			for p in team_players:
@@ -193,25 +221,40 @@ class PositionDetailView(generic.DetailView):
 					index = p.depth_position if p.depth_position > 1 else p.depth_position - 1
 					if depth_list[index] is not None: index += 1
 
-				# Compute score
+				# Compute score for this player
 				pScore = 0
-				if opponent is not None:
+				if opponent is not None and posId in [1, 2, 3, 4]:
 					offScore = YearData.objects.get(player=p.id).average - getattr(p.position, 'average'+str(p.depth_position))
 					defPlayer = Player.objects.get(team=opponent, position=5)
 					defScore = YearData.objects.get(player=defPlayer.id).average - Position.objects.get(id=5).average
 					pScore = offScore - defScore
+				elif posId == 5:
+					# Get data for each D/ST: total fantasy points earned, avg FPPG
+					# Data against each D/ST: total fantasy points lost to WR, RB; avg FPPG allowed
+					totalPtsEarned = GameData.objects.filter(player=p.id,
+						matchup__week_number__lte=week_number).aggregate(Sum('data__points'))['data__points__sum']
+					wrPtsAllowed = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+						Q(player__position=3) | Q(player__position=4), matchup__week_number__lte=week_number).exclude(
+						player__team=t.id).aggregate(Sum('data__points'))['data__points__sum']
+					rbPtsAllowed = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+						player__position=2, matchup__week_number__lte=week_number).exclude(
+						player__team=t.id).aggregate(Sum('data__points'))['data__points__sum']
+					avgPtsAllowed = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+						Q(player__position=2) | Q(player__position=3) | Q(player__position=4), 
+						matchup__week_number__lte=week_number).exclude(
+						player__team=t.id, data__points__isnull=True, data__points=0).aggregate(
+						Avg('data__points'))['data__points__avg']
+					pScore = (totalPtsEarned, YearData.objects.get(player=p.id).average, 
+						wrPtsAllowed, rbPtsAllowed, avgPtsAllowed)
+
 				depth_list[index] = (p.as_dict(), pScore)
 
-
-			team_map = { 'team_id' : t.id, 'opponent' : opponent }
-			team_map['players'] = depth_list
+			team_map = {'team_id':t.id, 'opponent':opponent, 'players':depth_list}
 			team_map_list.append(team_map)
+
 		context['team_map_list_json'] = json.dumps(team_map_list, cls=DjangoJSONEncoder)
-
 		context['position_detail_table_path'] = 'game/position_table_' + self.object.abbr.replace('/', '').lower() + '.html'
-
 		return context
-
 
 class TeamView(generic.ListView):
 	template_name = 'game/teams.html'
