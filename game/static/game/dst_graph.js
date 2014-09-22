@@ -125,10 +125,10 @@ svg.selectAll('.top-rect')
 		return greenScale(d['players'][0][1][0]);
 	})
 	.on('mouseover', function(d, i) {
-		d3.select('#green-text-' + i).classed('hidden', false);
+		d3.selectAll('.bar-text-' + i).classed('hidden', false);
 	})
 	.on('mouseout', function(d, i) {
-		d3.select('#green-text-' + i).classed('hidden', true);
+		d3.selectAll('.bar-text-' + i).classed('hidden', true);
 	});
 svg.selectAll('.bottom-rect')
 	.data(dataset)
@@ -151,19 +151,18 @@ svg.selectAll('.bottom-rect')
 		return redScale(parseFloat(d['players'][0][1][2]) + d['players'][0][1][3]);
 	})
 	.on('mouseover', function(d, i) {
-		d3.select('#red-text-' + i).classed('hidden', false);
+		d3.selectAll('.bar-text-' + i).classed('hidden', false);
 	})
 	.on('mouseout', function(d, i) {
-		d3.select('#red-text-' + i).classed('hidden', true);
+		d3.selectAll('.bar-text-' + i).classed('hidden', true);
 	});
 
 // Create text
-svg.selectAll('.green-text')
+svg.selectAll('.top-text')
 	.data(dataset)
 	.enter()
 	.append('text')
-	.attr('class', 'green-text hidden')
-	.attr('id', function(d, i) { return 'green-text-' + i; })
+	.attr('class', function(d, i) { return 'hidden top-text bar-text-' + i; })
 	.text(function(d) {
 		return d['players'][0][1][0];
 	})
@@ -176,12 +175,11 @@ svg.selectAll('.green-text')
 	})
 	.attr('fill', darkGray)
 	.attr('font-size', '12px');
-svg.selectAll('.red-text')
+svg.selectAll('.bottom-text')
 	.data(dataset)
 	.enter()
 	.append('text')
-	.attr('class', 'red-text hidden')
-	.attr('id', function(d, i) { return 'red-text-' + i; })
+	.attr('class', function(d, i) { return 'hidden bottom-text bar-text-' + i; })
 	.text(function(d) {
 		return parseFloat(d['players'][0][1][2]) + d['players'][0][1][3];
 	})

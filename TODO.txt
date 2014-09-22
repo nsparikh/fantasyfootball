@@ -11,7 +11,7 @@ Data issues:
 
 
 High Priority:
-- D/ST position page: add toggle switch for averages/total
+- D/ST position page: add toggle switch for averages/total. Also add option to show totals vs weekly data?
 - Complete individual player pages
 	- Figure out individual pages for D/ST, Kickers; get necessary data
 - Get rest of data

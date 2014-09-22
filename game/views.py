@@ -181,6 +181,7 @@ class PositionDetailView(generic.DetailView):
 
 		posId = self.object.id
 
+		# TODO: make the default the most recent week of current season
 		# If the user changed the week number, it will be in the get request
 		# We need to update the record in the session
 		if self.request.GET.get('week'):
