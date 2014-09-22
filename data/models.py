@@ -69,6 +69,7 @@ class YearData(models.Model):
 	year = models.IntegerField()
 	player = models.ForeignKey('game.Player')
 	team = models.ForeignKey('game.Team', default=33)
+	average = models.DecimalField(max_digits=5, decimal_places=2, default=0) # Avg fantasy points per game for the year
 	data = models.ForeignKey(DataPoint)
 
 	def __unicode__(self):
@@ -80,6 +81,7 @@ class YearData(models.Model):
 			"year": self.year,
 			"player": self.player.as_dict(),
 			"team": self.team.as_dict(),
+			"average": str(self.average),
 			"data": self.data.as_dict()
 		}
 

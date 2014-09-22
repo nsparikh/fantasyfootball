@@ -37,11 +37,17 @@ a:link, a:visited {
 	color: #D4D4D4;
 }
 
+.gray-link, .gray-link:link, .gray-link:visited {
+	cursor: pointer;
+	text-decoration: none;
+	color: #232323;
+}
+
 .white-text {
 	color: #D4D4D4;
 }
 
-a:hover, a:active, .white-link:hover, .white-link:active {
+a:hover, a:active, .white-link:hover, .white-link:active, .gray-link:hover, .gray-link:active {
 	color: #21BDCD;
 }
 

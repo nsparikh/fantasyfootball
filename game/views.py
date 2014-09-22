@@ -4,6 +4,7 @@ from django.views import generic
 from django.db.models import Count
 from datetime import date
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.serializers.json import DjangoJSONEncoder
 import json
 
 from game.models import Player, Position, Team, Matchup
@@ -175,6 +176,12 @@ class PositionDetailView(generic.DetailView):
 
 		team_map_list = [] # List of each team id mapped to an ordered list of players
 		for t in teams:
+			opponent = None
+			for m in matchups:
+				if m.bye: continue
+				if m.home_team.id == t.id: opponent = m.away_team.id
+				elif m.away_team.id == t.id: opponent = m.home_team.id
+
 			depth_list = [None] * self.posDepthLength[self.object.abbr]
 			team_players = player_list.filter(team=t.id)
 			for p in team_players:
@@ -185,18 +192,21 @@ class PositionDetailView(generic.DetailView):
 				elif self.object.id == 4: # TE have multiple in depth position 1
 					index = p.depth_position if p.depth_position > 1 else p.depth_position - 1
 					if depth_list[index] is not None: index += 1
-				depth_list[index] = p.as_dict() 
 
-			opponent = None
-			for m in matchups:
-				if m.bye: continue
-				if m.home_team.id == t.id: opponent = m.away_team.id
-				elif m.away_team.id == t.id: opponent = m.home_team.id
+				# Compute score
+				pScore = 0
+				if opponent is not None:
+					offScore = YearData.objects.get(player=p.id).average - getattr(p.position, 'average'+str(p.depth_position))
+					defPlayer = Player.objects.get(team=opponent, position=5)
+					defScore = YearData.objects.get(player=defPlayer.id).average - Position.objects.get(id=5).average
+					pScore = offScore - defScore
+				depth_list[index] = (p.as_dict(), pScore)
+
 
 			team_map = { 'team_id' : t.id, 'opponent' : opponent }
 			team_map['players'] = depth_list
 			team_map_list.append(team_map)
-		context['team_map_list_json'] = json.dumps(team_map_list)
+		context['team_map_list_json'] = json.dumps(team_map_list, cls=DjangoJSONEncoder)
 
 		context['position_detail_table_path'] = 'game/position_table_' + self.object.abbr.replace('/', '').lower() + '.html'
 

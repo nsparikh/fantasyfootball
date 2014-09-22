@@ -1,8 +1,8 @@
 [
-{ "model":"game.Position", "pk":1, "fields": {"name":"Quarterback", "abbr":"QB"} },
-{ "model":"game.Position", "pk":2, "fields": {"name":"Runningback", "abbr":"RB"} },
-{ "model":"game.Position", "pk":3, "fields": {"name":"Wide Receiver", "abbr":"WR"} },
-{ "model":"game.Position", "pk":4, "fields": {"name":"Tight End", "abbr":"TE"} },
-{ "model":"game.Position", "pk":5, "fields": {"name":"Defense / Special Teams", "abbr":"D/ST"} },
-{ "model":"game.Position", "pk":6, "fields": {"name":"Kicker", "abbr":"K"} }
+{ "model":"game.Position", "pk":1, "fields": {"name":"Quarterback", "abbr":"QB", "average":8.75, "average1":12.92, "average2":3.24, "average3":2.08, "average4":0} },
+{ "model":"game.Position", "pk":2, "fields": {"name":"Runningback", "abbr":"RB", "average":5.62, "average1":8.37, "average2":4.13, "average3":2.94, "average4":0.94} },
+{ "model":"game.Position", "pk":3, "fields": {"name":"Wide Receiver", "abbr":"WR", "average":4.44, "average1":6.55, "average2":2.95, "average3":1.24, "average4":0.56} },
+{ "model":"game.Position", "pk":4, "fields": {"name":"Tight End", "abbr":"TE", "average":2.66, "average1":4.63, "average2":1.43, "average3":0.56, "average4":0.03} },
+{ "model":"game.Position", "pk":5, "fields": {"name":"Defense / Special Teams", "abbr":"D/ST", "average":6.77} },
+{ "model":"game.Position", "pk":6, "fields": {"name":"Kicker", "abbr":"K", "average":0} }
 ]
