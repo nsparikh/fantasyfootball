@@ -6,7 +6,7 @@ from datetime import date
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import json
 
-from game.models import Player, Position, Team
+from game.models import Player, Position, Team, Matchup
 from data.models import YearData, GameData, DataPoint
 
 # TODO: Clean up this code!!
@@ -161,6 +161,14 @@ class PositionDetailView(generic.DetailView):
 
 		posId = self.object.id
 
+		if self.request.GET.get('week'):
+			self.request.session['week_number'] = int(self.request.GET.get('week'))
+		week_number = self.request.session.get('week_number', 1)
+
+		# Get the matchups for the week
+		matchups = Matchup.objects.all().filter(
+			week_number=week_number)
+
 		# Get the players that are of this position and have a depth chart position
 		player_list = Player.objects.all().filter(
 			position=posId).exclude(depth_position__isnull=True)
@@ -177,9 +185,15 @@ class PositionDetailView(generic.DetailView):
 				elif self.object.id == 4: # TE have multiple in depth position 1
 					index = p.depth_position if p.depth_position > 1 else p.depth_position - 1
 					if depth_list[index] is not None: index += 1
-				depth_list[index] = p.as_dict() # QB, RB, D/ST, K
+				depth_list[index] = p.as_dict() 
 
-			team_map = { 'team_id' : t.id }
+			opponent = None
+			for m in matchups:
+				if m.bye: continue
+				if m.home_team.id == t.id: opponent = m.away_team.id
+				elif m.away_team.id == t.id: opponent = m.home_team.id
+
+			team_map = { 'team_id' : t.id, 'opponent' : opponent }
 			team_map['players'] = depth_list
 			team_map_list.append(team_map)
 		context['team_map_list_json'] = json.dumps(team_map_list)

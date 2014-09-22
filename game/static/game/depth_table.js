@@ -33,7 +33,7 @@ var rows = tbody.selectAll('tr')
 // Add cells to each row
 rows.selectAll('td')
 	.data(function(row) {
-		return [row['team_id'], row['team_id']].concat(row['players']);
+		return [row['team_id'], row['opponent']].concat(row['players']);
 	})
 	.enter()
 	.append('td')
@@ -59,13 +59,15 @@ rows.selectAll('td')
 	.append('a')
 	.attr('class', 'white-link')
 	.attr('href', function(d, i) {
+		if (d == null || d == '') return '#';
+
 		if (i < 2) return team_url + d;
-		else if (d == null || d == '') return '#';
 		else return player_url + d['id'];
 	})
 	.text(function(d, i) { 
+		if (d == null || d == '') return '';
+		
 		if (i < 2) return teams[d-1]['abbr'].toUpperCase(); 
-		else if (d == null || d == '') return '';
 		else {
 			var nameArr = d['name'].split(' ');
 			return nameArr[0][0] + '. ' + nameArr[1];

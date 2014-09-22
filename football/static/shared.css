@@ -87,6 +87,12 @@ p {
 	font-size: 20px;
 }
 
+form {
+	margin: 0;
+	padding: 0;
+	display: inline;
+}
+
 .invisible {
 	display: none;
 }

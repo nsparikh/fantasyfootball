@@ -11,7 +11,7 @@ def index(arr, i):
 	return arr[i]
 
 @register.filter(name='minus')
-def plus(a, b):
+def minus(a, b):
 	return a-b
 
 @register.filter(name='times')

@@ -1,9 +1,6 @@
 TO DO LIST
 ==========
 
-FIX GameData2013 to use Matchup model!
-	- will need to find last year teams for players 
-
 Data issues:
 - Fix GameData with null date / espn game ID that aren't Bye weeks
 - Fix Garrett Hartley 2013 Game Data (was on a team but now FA), find similar players?
@@ -24,7 +21,7 @@ High Priority:
 - Draft D/ST, K pages
 	- D/ST will be like graph from paper (for now)
 - Make players graph better -- use a different metric for normalization?
-- Add request params to specify year / week? Or handle through sessions: https://docs.djangoproject.com/en/1.6/topics/http/sessions/
+- Add request params to specify year / week? Or handle through sessions: https://docs.djangoproject.com/en/1.7/topics/http/sessions/
 - Update current team for all players
 	- Add team to yeardata? 
 - Add "blank" image for players who don't have one (or show team photo?)
@@ -40,7 +37,7 @@ Quick Fixes:
 - Clean up code in player_detail_weekly_graph.js (particulary in mousemove function)
 - Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
 - Fix links on player detail page (to position and team)
-- Fix 'F. Lastname' on positiond detail page for players with middle name or suffix
+- Fix 'F. Lastname' on position detail page for players with middle name or suffix
 
 
 Low Priority:
