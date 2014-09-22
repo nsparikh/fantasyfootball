@@ -61,7 +61,12 @@
 		</div>
 		<div class="proj-col">
 			<h3>Our Projection</h3>
-			<p class="player-info-text projection-number">xxx</p>
+			<p class="player-info-text projection-number">000 points</p>
+			<br/>
+			{% if week_points %}
+			<h3>Actual Score</h3>
+			<p class="player-info-text">{{ week_points }} points</p>
+			{% endif %}
 		</div>
 		<div class="proj-col">
 			<h3>Other Projections</h3>

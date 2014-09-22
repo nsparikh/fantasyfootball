@@ -117,6 +117,10 @@ class PlayerDetailView(generic.DetailView):
 			self.request.session['week_number'] = int(self.request.GET.get('week'))
 		week_number = self.request.session.get('week_number', 1)
 
+		# Selected week's number of points
+		context['week_points'] = GameData.objects.get(
+			player=self.object.id, matchup__year=2013, matchup__week_number=week_number).data.points
+
 		# Compute total feet and inches (from height in inches)
 		context['feet'] = self.object.height / 12
 		context['inches'] = self.object.height % 12

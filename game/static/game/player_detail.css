@@ -161,11 +161,9 @@ Green: #74AB58 / 116,171,88
 }
 
 .projection-number {
-	font-size: 70px;
+	font-size: 40px;
 	margin: 0;
 	padding: 0;
-	position: relative;
-	top: -30px;
 }
 
 
