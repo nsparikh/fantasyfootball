@@ -30,7 +30,7 @@ class DataPoint(models.Model):
 
 	def as_dict(self):
 		return {
-			"id":, self.id,
+			"id": self.id,
 			"passC": self.passC,
 			"passA": self.passA,
 			"passYds": self.passYds,
@@ -59,7 +59,7 @@ class CareerData(models.Model):
 
 	def as_dict(self):
 		return {
-			"id":, self.id,
+			"id": self.id,
 			"player": self.player.as_dict(),
 			"data": self.data.as_dict()
 		}
@@ -68,6 +68,7 @@ class CareerData(models.Model):
 class YearData(models.Model):
 	year = models.IntegerField()
 	player = models.ForeignKey('game.Player')
+	team = models.ForeignKey('game.Team', default=33)
 	data = models.ForeignKey(DataPoint)
 
 	def __unicode__(self):
@@ -75,9 +76,10 @@ class YearData(models.Model):
 
 	def as_dict(self):
 		return {
-			"id":, self.id,
+			"id": self.id,
 			"year": self.year,
 			"player": self.player.as_dict(),
+			"team": self.team.as_dict(),
 			"data": self.data.as_dict()
 		}
 
@@ -86,7 +88,7 @@ class GameData(models.Model):
 	#espn_game_id = models.IntegerField(null=True)
 	#year = models.IntegerField()
 	player = models.ForeignKey('game.Player')
-	matchup = models.ForeignKey('game.Matchup')
+	matchup = models.ForeignKey('game.Matchup', null=True)
 	#date = models.DateField(null=True)
 	#week_number = models.IntegerField()
 	#bye = models.BooleanField(default=None)
@@ -103,7 +105,7 @@ class GameData(models.Model):
 
 	def as_dict(self):
 		return {
-			"id":, self.id,
+			"id": self.id,
 			#"year": self.year,
 			"player": self.player.as_dict(),
 			"matchup": self.matchup.as_dict(),

@@ -118,13 +118,13 @@ class PlayerDetailView(generic.DetailView):
 		context['image_path'] = 'http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/' + str(self.object.espn_id) + '.png'
 
 		# TODO: change to get current year data
-		context['cur_season_yeardata'] = YearData.objects.filter(
-			player__id=self.object.id, year=2013
-		)[0]
+		yd = YearData.objects.filter(player__id=self.object.id, year=2013)[0]
+		context['cur_season_yeardata'] = yd
+		context['cur_season_team'] = yd.team.abbr
 
 		# TODO: change to get current year from selection
 		cur_season_gamedata = GameData.objects.filter(
-			player__id=self.object.id, year=2013, bye=False
+			player__id=self.object.id, matchup__year=2013, matchup__bye=False
 		).exclude(
 			data=1
 		)

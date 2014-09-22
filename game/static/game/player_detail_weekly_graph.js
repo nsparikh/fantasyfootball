@@ -77,19 +77,19 @@ var yScaleR = d3.scale.linear()
 
 // Functions for drawing connector lines
 var blueLineFunc = d3.svg.line()
-	.x(function(d) {return xScale(d['week_number']);})
+	.x(function(d) {return xScale(d['matchup']['week_number']);})
 	.y(function(d) {return yScaleL(d['data']['points']);})
 	.interpolate('linear');
 var orangeLineFunc = d3.svg.line()
-	.x(function(d) {return xScale(d['week_number']);})
+	.x(function(d) {return xScale(d['matchup']['week_number']);})
 	.y(function(d) {return yScaleR(d['data'][orangeMap[pos]]);})
 	.interpolate('linear');
 var redLineFunc = d3.svg.line()
-	.x(function(d) {return xScale(d['week_number']);})
+	.x(function(d) {return xScale(d['matchup']['week_number']);})
 	.y(function(d) {return yScaleL(d['data'][redMap[pos]]);})
 	.interpolate('linear');
 var greenLineFunc = d3.svg.line()
-	.x(function(d) {return xScale(d['week_number']);})
+	.x(function(d) {return xScale(d['matchup']['week_number']);})
 	.y(function(d) {return yScaleL(d['data'][greenMap[pos]]);})
 	.interpolate('linear');
 
@@ -104,7 +104,7 @@ var svg = d3.select('#player-graph-container')
 var xAxis = d3.svg.axis()
 	.scale(xScale)
 	.orient('bottom')
-	.tickValues(dataset.map(function(d) {return d['week_number'];}));
+	.tickValues(dataset.map(function(d) {return d['matchup']['week_number'];}));
 
 // Define Y axes
 var yAxisL = d3.svg.axis()
@@ -158,13 +158,13 @@ svg.append('text')
 
 // Draw circles
 svg.selectAll('.blue-circle')
-	.data(dataset, function(d) { return d['week_number']; })
+	.data(dataset, function(d) { return d['matchup']['week_number']; })
 	.enter()
 	.append('circle')
 	.attr('class', 'circle blue-circle')
-	.attr('id', function(d) { return 'circle'+d['week_number']; })
+	.attr('id', function(d) { return 'circle'+d['matchup']['week_number']; })
 	.attr('cx', function(d) {
-		return xScale(d['week_number']);
+		return xScale(d['matchup']['week_number']);
 	})
 	.attr('cy', function(d) {
 		return yScaleL(d['data']['points']);
@@ -176,9 +176,9 @@ svg.selectAll('.orange-circle')
 	.enter()
 	.append('circle')
 	.attr('class', 'circle orange-circle')
-	.attr('id', function(d) { return 'circle'+d['week_number']; })
+	.attr('id', function(d) { return 'circle'+d['matchup']['week_number']; })
 	.attr('cx', function(d) {
-		return xScale(d['week_number']);
+		return xScale(d['matchup']['week_number']);
 	})
 	.attr('cy', function(d) {
 		return yScaleR(d['data'][orangeMap[pos]]);
@@ -190,9 +190,9 @@ svg.selectAll('.red-circle')
 	.enter()
 	.append('circle')
 	.attr('class', 'circle red-circle')
-	.attr('id', function(d) { return 'circle'+d['week_number']; })
+	.attr('id', function(d) { return 'circle'+d['matchup']['week_number']; })
 	.attr('cx', function(d) {
-		return xScale(d['week_number']);
+		return xScale(d['matchup']['week_number']);
 	})
 	.attr('cy', function(d) {
 		return yScaleL(d['data'][redMap[pos]]);
@@ -204,9 +204,9 @@ svg.selectAll('.green-circle')
 	.enter()
 	.append('circle')
 	.attr('class', 'circle green-circle')
-	.attr('id', function(d) { return 'circle'+d['week_number']; })
+	.attr('id', function(d) { return 'circle'+d['matchup']['week_number']; })
 	.attr('cx', function(d) {
-		return xScale(d['week_number']);
+		return xScale(d['matchup']['week_number']);
 	})
 	.attr('cy', function(d) {
 		return yScaleL(d['data'][greenMap[pos]]);
@@ -441,7 +441,7 @@ svg.on('mousemove', function() {
 	var i = Math.min(17, Math.max(1, Math.round(xScale.invert(d3.mouse(this)[0]))));
 	var d;
 	for (var t = 0; t < dataset.length; t++) {
-		if (dataset[t]['week_number'] == i) {
+		if (dataset[t]['matchup']['week_number'] == i) {
 			d = dataset[t];
 			break;
 		}
@@ -454,18 +454,20 @@ svg.on('mousemove', function() {
 			.attr('r', smallRadius)
 			.attr('opacity', opacity);
 	}
-	curSelection = d['week_number'];
-	d3.selectAll('#circle'+d['week_number'])
+	curSelection = d['matchup']['week_number'];
+	d3.selectAll('#circle'+d['matchup']['week_number'])
 		.attr('r', bigRadius)
 		.attr('opacity', 1)
 		.moveToFront();
 
-	var loc = d['home_game'] ? ' vs. ' : ' @ ';
-	var win = d['win'] ? 'W' : 'L';
+	var home = (playerTeamAbbr == d['matchup']['home_team']['abbr']);
+	var loc = home ? ' vs. ' : ' @ ';
+	var win = ((home && d['matchup']['win']) || (!home && !d['matchup']['win'])) ? 'W' : 'L';
+	var oppTeamAbbr = home ? d['matchup']['away_team']['abbr'] : d['matchup']['home_team']['abbr']
 
-	legSvg.select('#hover-box-header').text(playerTeam + loc + d['opponent']['abbr']);
-	legSvg.select('#hover-box-date').text(d['date']);
-	legSvg.select('#hover-box-result').text(win + ' ' + d['pointsFor'] + '-' + d['pointsAgainst']);
+	legSvg.select('#hover-box-header').text(playerTeamAbbr + loc + oppTeamAbbr);
+	legSvg.select('#hover-box-date').text(d['matchup']['date']);
+	legSvg.select('#hover-box-result').text(win + ' ' + d['matchup']['home_team_points'] + '-' + d['matchup']['away_team_points']);
 	legSvg.select('#hover-box-bluetext-header').text('Fantasy Points: ');
 	legSvg.select('#hover-box-bluetext').text(d['data']['points']); 
 	legSvg.select('#hover-box-orangetext-header').text(orangeTextMap[pos] + ': ');

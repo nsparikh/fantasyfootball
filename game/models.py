@@ -81,10 +81,10 @@ class Matchup(models.Model):
 	year = models.IntegerField()
 	date = models.DateField(null=True)
 	week_number = models.IntegerField()
-	bye = models.BooleanField(default=None)
+	bye = models.NullBooleanField(default=None)
 	home_team = models.ForeignKey('game.Team', related_name='home_team')
 	away_team = models.ForeignKey('game.Team', null=True, related_name='away_team')
-	win = models.BooleanField(default=None) # True if home_team wins
+	win = models.NullBooleanField(default=None, null=True) # True if home_team wins
 	home_team_points = models.IntegerField(null=True) # Points for home_team
 	away_team_points = models.IntegerField(null=True) # Points for away_team
 
@@ -96,7 +96,7 @@ class Matchup(models.Model):
 			"id": self.id,
 			"espn_game_id": self.espn_game_id,
 			"year": self.year,
-			"date": self.date,
+			"date": str(self.date),
 			"week_number": self.week_number,
 			"bye": self.bye,
 			"home_team": self.home_team.as_dict(),

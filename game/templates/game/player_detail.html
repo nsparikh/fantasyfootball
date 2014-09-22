@@ -105,7 +105,7 @@
 {% block js %}
 <script>
 	var dataset = {{ cur_season_gamedata | safe }};
-	var playerTeam = '{{ player.team.abbr }}';
+	var playerTeamAbbr = '{{ cur_season_team }}';
 	var pos = '{{ player.position.abbr }}';
 </script>
 <script type="text/javascript" src="{% static 'game/player_detail_weekly_graph.js' %}"></script>
