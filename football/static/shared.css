@@ -31,13 +31,17 @@ a:link, a:visited {
 	color: #828282;
 }
 
-.white-link, .white-link:link, .white-link:visited {
+.white-link, .white-link:link, .white-link:visited, 
+.white-link-noblue:link, .white-link-noblue:visited,
+.white-link-noblue, .white-link-noblue:hover, .white-link-noblue:active {
 	cursor: pointer;
 	text-decoration: none;
 	color: #D4D4D4;
 }
 
-.gray-link, .gray-link:link, .gray-link:visited {
+.gray-link, .gray-link:link, .gray-link:visited, 
+.gray-link-noblue:link, .gray-link-noblue:visited,
+.gray-link-noblue, .gray-link-noblue:hover, .gray-link-noblue:active {
 	cursor: pointer;
 	text-decoration: none;
 	color: #232323;

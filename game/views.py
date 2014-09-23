@@ -234,43 +234,38 @@ class PositionDetailView(generic.DetailView):
 				# Compute score for this player
 				pScore = 0
 				if opponent is not None and posId in [1, 2, 3, 4]:
-					offScore = YearData.objects.get(player=p.id).average - getattr(p.position, 'average'+str(p.depth_position))
-					defPlayer = Player.objects.get(team=opponent, position=5)
-					defScore = YearData.objects.get(player=defPlayer.id).average - Position.objects.get(id=5).average
+					playerPts = YearData.objects.get(player=p.id).data.points
+					playerPts = playerPts if playerPts is not None else 0
+					posAvg = getattr(Position.objects.get(id=posId), 'average'+str(p.depth_position))
+					offScore = float(playerPts - posAvg)
+
+					defPtsAllowed = GameData.objects.filter(Q(matchup__home_team=opponent) | Q(matchup__away_team=opponent), 
+						player__position=posId, player__depth_position=p.depth_position, 
+						matchup__week_number__lte=week_number).exclude(player__team=opponent).aggregate(
+						Sum('data__points'))['data__points__sum']
+					defPtsAllowed = defPtsAllowed if defPtsAllowed is not None else 0
+					avgDefPtsAllowed = GameData.objects.filter(player__position=posId, 
+						player__depth_position=p.depth_position, matchup__week_number__lte=week_number).aggregate(
+						Sum('data__points'))['data__points__sum'] / 32.0
+					defScore = avgDefPtsAllowed - defPtsAllowed
+
 					pScore = offScore - defScore
+
 				elif posId == 5:
 					totalPtsEarned = GameData.objects.filter(player=p.id,
 						matchup__week_number__lte=week_number).aggregate(Sum('data__points'))['data__points__sum']
-					allQb =  GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
-						player__position=1, matchup__week_number__lte=week_number).exclude(
-						player__team=t.id)
-					totalQbPts = allQb.aggregate(Sum('data__points'))['data__points__sum']
-					qbCount = allQb.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
-					avgQbPts = totalQbPts*1.0/qbCount
 
-					allRb = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
-						player__position=2, matchup__week_number__lte=week_number).exclude(
-						player__team=t.id)
-					totalRbPts = allRb.aggregate(Sum('data__points'))['data__points__sum']
-					rbCount = allQb.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
-					avgRbPts = totalRbPts*1.0/rbCount
+					pScore = [totalPtsEarned, num_weeks, 0, 0, 0, 0, 0, 0, 0, 0]
 
-					allWr = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
-						player__position=3, matchup__week_number__lte=week_number).exclude(
-						player__team=t.id)
-					totalWrPts = allWr.aggregate(Sum('data__points'))['data__points__sum']
-					wrCount = allQb.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
-					avgWrPts = totalWrPts*1.0/wrCount
-
-					allTe = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
-						player__position=4, matchup__week_number__lte=week_number).exclude(
-						player__team=t.id)
-					totalTePts = allTe.aggregate(Sum('data__points'))['data__points__sum']
-					teCount = allQb.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
-					avgTePts = totalTePts*1.0/teCount
-
-					pScore = (totalPtsEarned, num_weeks, totalQbPts, totalRbPts, totalWrPts, totalTePts,
-						avgQbPts, avgRbPts, avgWrPts, avgTePts)
+					for i in [1, 2, 3, 4]:
+						allPos = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+							player__position=i, matchup__week_number__lte=week_number).exclude(
+							player__team=t.id)
+						totalPosPts = allPos.aggregate(Sum('data__points'))['data__points__sum']
+						posCount = allPos.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
+						avgPosPts = totalPosPts * 1.0 / posCount
+						pScore[i+1] = totalPosPts
+						pScore[i+5] = avgPosPts	
 
 				depth_list[index] = (p.as_dict(), pScore)
 

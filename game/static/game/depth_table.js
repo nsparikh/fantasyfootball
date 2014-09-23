@@ -16,6 +16,7 @@ var red = '#D3343A';
 var white = '#D4D4D4'
 var grayText = '#828282';
 var darkGray = '#232323';
+var grayBackground = '#2A2A2A'
 
 // Scale for background colors of table cells
 var minScore = d3.min(dataset, function(d) { 
@@ -28,7 +29,7 @@ var maxScore = d3.max(dataset, function(d) {
 		return d2 == null ? null : parseFloat(d2[1]);
 	}); 
 });
-var colorScale = d3.scale.linear()
+var colorScale = d3.scale.pow().exponent(0.8)
 	.domain([minScore, 0, maxScore])
 	.range([red, white, green]);
 
@@ -49,7 +50,8 @@ rows.selectAll('td')
 	.append('td')
 	.attr('class', 'td-wide')
 	.style('background-color', function(d, i) {
-		if (i < 2 || d == null || d == '') return darkGray;
+		if (i < 2) return darkGray;
+		else if (d == null || d == '') return grayBackground;
 		else return colorScale(d[1]);
 	})
 	.on('mouseover', function(d, i) {
@@ -60,7 +62,7 @@ rows.selectAll('td')
 			d3.select('#detail-header').text(d[0]['name']);
 			d3.select('#detail-subheader').text('#' + d[0]['number'] + ' ' + d[0]['position']['abbr'] + ' | ' + d[0]['team']['name']);
 			d3.select('#detail-image').attr('src', image_url_prefix + d[0]['espn_id'] + '.png');
-			d3.select('#detail-score').text('Performance Score: ' + d[1]);
+			d3.select('#detail-score').text('Performance Score: ' + Math.round(d[1]*100)/100);
 
 			d3.select('#depth-detail').style('top', (Math.min(getAlphIndexByTeamId(d[0]['team']['id']),23)*23)+'px');
 		}
@@ -73,7 +75,7 @@ rows.selectAll('td')
 	.append('a')
 	.attr('class', function(d, i) {
 		if (i < 2 || d == null || d == '') return 'white-link';
-		else return 'gray-link';
+		else return 'gray-link-noblue';
 	})
 	.attr('href', function(d, i) {
 		if (d == null || d == '') return '#';
@@ -81,6 +83,9 @@ rows.selectAll('td')
 		if (i < 2) return team_url + d;
 		else return player_url + d[0]['id'];
 	})
+	.append('div')
+	.attr('height', '100%')
+	.attr('width', '100%')
 	.text(function(d, i) { 
 		if (d == null || d == '') return '';
 		
