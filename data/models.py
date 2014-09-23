@@ -87,42 +87,25 @@ class YearData(models.Model):
 
 # PK FORMAT: pppppyyww
 class GameData(models.Model):
-	#espn_game_id = models.IntegerField(null=True)
-	#year = models.IntegerField()
 	player = models.ForeignKey('game.Player')
 	matchup = models.ForeignKey('game.Matchup', null=True)
-	#date = models.DateField(null=True)
-	#week_number = models.IntegerField()
-	#bye = models.BooleanField(default=None)
-	#opponent = models.ForeignKey('game.Team', null=True)
-	#home_game = models.BooleanField(default=None)
-	#win = models.BooleanField(default=None)
-	#pointsFor = models.IntegerField(null=True)
-	#pointsAgainst = models.IntegerField(null=True)
 	projection = models.DecimalField(max_digits=5, decimal_places=1, null=True)
 	espn_projection = models.DecimalField(max_digits=5, decimal_places=1, null=True)
 	yahoo_projection = models.DecimalField(max_digits=5, decimal_places=1, null=True)
 	cbs_projection = models.DecimalField(max_digits=5, decimal_places=1, null=True)
+	performance_score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
 	data = models.ForeignKey(DataPoint)
 
 	def as_dict(self):
 		return {
 			"id": self.id,
-			#"year": self.year,
 			"player": self.player.as_dict(),
 			"matchup": self.matchup.as_dict(),
-			#"date": str(self.date),
-			#"week_number": self.week_number,
-			#"bye": self.bye,
-			#"opponent": self.opponent.as_dict() if self.opponent is not None else None,
-			#"home_game": self.home_game,
-			#"win": self.win,
-			#"pointsFor": self.pointsFor,
-			#"pointsAgainst": self.pointsAgainst,
 			"projection": self.projection,
 			"espn_projection": self.espn_projection,
 			"yahoo_projection": self.yahoo_projection,
 			"cbs_projection": self.cbs_projection,
+			"performance_score": self.performance_score,
 			"data": self.data.as_dict()
 		}
 

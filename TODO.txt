@@ -12,6 +12,7 @@ Data issues:
 
 High Priority:
 - for wr/rb/te/qb table: fix computation for performance scores. do something similar to d/st graph
+	- Add weekly performance scores to GameData
 - Complete individual player pages
 	- Figure out individual pages for D/ST, Kickers; get necessary data
 - Get rest of data
