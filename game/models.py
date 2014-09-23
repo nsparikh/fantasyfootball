@@ -14,6 +14,7 @@ class Player(models.Model):
 	depth_position = models.IntegerField(null=True)
 	number = models.IntegerField()
 	espn_id = models.IntegerField()
+	status = models.CharField(max_length=200, null=True)
 
 	def __unicode__(self):
 		return self.name
@@ -29,7 +30,8 @@ class Player(models.Model):
 			"position": self.position.as_dict(),
 			"depth_position": self.depth_position,
 			"number": self.number,
-			"espn_id": self.espn_id
+			"espn_id": self.espn_id, 
+			"status": self.status
 		}
 
 class Position(models.Model):

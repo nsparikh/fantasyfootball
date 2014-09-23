@@ -1,0 +1,55 @@
+----------------------------------------------------------
+UPDATE WEEKLY
+----------------------------------------------------------
+
+GameData
+	projection
+	espn_projection (before game)
+	yahoo_projection (before game)
+	cbs_projection (before game)
+	performance score (before and after game?)
+	data (after/during game)
+
+YearData
+	average (after game)
+	data (after game)
+
+CareerData
+	data (after game)
+
+Matchups
+	espn_game_id (before game ?)
+	win (after game)
+	home_team_points (after game)
+	away_team_points (after game)
+
+Player [should this be more often than weekly? daily?]
+	depth_position (before game)
+	status (before game)
+
+
+----------------------------------------------------------
+CREATE EACH SEASON
+----------------------------------------------------------
+
+GameData
+	player
+	matchup
+	(initialize rest of fields to null)
+
+YearData
+	year
+	player
+	team
+	(initialize rest of fields to null)
+
+Matchups
+	espn_game_id (?)
+	year
+	date
+	week_number
+	bye
+	home_team
+	away_team
+	(initialize rest of fields to null)
+
