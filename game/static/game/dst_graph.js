@@ -190,7 +190,7 @@ svg.selectAll('.top-rect')
 		return halfH - midPadding - yScaleTopTotal(topYTotal(d));
 	})
 	.attr('fill', function(d) {
-		return greenScaleTotal(topYTotal(d));
+		return green;
 	})
 	.attr('opacity', opacity)
 	.on('mouseover', function(d, i) {
@@ -428,10 +428,6 @@ d3.selectAll('.checkbox-container').on('click', function(d) {
 			.attr('height', function(d) {
 				return total ? (halfH - midPadding - yScaleTopTotal(topYTotal(d))) :
 					(halfH - midPadding - yScaleTopAvg(topYAverage(d)));
-			})
-			.attr('fill', function(d) {
-				return total ? greenScaleTotal(topYTotal(d)) : 
-					greenScaleAvg(topYAverage(d));
 			});
 		d3.selectAll('.bottom-rect')
 			.transition()
