@@ -244,11 +244,11 @@ class PositionDetailView(generic.DetailView):
 					rbPtsAllowed = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
 						player__position=2, matchup__week_number__lte=week_number).exclude(
 						player__team=t.id).aggregate(Sum('data__points'))['data__points__sum']
-					avgPtsAllowed = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+					avgPtsAllowed = round(GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
 						Q(player__position=2) | Q(player__position=3) | Q(player__position=4), 
 						matchup__week_number__lte=week_number).exclude(
 						player__team=t.id, data__points__isnull=True, data__points=0).aggregate(
-						Avg('data__points'))['data__points__avg']
+						Avg('data__points'))['data__points__avg'], 2)
 					pScore = (totalPtsEarned, YearData.objects.get(player=p.id).average, 
 						wrPtsAllowed, rbPtsAllowed, avgPtsAllowed)
 
