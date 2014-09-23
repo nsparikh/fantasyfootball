@@ -2,10 +2,15 @@
 // d['players'][0][0] = player object
 // d['players'][0][1] = list of numbers
 //		0 = totalPtsEarned
-//		1 = avg FFPG
-//		2 = total WR/TE points allowed
+//		1 = num weeks played
+//		2 = total QB points allowed
 //		3 = total RB points allowed
-//		4 = average WR/TE/RB points allowed per game
+//		4 = total WR points allowed
+//		5 = total TE points allowed
+//		6 = avg QB points
+//		7 = avg RB points
+//		8 = avg WR points
+//		9 = avg TE points
 
 // Colors
 var green = '#74AB58';
@@ -31,10 +36,10 @@ var cbDim = 13;
 var duration = 300;
 
 // Text changes
-var yAxisTopTotalTotalText = 'Total Fantasy Points Scored';
-var yAxisBottomTotalTotalText = 'Total Fantasy Points Allowed (WR/TE/RB)';
-var yAxisTopTotalAvgText = 'Average Fantasy Points Per Game';
-var yAxisBottomTotalAvgText = 'Average Fantasy Points Allowed Per Game';
+var yAxisTopTotalText = 'Total Fantasy Points Scored';
+var yAxisBottomTotalText = 'Total Fantasy Points Allowed';
+var yAxisTopAvgText = 'Average Fantasy Points Per Game';
+var yAxisBottomAvgText = 'Average Fantasy Points Allowed Per Game';
 
 var svg = d3.select('#dst-graph-container')
 	.append('svg')
@@ -42,28 +47,38 @@ var svg = d3.select('#dst-graph-container')
 	.attr('height', h)
 	.attr('id', 'dst-svg');
 
+// Functions to compute values for the graph
+function topYTotal(d) { return d['players'][0][1][0]; }
+function topYAverage(d) { return Math.round(topYTotal(d) / (1.0 * d['players'][0][1][1]) * 100) / 100; }
+function bottomYTotal(d) { 
+	return d['players'][0][1][2] + d['players'][0][1][3] + d['players'][0][1][4] + d['players'][0][1][5];  
+}
+function bottomYAvg(d) { 
+	return d['players'][0][1][6] + d['players'][0][1][7] + d['players'][0][1][8] + d['players'][0][1][9]; 
+}
+
 // Scales for axes
 var xScale = d3.scale.ordinal()
 	.domain(d3.range(dataset.length))
 	.rangeRoundBands([paddingL, w], 0.05);
-var minYTopTotal = Math.min(0, d3.min(dataset, function(d) { return parseFloat(d['players'][0][1][0]); })-1);
-var maxYTopTotal = d3.max(dataset, function(d) { return parseFloat(d['players'][0][1][0]); });
+var minYTopTotal = Math.min(0, d3.min(dataset, function(d) { return topYTotal(d); })-1);
+var maxYTopTotal = d3.max(dataset, function(d) { return topYTotal(d); });
 var yScaleTopTotal = d3.scale.linear()
 	.domain([minYTopTotal, maxYTopTotal])
 	.range([halfH-midPadding, paddingTop]);
-var minYTopAvg = Math.min(0, d3.min(dataset, function(d) { return parseFloat(d['players'][0][1][1]); })-1);
-var maxYTopAvg = d3.max(dataset, function(d) { return parseFloat(d['players'][0][1][1]); });
+var minYTopAvg = Math.min(0, d3.min(dataset, function(d) { return topYAverage(d); })-1);
+var maxYTopAvg = d3.max(dataset, function(d) { return topYAverage(d); });
 var yScaleTopAvg = d3.scale.linear()
 	.domain([minYTopAvg, maxYTopAvg])
 	.range([halfH-midPadding, paddingTop]);
 
-var minYBottomTotal = Math.min(0, d3.min(dataset, function(d) { return parseFloat(d['players'][0][1][2])+parseFloat(d['players'][0][1][3]); })-1);
-var maxYBottomTotal = d3.max(dataset, function(d) { return parseFloat(d['players'][0][1][2])+parseFloat(d['players'][0][1][3]); });
+var minYBottomTotal = Math.min(0, d3.min(dataset, function(d) { return bottomYTotal(d); })-1);
+var maxYBottomTotal = d3.max(dataset, function(d) { return bottomYTotal(d); });
 var yScaleBottomTotal = d3.scale.linear()
 	.domain([minYBottomTotal, maxYBottomTotal])
 	.range([midPadding, halfH-paddingTop]);
-var minYBottomAvg = Math.min(0, d3.min(dataset, function(d) { return parseFloat(d['players'][0][1][4]); })-1);
-var maxYBottomAvg = d3.max(dataset, function(d) { return parseFloat(d['players'][0][1][4]); });
+var minYBottomAvg = Math.min(0, d3.min(dataset, function(d) { return bottomYAvg(d); }));
+var maxYBottomAvg = d3.max(dataset, function(d) { return bottomYAvg(d); });
 var yScaleBottomAvg = d3.scale.linear()
 	.domain([minYBottomAvg, maxYBottomAvg])
 	.range([midPadding, halfH-paddingTop]);
@@ -72,15 +87,12 @@ var yScaleBottomAvg = d3.scale.linear()
 var greenScaleTotal = d3.scale.linear()
 	.domain([minYTopTotal, maxYTopTotal])
 	.range([white, green]);
-var redScaleTotal = d3.scale.linear()
-	.domain([minYBottomTotal, maxYBottomTotal])
-	.range([white, red]);
 var greenScaleAvg = d3.scale.linear()
 	.domain([minYTopAvg, maxYTopAvg])
 	.range([white, green]);
-var redScaleAvg = d3.scale.linear()
-	.domain([minYBottomAvg, maxYBottomAvg])
-	.range([white, red]);
+var redScale = d3.scale.ordinal()
+	.domain([2, 3, 4, 5])
+	.range(['#d4c4c5', '#d49496', '#d36468', '#d3343a']);
 
 // Draw axes
 var xAxis = d3.svg.axis()
@@ -130,7 +142,7 @@ svg.append('text')
     .attr('y', 10)
     .attr('transform', 'rotate(-90) translate(0, 0)')
     .style('text-anchor', 'middle')
-    .text(yAxisTopTotalTotalText);
+    .text(yAxisTopTotalText);
 svg.append('text')
 	.attr('class', 'axis-label')
 	.attr('id', 'y-axis-bottom-text')
@@ -138,12 +150,25 @@ svg.append('text')
     .attr('y', 10)
     .attr('transform', 'rotate(-90) translate(0, 0)')
     .style('text-anchor', 'middle')
-    .text(yAxisBottomTotalTotalText);
+    .text(yAxisBottomTotalText);
 
 
 /****************************************************************************/
 // RECTANGLES
 /****************************************************************************/
+
+// Augment the dataset for the stacked bar graph
+dataset.forEach(function(d, i) {
+	var y0Total = 0;
+	var y0Avg = 0;
+	d.offPositions = redScale.domain().map(function(posIndex) {
+		return { 
+			posIndex: posIndex, teamIndex: i, 
+			y0Total: y0Total, y1Total: y0Total += d['players'][0][1][posIndex],
+			y0Avg: y0Avg, y1Avg: y0Avg += d['players'][0][1][posIndex+4]
+		};
+	});
+});
 
 // Draw rectangles
 svg.selectAll('.top-rect')
@@ -158,14 +183,14 @@ svg.selectAll('.top-rect')
 		return xScale(i);
 	})
 	.attr('y', function(d) {
-		return yScaleTopTotal(d['players'][0][1][0]);
+		return yScaleTopTotal(topYTotal(d));
 	})
 	.attr('width', xScale.rangeBand())
 	.attr('height', function(d) {
-		return halfH - midPadding - yScaleTopTotal(d['players'][0][1][0]);
+		return halfH - midPadding - yScaleTopTotal(topYTotal(d));
 	})
 	.attr('fill', function(d) {
-		return greenScaleTotal(d['players'][0][1][0]);
+		return greenScaleTotal(topYTotal(d));
 	})
 	.attr('opacity', opacity)
 	.on('mouseover', function(d, i) {
@@ -176,35 +201,38 @@ svg.selectAll('.top-rect')
 		d3.selectAll('.bar-text-' + i).classed('hidden', true);
 		d3.selectAll('#rect-'+i).attr('opacity', opacity);
 	});
-svg.selectAll('.bottom-rect')
+var bottomRect = svg.selectAll('.bottom-rect-g')
 	.data(dataset)
 	.enter()
+	.append('g')
+	.attr('class', 'bottom-rect-g')
+	.attr('transform', function(d, i) { return 'translate(' + xScale(i) + ',0)'; })
 	.append('svg:a')
-	.attr('xlink:href', function(d) { return player_url + d['players'][0][0]['id']; })
+	.attr('xlink:href', function(d) { return player_url + d['players'][0][0]['id']; });
+bottomRect.selectAll('.bottom-rect')
+	.data(function(d) { return d.offPositions; })
+	.enter()
 	.append('rect')
 	.attr('class', 'bottom-rect')
-	.attr('id', function(d, i) { return 'rect-'+i; })
-	.attr('x', function(d, i) {
-		return xScale(i);
-	})
+	.attr('id', function(d) { return 'rect-' + d.teamIndex; })
 	.attr('y', function(d) {
-		return halfH + midPadding;
+		return halfH + yScaleBottomTotal(d.y0Total);
 	})
 	.attr('width', xScale.rangeBand())
 	.attr('height', function(d) {
-		return yScaleBottomTotal(parseFloat(d['players'][0][1][2]) + d['players'][0][1][3]) - midPadding;
+		return yScaleBottomTotal(d.y1Total) - yScaleBottomTotal(d.y0Total);
 	})
 	.attr('fill', function(d) {
-		return redScaleTotal(parseFloat(d['players'][0][1][2]) + d['players'][0][1][3]);
+		return redScale(d.posIndex);
 	})
 	.attr('opacity', opacity)
-	.on('mouseover', function(d, i) {
-		d3.selectAll('.bar-text-' + i).classed('hidden', false);
-		d3.selectAll('#rect-'+i).attr('opacity', 1.0);
+	.on('mouseover', function(d) {
+		d3.selectAll('.bar-text-' + d.teamIndex).classed('hidden', false);
+		d3.selectAll('#rect-' + d.teamIndex).attr('opacity', 1.0);
 	})
-	.on('mouseout', function(d, i) {
-		d3.selectAll('.bar-text-' + i).classed('hidden', true);
-		d3.selectAll('#rect-'+i).attr('opacity', opacity);
+	.on('mouseout', function(d) {
+		d3.selectAll('.bar-text-' + d.teamIndex).classed('hidden', true);
+		d3.selectAll('#rect-' + d.teamIndex).attr('opacity', opacity);
 	});
 
 // Create text
@@ -213,32 +241,28 @@ svg.selectAll('.top-text')
 	.enter()
 	.append('text')
 	.attr('class', function(d, i) { return 'hidden top-text bar-text-' + i; })
-	.text(function(d) {
-		return d['players'][0][1][0];
-	})
+	.text(function(d) { return topYTotal(d); })
 	.attr('text-anchor', 'middle')
 	.attr('x', function(d, i) {
 		return xScale(i) + xScale.rangeBand() / 2;
 	})
 	.attr('y', function(d) {
-		return yScaleTopTotal(d['players'][0][1][0]) + paddingTop + 5;
+		return yScaleTopTotal(topYTotal(d)) + paddingTop + 5;
 	})
 	.attr('fill', darkGray)
 	.attr('font-size', '12px');
-svg.selectAll('.bottom-text')
-	.data(dataset)
+bottomRect.selectAll('.bottom-text')
+	.data(function(d) { return d.offPositions; })
 	.enter()
 	.append('text')
-	.attr('class', function(d, i) { return 'hidden bottom-text bar-text-' + i; })
-	.text(function(d) {
-		return parseFloat(d['players'][0][1][2]) + d['players'][0][1][3];
+	.attr('class', function(d) { return 'hidden bottom-text bar-text-' + d.teamIndex; })
+	.attr('transform', 'translate(' + xScale.rangeBand() / 2 + ',0)')
+	.text(function(d) {  
+		return d.y1Total - d.y0Total;
 	})
 	.attr('text-anchor', 'middle')
-	.attr('x', function(d, i) {
-		return xScale(i) + xScale.rangeBand() / 2;
-	})
 	.attr('y', function(d) {
-		return halfH + yScaleBottomTotal(parseFloat(d['players'][0][1][2]) + d['players'][0][1][3]) - 5;
+		return halfH + yScaleBottomTotal(d.y1Total) - 5;
 	})
 	.attr('fill', darkGray)
 	.attr('font-size', '12px');
@@ -305,6 +329,67 @@ avgBox.append('text')
 	.attr('fill', grayText)
 	.text('Average FPPG');
 
+curY += 50;
+legSvg.append('text')
+	.attr('x', legW/2)
+	.attr('y', curY)
+	.attr('class', 'span-header')
+	.attr('text-anchor', 'middle')
+	.attr('fill', grayText)
+	.text('Legend');
+curY += 10;
+var legBox1 = legSvg.append('g')
+	.attr('class', 'leg-item-container')
+	.attr('transform', 'translate('+curX+','+curY+')');
+legBox1.append('rect')
+	.attr('width', cbDim)
+	.attr('height', cbDim)
+	.attr('fill', redScale(2));
+legBox1.append('text')
+	.attr('text-anchor', 'left')
+	.attr('transform', 'translate('+(cbDim+5)+','+13+')')
+	.attr('fill', grayText)
+	.text('Quarterbacks');
+curY += 20;
+var legBox2 = legSvg.append('g')
+	.attr('class', 'leg-item-container')
+	.attr('transform', 'translate('+curX+','+curY+')');
+legBox2.append('rect')
+	.attr('width', cbDim)
+	.attr('height', cbDim)
+	.attr('fill', redScale(3));
+legBox2.append('text')
+	.attr('text-anchor', 'left')
+	.attr('transform', 'translate('+(cbDim+5)+','+13+')')
+	.attr('fill', grayText)
+	.text('Runningbacks');
+curY += 20;
+var legBox3 = legSvg.append('g')
+	.attr('class', 'leg-item-container')
+	.attr('transform', 'translate('+curX+','+curY+')');
+legBox3.append('rect')
+	.attr('width', cbDim)
+	.attr('height', cbDim)
+	.attr('fill', redScale(4));
+legBox3.append('text')
+	.attr('text-anchor', 'left')
+	.attr('transform', 'translate('+(cbDim+5)+','+13+')')
+	.attr('fill', grayText)
+	.text('Wide Receivers');
+curY += 20;
+var legBox4 = legSvg.append('g')
+	.attr('class', 'leg-item-container')
+	.attr('transform', 'translate('+curX+','+curY+')');
+legBox4.append('rect')
+	.attr('width', cbDim)
+	.attr('height', cbDim)
+	.attr('fill', redScale(5));
+legBox4.append('text')
+	.attr('text-anchor', 'left')
+	.attr('transform', 'translate('+(cbDim+5)+','+13+')')
+	.attr('fill', grayText)
+	.text('Tight Ends');
+
 // Add functionality to checkboxes
 d3.selectAll('.checkbox-container').on('click', function(d) {
 	var curId = d3.select(this).attr('id');
@@ -324,59 +409,58 @@ d3.selectAll('.checkbox-container').on('click', function(d) {
 			.transition()
 			.duration(duration)
 			.call(total ? yAxisTopTotal : yAxisTopAvg);
+		d3.select('#y-axis-top-text')
+			.text(total ? yAxisTopTotalText : yAxisTopAvgText);
 		d3.select('#y-axis-bottom')
 			.transition()
 			.duration(duration)
 			.call(total ? yAxisBottomTotal : yAxisBottomAvg);
-		d3.select('#y-axis-top-text')
-			.text(total ? yAxisTopTotalTotalText : yAxisTopTotalAvgText);
 		d3.select('#y-axis-bottom-text')
-			.text(total ? yAxisBottomTotalTotalText : yAxisBottomTotalAvgText);
+			.text(total ? yAxisBottomTotalText : yAxisBottomAvgText);
 
 		// Transition the rectangles
 		d3.selectAll('.top-rect')
 			.transition()
 			.duration(duration)
 			.attr('y', function(d) {
-				return total ? yScaleTopTotal(d['players'][0][1][0]) : yScaleTopAvg(d['players'][0][1][1]);
+				return total ? yScaleTopTotal(topYTotal(d)) : yScaleTopAvg(topYAverage(d));
 			})
 			.attr('height', function(d) {
-				return total ? (halfH - midPadding - yScaleTopTotal(d['players'][0][1][0])) :
-					(halfH - midPadding - yScaleTopAvg(d['players'][0][1][1]));
+				return total ? (halfH - midPadding - yScaleTopTotal(topYTotal(d))) :
+					(halfH - midPadding - yScaleTopAvg(topYAverage(d)));
 			})
 			.attr('fill', function(d) {
-				return total ? greenScaleTotal(d['players'][0][1][0]) : 
-					greenScaleAvg(d['players'][0][1][1]);
+				return total ? greenScaleTotal(topYTotal(d)) : 
+					greenScaleAvg(topYAverage(d));
 			});
 		d3.selectAll('.bottom-rect')
 			.transition()
 			.duration(duration)
-			.attr('height', function(d) {
-				return total ? (yScaleBottomTotal(parseFloat(d['players'][0][1][2]) + d['players'][0][1][3]) - midPadding) : 
-					(yScaleBottomAvg(d['players'][0][1][4]) - midPadding);
+			.attr('y', function(d) {
+				return total ? (halfH + yScaleBottomTotal(d.y0Total)) : 
+					(halfH + yScaleBottomAvg(d.y0Avg));
 			})
-			.attr('fill', function(d) {
-				return total ? (redScaleTotal(parseFloat(d['players'][0][1][2]) + d['players'][0][1][3])) : 
-					redScaleAvg(d['players'][0][1][4]);
+			.attr('height', function(d) {
+				return total ? (yScaleBottomTotal(d.y1Total) - yScaleBottomTotal(d.y0Total)) :
+					(yScaleBottomAvg(d.y1Avg) - yScaleBottomAvg(d.y0Avg));
 			});
 
 		// Change the hover text for the rectangles
 		d3.selectAll('.top-text')
 			.text(function(d) {
-				return total ? d['players'][0][1][0] : d['players'][0][1][1];
+				return total ? topYTotal(d) : topYAverage(d);
 			})
 			.attr('y', function(d) {
-				return total ? (yScaleTopTotal(d['players'][0][1][0]) + paddingTop + 5) :
-					(yScaleTopAvg(d['players'][0][1][1]) + paddingTop + 5);
+				return total ? (yScaleTopTotal(topYTotal(d)) + paddingTop + 5) :
+					(yScaleTopAvg(topYAverage(d)) + paddingTop + 5);
 			});
 		d3.selectAll('.bottom-text')
 			.text(function(d) {
-				return total ? (parseFloat(d['players'][0][1][2]) + d['players'][0][1][3]) :
-					d['players'][0][1][4];
+				return total ? (d.y1Total - d.y0Total) : Math.round((d.y1Avg - d.y0Avg)*100)/100;
 			})
 			.attr('y', function(d) {
-				return total ? (halfH + yScaleBottomTotal(parseFloat(d['players'][0][1][2]) + d['players'][0][1][3]) - 5) :
-					(halfH + yScaleBottomAvg(d['players'][0][1][4]) - 5);
+				return total ? (halfH + yScaleBottomTotal(d.y1Total) - 5) : 
+					(halfH + yScaleBottomAvg(d.y1Avg) - 5);
 			});
 
 

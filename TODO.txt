@@ -11,7 +11,7 @@ Data issues:
 
 
 High Priority:
-- D/ST position page: add toggle switch for averages/total. Also add option to show totals vs weekly data?
+- for wr/rb/te/qb table: fix computation for performance scores. do something similar to d/st graph
 - Complete individual player pages
 	- Figure out individual pages for D/ST, Kickers; get necessary data
 - Get rest of data
@@ -38,6 +38,7 @@ Quick Fixes:
 - Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
 - Fix links on player detail page (to position and team)
 - Fix 'F. Lastname' on position detail page for players with middle name or suffix
+- Fix text overlap when hovering on d/st bottom graph
 
 
 Low Priority:

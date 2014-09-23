@@ -214,6 +214,11 @@ class PositionDetailView(generic.DetailView):
 					opponent = m.home_team.id
 					break
 
+			# Figure out the team's bye week
+			num_weeks = week_number
+			bye_week = Matchup.objects.get(home_team=t.id, bye=True).week_number
+			if bye_week <= week_number: num_weeks -= 1
+
 			# Ordered list of players for this team of the position
 			depth_list = [None] * self.posDepthLength[self.object.abbr]
 			team_players = player_list.filter(team=t.id)
@@ -234,23 +239,38 @@ class PositionDetailView(generic.DetailView):
 					defScore = YearData.objects.get(player=defPlayer.id).average - Position.objects.get(id=5).average
 					pScore = offScore - defScore
 				elif posId == 5:
-					# Get data for each D/ST: total fantasy points earned, avg FPPG
-					# Data against each D/ST: total fantasy points lost to WR, RB; avg FPPG allowed
 					totalPtsEarned = GameData.objects.filter(player=p.id,
 						matchup__week_number__lte=week_number).aggregate(Sum('data__points'))['data__points__sum']
-					wrPtsAllowed = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
-						Q(player__position=3) | Q(player__position=4), matchup__week_number__lte=week_number).exclude(
-						player__team=t.id).aggregate(Sum('data__points'))['data__points__sum']
-					rbPtsAllowed = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+					allQb =  GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+						player__position=1, matchup__week_number__lte=week_number).exclude(
+						player__team=t.id)
+					totalQbPts = allQb.aggregate(Sum('data__points'))['data__points__sum']
+					qbCount = allQb.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
+					avgQbPts = totalQbPts*1.0/qbCount
+
+					allRb = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
 						player__position=2, matchup__week_number__lte=week_number).exclude(
-						player__team=t.id).aggregate(Sum('data__points'))['data__points__sum']
-					avgPtsAllowed = round(GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
-						Q(player__position=2) | Q(player__position=3) | Q(player__position=4), 
-						matchup__week_number__lte=week_number).exclude(
-						player__team=t.id, data__points__isnull=True, data__points=0).aggregate(
-						Avg('data__points'))['data__points__avg'], 2)
-					pScore = (totalPtsEarned, YearData.objects.get(player=p.id).average, 
-						wrPtsAllowed, rbPtsAllowed, avgPtsAllowed)
+						player__team=t.id)
+					totalRbPts = allRb.aggregate(Sum('data__points'))['data__points__sum']
+					rbCount = allQb.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
+					avgRbPts = totalRbPts*1.0/rbCount
+
+					allWr = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+						player__position=3, matchup__week_number__lte=week_number).exclude(
+						player__team=t.id)
+					totalWrPts = allWr.aggregate(Sum('data__points'))['data__points__sum']
+					wrCount = allQb.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
+					avgWrPts = totalWrPts*1.0/wrCount
+
+					allTe = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+						player__position=4, matchup__week_number__lte=week_number).exclude(
+						player__team=t.id)
+					totalTePts = allTe.aggregate(Sum('data__points'))['data__points__sum']
+					teCount = allQb.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
+					avgTePts = totalTePts*1.0/teCount
+
+					pScore = (totalPtsEarned, num_weeks, totalQbPts, totalRbPts, totalWrPts, totalTePts,
+						avgQbPts, avgRbPts, avgWrPts, avgTePts)
 
 				depth_list[index] = (p.as_dict(), pScore)
 
