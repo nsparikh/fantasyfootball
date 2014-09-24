@@ -53,3 +53,37 @@ Matchups
 	away_team
 	(initialize rest of fields to null)
 
+
+----------------------------------------------------------
+DATABASE INFO
+----------------------------------------------------------
+
+Fixtures
+	PlayersSeed - need to fix players with no height/weight/DOB
+	TeamsSeed - complete
+	PositionsSeed - complete
+	Matchups2013 - complete
+	BlankDataPoints - complete
+	Matchups2013 - complete
+	GameData2013 - complete (?)
+	GameData2013Points - complete
+	YearData2013 - complete
+	YearData2013Points - complete
+	Matchups2014 - has game info through W3
+	GameData2014 - has game info through W3; no performance scores
+	GameData2014Points - has game info through W3
+	YearData2014 - need to create
+	YearData2014Points - need to create
+
+To calculate performance scores:
+	python manage.py scoreUpdates
+
+Export Heroku DB: ** DO THIS BEFORE UPDATING DB **
+	heroku pgbackups:capture
+	curl -o latest.dump `heroku pgbackups:url`
+	
+To restore into local DB:
+	pg_restore --verbose --clean --no-acl --no-owner -h localhost -U neenaparikh -d footballdb latest.dump
+
+
+

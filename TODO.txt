@@ -2,7 +2,6 @@ TO DO LIST
 ==========
 
 Data issues:
-- Fix GameData with null date / espn game ID that aren't Bye weeks
 - Fix Garrett Hartley 2013 Game Data (was on a team but now FA), find similar players?
 	- FIgure out actual BYE weeks for these players
 - Get Johnnie Lee Higgins GameData (middle name issue)
