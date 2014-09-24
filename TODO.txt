@@ -2,35 +2,6 @@ TO DO LIST
 ==========
 
 Data issues:
-- No GameData2013:
-NO MATCHUP / GAME DATA Devin Street 35038
-NO MATCHUP / GAME DATA Corey Washington 35319
-NO MATCHUP / GAME DATA Trey Burton 45407
-NO MATCHUP / GAME DATA Ryan Grant 37563
-NO MATCHUP / GAME DATA Silas Redd 24486
-NO MATCHUP / GAME DATA Darren Fells 43913
-NO MATCHUP / GAME DATA Phil Bates 36722
-NO MATCHUP / GAME DATA Alex Bayer 42657
-NO MATCHUP / GAME DATA Trey Watts 28127
-NO MATCHUP / GAME DATA Senorise Perry 22095
-NO MATCHUP / GAME DATA Jeff Janis 30872
-NO MATCHUP / GAME DATA Adam Thielen 38563
-NO MATCHUP / GAME DATA Brenton Bersin 34252
-NO MATCHUP / GAME DATA Philly Brown 33243
-NO MATCHUP / GAME DATA Damien Williams 29049
-NO MATCHUP / GAME DATA Harold Hoskins 43345
-NO MATCHUP / GAME DATA Quincy Enunwa 34923
-NO MATCHUP / GAME DATA Isaiah Burse 34340
-NO MATCHUP / GAME DATA Albert Wilson 39239
-NO MATCHUP / GAME DATA Demetrius Harris 41660
-NO MATCHUP / GAME DATA Frankie Hammond 34500
-NO MATCHUP / GAME DATA Brian Leonhardt 45569
-NO MATCHUP / GAME DATA Dontrelle Inman 30470
-NO MATCHUP / GAME DATA Michael Campanaro 30374
-NO MATCHUP / GAME DATA James Wright 38585
-NO MATCHUP / GAME DATA Taylor Gabriel 33517
-NO MATCHUP / GAME DATA Alfred Blue 28385
-NO MATCHUP / GAME DATA Allen Hurns 36810
 - Fix GameData with null date / espn game ID that aren't Bye weeks
 - Fix Garrett Hartley 2013 Game Data (was on a team but now FA), find similar players?
 	- FIgure out actual BYE weeks for these players
@@ -57,7 +28,8 @@ High Priority:
 - Add "blank" image for players who don't have one (or show team photo?)
 	- Get images for D/ST (i.e. team logos)
 	- Add team logos to Team pages
-	
+- Create YearData2014, YearData2014Points, GameData2014, GameData2014Points, Matchup2014
+- Fix team detail, position detail pages to show only players on that team in the selected year?
 
 UI Fixes:
 - Add tooltips to player table headers

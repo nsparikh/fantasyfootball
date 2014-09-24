@@ -111,15 +111,26 @@ class PlayerDetailView(generic.DetailView):
 	def get_context_data(self, **kwargs):
 		context = super(PlayerDetailView, self).get_context_data(**kwargs)
 
+		# TODO: change to get current year data
+		# Get this player's current year's data 
+		yd = YearData.objects.get(player__id=self.object.id, year=2013)
+		context['cur_season_yeardata'] = yd
+		context['cur_season_team'] = yd.team
+
 		# If the user changed the week number, it will be in the get request
 		# We need to update the record in the session
 		if self.request.GET.get('week'):
 			self.request.session['week_number'] = int(self.request.GET.get('week'))
 		week_number = self.request.session.get('week_number', 1)
 
+		# Get the matchup for the week
+		matchup = Matchup.objects.get(Q(home_team=yd.team) | Q(away_team=yd.team), 
+			year=2013, week_number=week_number)
+		context['matchup'] = matchup
+
 		# Selected week's number of points
 		context['week_points'] = GameData.objects.get(
-			player=self.object.id, matchup__year=2013, matchup__week_number=week_number).data.points
+			player=self.object.id, matchup=matchup).data.points
 
 		# Compute total feet and inches (from height in inches)
 		context['feet'] = self.object.height / 12
@@ -129,25 +140,20 @@ class PlayerDetailView(generic.DetailView):
 		dob = self.object.dob
 		today = date.today()
 		if dob is not None:
-			context['age'] = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+			context['age'] = today.year - dob.year - (
+				(today.month, today.day) < (dob.month, dob.day))
 		else: context['age'] = None
 
 		# TODO: figure out where to store images? For now, get directly from ESPN url
 		#context['image_path'] = 'game/player_images/' + str(self.object.espn_id) + '.png'
 		context['image_path'] = 'http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/' + str(self.object.espn_id) + '.png'
-
-		# TODO: change to get current year data
-		# Get this player's current year's data 
-		yd = YearData.objects.filter(player__id=self.object.id, year=2013)[0]
-		context['cur_season_yeardata'] = yd
-		context['cur_season_team'] = yd.team.abbr
-
-		# TODO: change to get current year from selection
+		
 		# Get this player's full set of current season data
 		cur_season_gamedata = GameData.objects.filter(
 			player__id=self.object.id, matchup__year=2013, matchup__bye=False
 		).exclude(data=1).order_by('matchup__week_number')
-		cur_season_gamedata_json = json.dumps([ obj.as_dict() for obj in cur_season_gamedata ], cls=DjangoJSONEncoder)
+		cur_season_gamedata_json = json.dumps([ obj.as_dict() for obj in cur_season_gamedata ], 
+			cls=DjangoJSONEncoder)
 		context['cur_season_gamedata'] = cur_season_gamedata_json
 
 		context['player_detail_table_path'] = 'game/player_table_' + self.object.position.abbr.replace('/', '').lower() + '.html'
@@ -191,8 +197,7 @@ class PositionDetailView(generic.DetailView):
 		week_number = self.request.session.get('week_number', 1)
 
 		# Get the matchups for the selected week
-		matchups = Matchup.objects.all().filter(
-			week_number=week_number)
+		matchups = Matchup.objects.all().filter(week_number=week_number)
 
 		# Get the players that are of this position and have a depth chart position
 		player_list = Player.objects.all().filter(
@@ -202,16 +207,10 @@ class PositionDetailView(generic.DetailView):
 		team_map_list = [] 
 		for t in teams:
 			# Figure out the opponent from the matchups (if it's not a BYE week)
-			opponent = None
-			for m in matchups:
-				if m.bye: continue
-				if m.home_team.id == t.id: 
-					opponent = m.away_team.id
-					break
-				elif m.away_team.id == t.id: 
-					opponent = m.home_team.id
-					break
-
+			m = matchups.get(Q(home_team=t) | Q(away_team=t))
+			if m.bye: opponent = None
+			else: opponent = m.home_team.id if t.id==m.away_team.id else m.away_team.id
+			
 			# Figure out the team's bye week
 			num_weeks = week_number
 			bye_week = Matchup.objects.get(home_team=t.id, bye=True).week_number

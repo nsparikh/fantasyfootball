@@ -87,7 +87,7 @@ class Command(NoArgsCommand):
 					gameData.performance_score = score
 					gameData.save()
 				except:
-					print 'NO GAME DATA', player.name, player.id
+					pass
 
 
 				

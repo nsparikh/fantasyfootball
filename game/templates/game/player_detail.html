@@ -24,7 +24,7 @@
 			<p class="player-info-text">Age: {{ age }}</p>
 			{% endif %}
 
-			<p class="player-info-text"><a href="{% url 'game:teams' %}{{ player.team.id }}" class="white-link">{{ player.team.name }}</a></p>
+			<p class="player-info-text"><a href="{% url 'game:teams' %}{{ cur_season_team.id }}" class="white-link">{{ cur_season_team.name }}</a></p>
 		</div>
 		<div class="player-season-table-container">
 			{% include player_detail_table_path %}
@@ -52,9 +52,9 @@
 	<td colspan="2"><div class="tile projections-tile">
 		<h4 class="tile-header">&#9702; Fantasy Projections</h4>
 		<div class="proj-col">
-			<h3>TEAM vs. TEAM</h3>
-			<p class="player-info-text">mm/dd/yy, time ET</p>
-			<p class="player-info-text">Stadium, City, STATE</p>
+			<h3>{{ matchup.home_team.abbr }} vs. {{ matchup.away_team.abbr }}</h3>
+			<p class="player-info-text">{{ matchup.date }}</p>
+			<p class="player-info-text">{{ matchup.home_team.stadium }}</p>
 			<br/>
 			<h3>Previous matchup</h3>
 			<p class="player-info-text">Result</p>
@@ -102,7 +102,7 @@
 {% block js %}
 <script>
 	var dataset = {{ cur_season_gamedata | safe }};
-	var playerTeamAbbr = '{{ cur_season_team }}';
+	var playerTeamAbbr = '{{ cur_season_team.abbr }}';
 	var pos = '{{ player.position.abbr }}';
 </script>
 <script type="text/javascript" src="{% static 'game/player_detail_weekly_graph.js' %}"></script>
