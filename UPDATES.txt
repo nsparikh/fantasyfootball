@@ -3,7 +3,7 @@ UPDATE WEEKLY
 ----------------------------------------------------------
 
 GameData
-	projection
+	projection (before game)
 	espn_projection (before game)
 	yahoo_projection (before game)
 	cbs_projection (before game)
@@ -18,7 +18,7 @@ CareerData
 	data (after game)
 
 Matchups
-	espn_game_id (before game ?)
+	espn_game_id (after game)
 	win (after game)
 	home_team_points (after game)
 	away_team_points (after game)

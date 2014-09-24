@@ -44,18 +44,18 @@ def players(request):
 	if 'pos' in request.GET: pos = request.GET['pos'].upper()
 	if pos in ['QB', 'RB', 'WR', 'TE', 'K']:
 		player_list = YearData.objects.filter(
-			player__position__abbr__iexact=pos
+			player__position__abbr__iexact=pos, year=2013
 		)
 	elif pos == 'DST':
 		player_list = YearData.objects.filter(
-			player__position__abbr__iexact='D/ST'
+			player__position__abbr__iexact='D/ST', year=2013
 		)
 	elif pos == 'FLEX':
 		player_list = YearData.objects.filter(
-			player__position__abbr__in=['RB', 'WR', 'TE']
+			player__position__abbr__in=['RB', 'WR', 'TE'], year=2013
 		)
 	else:
-		player_list = YearData.objects.all()
+		player_list = YearData.objects.filter(year=2013)
 
 	# Place any players with null data at the end
 	player_list = player_list.annotate(
@@ -93,7 +93,7 @@ def players(request):
 # Called on the players graph page
 # Retrieves the top 200 performing players (based on fantasy pts)
 def players_graph(request):
-	player_list = YearData.objects.all().annotate(
+	player_list = YearData.objects.filter(year=2013).annotate(
 		null_sort=Count('data__points')).order_by(
 		'-null_sort', '-data__points', 'player__name')[0:200]
 	player_list_json = json.dumps([ obj.as_dict() for obj in player_list ], cls=DjangoJSONEncoder)
