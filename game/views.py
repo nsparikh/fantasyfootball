@@ -73,7 +73,7 @@ def players(request):
 		player_list = paginator.page(paginator.num_pages)
 
 	# Put into JSON format for javascript access
-	player_list_json = json.dumps([ obj.as_dict() for obj in player_list ])
+	player_list_json = json.dumps([ obj.as_dict() for obj in player_list ], cls=DjangoJSONEncoder)
 	return render(request, 'game/players.html', {
 		'player_list': player_list,
 		'player_list_json': player_list_json,
@@ -96,7 +96,7 @@ def players_graph(request):
 	player_list = YearData.objects.all().annotate(
 		null_sort=Count('data__points')).order_by(
 		'-null_sort', '-data__points', 'player__name')[0:200]
-	player_list_json = json.dumps([ obj.as_dict() for obj in player_list ])
+	player_list_json = json.dumps([ obj.as_dict() for obj in player_list ], cls=DjangoJSONEncoder)
 	return render(request, 'game/players_graph.html', {
 		'player_list_json': player_list_json
 	})
@@ -146,10 +146,8 @@ class PlayerDetailView(generic.DetailView):
 		# Get this player's full set of current season data
 		cur_season_gamedata = GameData.objects.filter(
 			player__id=self.object.id, matchup__year=2013, matchup__bye=False
-		).exclude(
-			data=1
-		)
-		cur_season_gamedata_json = json.dumps([ obj.as_dict() for obj in cur_season_gamedata ])
+		).exclude(data=1).order_by('matchup__week_number')
+		cur_season_gamedata_json = json.dumps([ obj.as_dict() for obj in cur_season_gamedata ], cls=DjangoJSONEncoder)
 		context['cur_season_gamedata'] = cur_season_gamedata_json
 
 		context['player_detail_table_path'] = 'game/player_table_' + self.object.position.abbr.replace('/', '').lower() + '.html'
@@ -180,7 +178,7 @@ class PositionDetailView(generic.DetailView):
 
 		# Get the list of all of the teams
 		teams = Team.objects.all().exclude(id=33) # We don't want FA
-		context['teams_json'] = json.dumps([ obj.as_dict() for obj in teams ])
+		context['teams_json'] = json.dumps([ obj.as_dict() for obj in teams ], cls=DjangoJSONEncoder)
 		teams = teams.order_by('name')
 
 		posId = self.object.id
@@ -234,22 +232,12 @@ class PositionDetailView(generic.DetailView):
 				# Compute score for this player
 				pScore = 0
 				if opponent is not None and posId in [1, 2, 3, 4]:
-					playerPts = YearData.objects.get(player=p.id).data.points
-					playerPts = playerPts if playerPts is not None else 0
-					posAvg = getattr(Position.objects.get(id=posId), 'average'+str(p.depth_position))
-					offScore = float(playerPts - posAvg)
-
-					defPtsAllowed = GameData.objects.filter(Q(matchup__home_team=opponent) | Q(matchup__away_team=opponent), 
-						player__position=posId, player__depth_position=p.depth_position, 
-						matchup__week_number__lte=week_number).exclude(player__team=opponent).aggregate(
-						Sum('data__points'))['data__points__sum']
-					defPtsAllowed = defPtsAllowed if defPtsAllowed is not None else 0
-					avgDefPtsAllowed = GameData.objects.filter(player__position=posId, 
-						player__depth_position=p.depth_position, matchup__week_number__lte=week_number).aggregate(
-						Sum('data__points'))['data__points__sum'] / 32.0
-					defScore = avgDefPtsAllowed - defPtsAllowed
-
-					pScore = offScore - defScore
+					try:
+						pScore = GameData.objects.get(player=p.id, matchup__year=2013, 
+							matchup__week_number=week_number).performance_score
+						pScore = 0 if pScore is None else pScore
+					except:
+						pScore = 0
 
 				elif posId == 5:
 					totalPtsEarned = GameData.objects.filter(player=p.id,

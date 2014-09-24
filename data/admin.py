@@ -2,6 +2,9 @@ from django.contrib import admin
 from data.models import DataPoint, YearData, GameData
 
 class DataPointAdmin(admin.ModelAdmin):
+	readonly_fields = ('passC', 'passA', 'passYds', 'passTDs', 'passInt', 
+		'rush', 'rushYds', 'rushTDs', 'rec', 'recYds', 'recTDs', 'recTar',
+		'misc2pc', 'miscFuml', 'miscTDs', 'points')
 	fieldsets = [
 		('Passing', {'fields': ['passC', 'passA', 'passYds', 'passTDs', 'passInt']}),
 		('Rushing', {'fields': ['rush', 'rushYds', 'rushTDs']}),
@@ -11,7 +14,13 @@ class DataPointAdmin(admin.ModelAdmin):
 	]
 	list_display = ('id', 'passYds', 'rushYds', 'recYds', 'points')
 
+class GameDataAdmin(admin.ModelAdmin):
+	readonly_fields = ('id', 'player', 'matchup', 'data', 'performance_score')
+	fields = ('id', 'player', 'matchup', 'projection', 'espn_projection', 
+		'yahoo_projection', 'cbs_projection', 'performance_score', 'data')
+	list_display = ('player', 'matchup')
+	search_fields = ['id']
 
 admin.site.register(DataPoint, DataPointAdmin)
 admin.site.register(YearData)
-admin.site.register(GameData)
+admin.site.register(GameData, GameDataAdmin)

@@ -38,11 +38,6 @@ class Position(models.Model):
 	# Primary keys: QB=1, RB=2, WR=3, TE=4, D/ST=5, K=6
 	name = models.CharField(max_length=200)
 	abbr = models.CharField(max_length=200)
-	average = models.DecimalField(max_digits=5, decimal_places=2, default=0) # Avg fantasy points per game for the position
-	average1 = models.DecimalField(max_digits=5, decimal_places=2, default=0) 
-	average2 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-	average3 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-	average4 = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
 	def __unicode__(self):
 		return self.name
@@ -96,7 +91,9 @@ class Matchup(models.Model):
 	away_team_points = models.IntegerField(null=True) # Points for away_team
 
 	def __unicode__(self):
-		return self.home_team.name + ' vs ' + self.away_team.name + ', ' + self.date
+		if self.away_team:
+			return self.home_team.name + ' vs ' + self.away_team.name + ', WEEK ' + str(self.week_number)
+		return self.home_team.name + ' BYE WEEK ' + str(self.week_number)
 
 	def as_dict(self):
 		return {

@@ -2,6 +2,35 @@ TO DO LIST
 ==========
 
 Data issues:
+- No GameData2013:
+NO MATCHUP / GAME DATA Devin Street 35038
+NO MATCHUP / GAME DATA Corey Washington 35319
+NO MATCHUP / GAME DATA Trey Burton 45407
+NO MATCHUP / GAME DATA Ryan Grant 37563
+NO MATCHUP / GAME DATA Silas Redd 24486
+NO MATCHUP / GAME DATA Darren Fells 43913
+NO MATCHUP / GAME DATA Phil Bates 36722
+NO MATCHUP / GAME DATA Alex Bayer 42657
+NO MATCHUP / GAME DATA Trey Watts 28127
+NO MATCHUP / GAME DATA Senorise Perry 22095
+NO MATCHUP / GAME DATA Jeff Janis 30872
+NO MATCHUP / GAME DATA Adam Thielen 38563
+NO MATCHUP / GAME DATA Brenton Bersin 34252
+NO MATCHUP / GAME DATA Philly Brown 33243
+NO MATCHUP / GAME DATA Damien Williams 29049
+NO MATCHUP / GAME DATA Harold Hoskins 43345
+NO MATCHUP / GAME DATA Quincy Enunwa 34923
+NO MATCHUP / GAME DATA Isaiah Burse 34340
+NO MATCHUP / GAME DATA Albert Wilson 39239
+NO MATCHUP / GAME DATA Demetrius Harris 41660
+NO MATCHUP / GAME DATA Frankie Hammond 34500
+NO MATCHUP / GAME DATA Brian Leonhardt 45569
+NO MATCHUP / GAME DATA Dontrelle Inman 30470
+NO MATCHUP / GAME DATA Michael Campanaro 30374
+NO MATCHUP / GAME DATA James Wright 38585
+NO MATCHUP / GAME DATA Taylor Gabriel 33517
+NO MATCHUP / GAME DATA Alfred Blue 28385
+NO MATCHUP / GAME DATA Allen Hurns 36810
 - Fix GameData with null date / espn game ID that aren't Bye weeks
 - Fix Garrett Hartley 2013 Game Data (was on a team but now FA), find similar players?
 	- FIgure out actual BYE weeks for these players
@@ -12,7 +41,7 @@ Data issues:
 
 High Priority:
 - for wr/rb/te/qb table: fix computation for performance scores. do something similar to d/st graph
-	- Add weekly performance scores to GameData
+	- find a place to store the data we need for D/ST graph page (total + avg points against each def per position)
 	- get rid of "average" fields in Position?
 - Complete individual player pages
 	- Figure out individual pages for D/ST, Kickers; get necessary data
@@ -21,29 +50,25 @@ High Priority:
 	- Create CareerData model? Would have to keep it updated throughout the season	
 - Add pagination to graph?
 - Fix search box on players table page
-- Draft individual and position D/ST, K pages
-	- D/ST will be like graph from paper (for now)
+- Draft K position detail page
 - Make players graph better -- use a different metric for normalization?
 - Update current team for all players
 	- Add team to yeardata? 
 - Add "blank" image for players who don't have one (or show team photo?)
 	- Get images for D/ST (i.e. team logos)
-- Add average # fantasy points per game to player page ?
-- Create Matchup model to record weekly matchups (remove info from GameData model)
+	- Add team logos to Team pages
 	
 
-Quick Fixes:
+UI Fixes:
 - Add tooltips to player table headers
 - Highlight selected tab in nav bar on players/positions/teams pages
-- Change date format on player detail page hover box
-- Clean up code in player_detail_weekly_graph.js (particulary in mousemove function)
-- Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
-- Fix links on player detail page (to position and team)
+- Change date display format on player detail page hover box
 - Fix 'F. Lastname' on position detail page for players with middle name or suffix
 - Fix text overlap when hovering on d/st bottom graph
 
 
 Low Priority:
+- Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
 - Change url paths to use names instead of IDs for positions, teams, maybe players?
 - figure out how to "toggle" links from asc/desc when clicked again
 - figure out which players don't have images and find alternatives ?

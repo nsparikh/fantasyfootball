@@ -155,7 +155,7 @@ svg.append('text')
     .attr('transform', 'rotate(90) translate(0, 0)')
     .style('text-anchor', 'middle')
     .text(yAxisRTextMap[pos]);
-
+    
 // Draw circles
 svg.selectAll('.blue-circle')
 	.data(dataset, function(d) { return d['matchup']['week_number']; })

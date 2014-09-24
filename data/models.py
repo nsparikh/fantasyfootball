@@ -81,7 +81,7 @@ class YearData(models.Model):
 			"year": self.year,
 			"player": self.player.as_dict(),
 			"team": self.team.as_dict(),
-			"average": str(self.average),
+			"average": self.average,
 			"data": self.data.as_dict()
 		}
 
