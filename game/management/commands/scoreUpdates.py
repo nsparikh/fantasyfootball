@@ -15,7 +15,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		for i in range(2, 18):
+		for i in range(1, 18):
 			print "##############################"
 			print "WEEK", i
 			print "##############################"
@@ -67,9 +67,9 @@ class Command(NoArgsCommand):
 		players = Player.objects.all().order_by('team', 'name')
 		matchups = Matchup.objects.filter(year=year, week_number=week_number)
 
-
-		# TODO: compute averages for the week here so don't do it every time in performanceScore
+		# TODO: compute averages for the week here so don't do it every time in performanceScore?
 		
+		# Calculate and save score for every player
 		for player in players:
 			yd = YearData.objects.get(player=player, year=year)
 			if yd.team.id < 33:
