@@ -127,6 +127,8 @@ class PlayerDetailView(generic.DetailView):
 		matchup = Matchup.objects.get(Q(home_team=yd.team) | Q(away_team=yd.team), 
 			year=2013, week_number=week_number)
 		context['matchup'] = matchup
+		context['matchup_location'] = matchup.home_team.stadium[
+			matchup.home_team.stadium.index(',')+2 : ]
 
 		# Selected week's number of points
 		context['week_points'] = GameData.objects.get(
