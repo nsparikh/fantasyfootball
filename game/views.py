@@ -189,7 +189,7 @@ class PositionDetailView(generic.DetailView):
 
 		posId = self.object.id
 
-		# TODO: make the default the most recent week of current season
+		# TODO: make the default the most recent week of current year
 		# If the user changed the week number, it will be in the get request
 		# We need to update the record in the session
 		if self.request.GET.get('week'):
@@ -197,7 +197,7 @@ class PositionDetailView(generic.DetailView):
 		week_number = self.request.session.get('week_number', 1)
 
 		# Get the matchups for the selected week
-		matchups = Matchup.objects.all().filter(week_number=week_number)
+		matchups = Matchup.objects.all().filter(week_number=week_number, year=2013)
 
 		# Get the players that are of this position and have a depth chart position
 		player_list = Player.objects.all().filter(
@@ -213,7 +213,7 @@ class PositionDetailView(generic.DetailView):
 			
 			# Figure out the team's bye week
 			num_weeks = week_number
-			bye_week = Matchup.objects.get(home_team=t.id, bye=True).week_number
+			bye_week = Matchup.objects.get(home_team=t.id, bye=True, year=2013).week_number
 			if bye_week <= week_number: num_weeks -= 1
 
 			# Ordered list of players for this team of the position

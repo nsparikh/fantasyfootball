@@ -22,6 +22,7 @@ High Priority:
 - Add pagination to graph?
 - Fix search box on players table page
 - Draft K position detail page
+	- Change QB position detail page
 - Make players graph better -- use a different metric for normalization?
 - Update current team for all players
 	- Add team to yeardata? 
