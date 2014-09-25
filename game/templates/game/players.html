@@ -43,20 +43,20 @@
 					{% for param in sortList %}
 						{% if param.0 == curSort %}
 							{% if param.0 == 'passC' %}
-							<th><span id="passC" class="filter-th filter filter-selected"><a href="?{% url_replace 'sort' 'passC' %}" class="filter filter-selected">C</a></span> / <span id="passA" class="filter-th filter"><a href="?{% url_replace 'sort' 'passA' %}" class="filter">A</a></th>
+							<th><span id="passC" class="filter-th filter filter-selected"><a href="?{% url_replace 'sort' 'passC' %}" title="{{param.2}}" class="filter filter-selected">C</a></span> / <span id="passA" class="filter-th filter"><a href="?{% url_replace 'sort' 'passA' %}" title="Pass Attempts" class="filter">A</a></th>
 							{% elif param.0 == 'passA' %}
-							<th><span id="passC" class="filter-th filter"><a href="?{% url_replace 'sort' 'passC' %}" class="filter">C</a></span> / <span id="passA" class="filter-th filter filter-selected"><a href="?{% url_replace 'sort' 'passA' %}" class="filter filter-selected">A</a></span></th>
+							<th><span id="passC" class="filter-th filter"><a href="?{% url_replace 'sort' 'passC' %}" title="Pass Completions" class="filter">C</a></span> / <span id="passA" class="filter-th filter filter-selected"><a href="?{% url_replace 'sort' 'passA' %}" title="{{param.2}}" class="filter filter-selected">A</a></span></th>
 							{% else %}
-							<th id="{{param.0}}" class="filter-th"><a href="?{% url_replace 'sort' param.0 %}" class="filter filter-selected">{{param.1}}</a></th>
+							<th id="{{param.0}}" class="filter-th"><a href="?{% url_replace 'sort' param.0 %}" title="{{param.2}}" class="filter filter-selected">{{param.1}}</a></th>
 							{% endif %}
 						{% else %}
 							{% if param.0 == 'passC' %}
 								{% if curSort != 'passA' %}
-								<th><span id="passC" class="filter-th filter"><a href="?{% url_replace 'sort' 'passC' %}" class="filter">C</a></span> / <span id="passA" class="filter-th filter"><a href="?{% url_replace 'sort' 'passA' %}" class="filter">A</a></span></th>
+								<th><span id="passC" class="filter-th filter"><a href="?{% url_replace 'sort' 'passC' %}" title="{{param.2}}" class="filter">C</a></span> / <span id="passA" class="filter-th filter"><a href="?{% url_replace 'sort' 'passA' %}" title="Pass Attempts" class="filter">A</a></span></th>
 								{% endif %}
 							{% elif param.0 == 'passA' %}
 							{% else %}
-							<th id="{{param.0}}" class="filter-th"><a href="?{% url_replace 'sort' param.0 %}" class="filter">{{param.1}}</a></th>
+							<th id="{{param.0}}" class="filter-th"><a href="?{% url_replace 'sort' param.0 %}" title="{{param.2}}" class="filter">{{param.1}}</a></th>
 							{% endif %}
 						{% endif %}
 					{% endfor %}

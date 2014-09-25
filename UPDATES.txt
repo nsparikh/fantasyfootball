@@ -13,6 +13,7 @@ GameData
 YearData
 	average (after game)
 	data (after game)
+	team
 
 CareerData
 	data (after game)
@@ -26,6 +27,7 @@ Matchups
 Player [should this be more often than weekly? daily?]
 	depth_position (before game)
 	status (before game)
+	team
 
 
 ----------------------------------------------------------
@@ -72,8 +74,8 @@ Fixtures
 	Matchups2014 - has game info through W3
 	GameData2014 - has game info through W3; no performance scores
 	GameData2014Points - has game info through W3
-	YearData2014 - need to create
-	YearData2014Points - need to create
+	YearData2014 - has game info through W3; no averages
+	YearData2014Points - has game info through W3
 
 To calculate performance scores:
 	python manage.py scoreUpdates

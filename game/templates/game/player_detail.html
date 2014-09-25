@@ -51,6 +51,12 @@
 <tr>
 	<td colspan="2"><div class="tile projections-tile">
 		<h4 class="tile-header">&#9702; Fantasy Projections</h4>
+		{% if matchup.bye %}
+		<div class="proj-col">
+			<h2>BYE WEEK</h2>
+		</div>
+
+		{% else %}
 		<div class="proj-col">
 			<h3>{{ matchup.home_team.abbr }} vs. {{ matchup.away_team.abbr }}</h3>
 			<p class="player-info-text">{{ matchup.date }}</p>
@@ -83,6 +89,8 @@
 				</tr>
 			</table>
 		</div>
+		{% endif %}
+
 		<div id="week-select-container">
 			<form method="get"><select id="week-select" name="week" class="custom-select" onchange="this.form.submit()">
 				{% for i in 17|count %}

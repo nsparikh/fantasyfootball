@@ -28,15 +28,15 @@ High Priority:
 - Add "blank" image for players who don't have one (or show team photo?)
 	- Get images for D/ST (i.e. team logos)
 	- Add team logos to Team pages
-- Create YearData2014, YearData2014Points, GameData2014, GameData2014Points, Matchup2014
 - Fix team detail, position detail pages to show only players on that team in the selected year?
 
 UI Fixes:
-- Add tooltips to player table headers
 - Highlight selected tab in nav bar on players/positions/teams pages
 - Change date display format on player detail page hover box
 - Fix 'F. Lastname' on position detail page for players with middle name or suffix
 - Fix text overlap when hovering on d/st bottom graph
+	- fix flicker on hover (i.e. hover on whole bar on bottom graph, not each individual piece)
+- Make position detail tables sortable
 
 
 Low Priority:

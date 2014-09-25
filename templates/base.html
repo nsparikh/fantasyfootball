@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 {% load staticfiles %}
+{% load filters %}
 
 <html lang="en">
 	<head>
@@ -40,15 +41,17 @@
 
 						<div id="year-select-container">
 							<span id="year-select-label" class="span-header">Season:</span>
-							<select id="year-select" class="custom-select">
-								<option value="2013">2013</option>
-								<option value="2012">2012</option>
-								<option value="2011">2011</option>
-								<option value="2010">2010</option>
-								<option value="2009">2009</option>
-								<option value="2008">2008</option>
-							</select>
+							<form method="get"><select id="year-select" name="year" class="custom-select" onchange="this.form.submit()">
+								{% for i in 7|count %}
+									{% if 2014|minus:i == request.session.year %}
+										<option value="{{ 2014|minus:i }}" selected="selected">{{ 2014|minus:i }}</option>
+									{% else %}
+										<option value="{{ 2014|minus:i }}">{{ 2014|minus:i }}</option>
+									{% endif %}
+								{% endfor %}
+							</select></form>
 						</div>
+
 					</div></td></tr>
 					{% block content %}{% endblock %}
 				</table>

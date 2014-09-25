@@ -10,6 +10,17 @@ import json
 from game.models import Player, Position, Team, Matchup
 from data.models import YearData, GameData, DataPoint
 
+def getWeekAndYear(request):
+	# If the user changed the week number, it will be in the get request
+	# We need to update the record in the session
+	if request.GET.get('week'):
+		request.session['week_number'] = int(request.GET.get('week'))
+	week_number = request.session.get('week_number', 1)
+	if request.GET.get('year'):
+		request.session['year'] = int(request.GET.get('year'))
+	year = request.session.get('year', 2013)
+	return (week_number, year)
+
 # TODO: Clean up this code!!
 def players(request):
 	player_list = None
@@ -26,6 +37,8 @@ def players(request):
 	originalSort = 'points'
 	order = 'desc' # ordering of list
 	pos = 'ALL' # position(s) to display in list
+
+	(week_number, year) = getWeekAndYear(request)
 
 	# TODO: clean this code up
 	# Configure sort variable to have proper format for database access
@@ -44,18 +57,18 @@ def players(request):
 	if 'pos' in request.GET: pos = request.GET['pos'].upper()
 	if pos in ['QB', 'RB', 'WR', 'TE', 'K']:
 		player_list = YearData.objects.filter(
-			player__position__abbr__iexact=pos, year=2013
+			player__position__abbr__iexact=pos, year=year
 		)
 	elif pos == 'DST':
 		player_list = YearData.objects.filter(
-			player__position__abbr__iexact='D/ST', year=2013
+			player__position__abbr__iexact='D/ST', year=year
 		)
 	elif pos == 'FLEX':
 		player_list = YearData.objects.filter(
-			player__position__abbr__in=['RB', 'WR', 'TE'], year=2013
+			player__position__abbr__in=['RB', 'WR', 'TE'], year=year
 		)
 	else:
-		player_list = YearData.objects.filter(year=2013)
+		player_list = YearData.objects.filter(year=year)
 
 	# Place any players with null data at the end
 	player_list = player_list.annotate(
@@ -80,12 +93,16 @@ def players(request):
 		'posList': ['ALL', 'QB', 'RB', 'WR', 'TE', 'DST', 'K', 'FLEX'],
 		'curPos': pos,
 		'sortList': [
-			('name','Name'), ('team','Team'), ('pos','Pos'), ('passC','C'), 
-			('passA','A'), ('passYds','Yds'), ('passTDs','TD'),
-			('passInt','Int'), ('rush','Rush'), ('rushYds','Yds'), 
-			('rushTDs','TD'), ('rec','Rec'), ('recYds','Yds'), ('recTDs','TD'),
-			('recTar','Tar'), ('misc2pc','2PC'), ('miscFuml','Fuml'), 
-			('miscTDs','TD'), ('points','Pts')
+			('name','Name', 'Player Name'), ('team','Team', 'Player Team'), 
+			('pos','Pos', 'Player Position'), ('passC','C', 'Pass Completions'), 
+			('passA','A', 'Pass Attempts'), ('passYds','Yds', 'Passing Yards'), 
+			('passTDs','TD', 'Passing Touchdowns'), ('passInt','Int', 'Interceptions Thrown'), 
+			('rush','Rush', 'Rushing Attempts'), ('rushYds','Yds', 'Rushing Yards'), 
+			('rushTDs','TD', 'Rushing Touchdowns'), ('rec','Rec', 'Total Receptions'), 
+			('recYds','Yds', 'Receiving Yards'), ('recTDs','TD', 'Receiving Touchdowns'),
+			('recTar','Tar', 'Receiving Targets'), ('misc2pc','2PC', '2pt Conversions'), 
+			('miscFuml','Fuml', 'Fumbles Lost'), ('miscTDs','TD', 'Return Touchdowns'), 
+			('points','Pts', 'Fantasy Points')
 		],
 		'curSort': originalSort
 	})
@@ -93,7 +110,9 @@ def players(request):
 # Called on the players graph page
 # Retrieves the top 200 performing players (based on fantasy pts)
 def players_graph(request):
-	player_list = YearData.objects.filter(year=2013).annotate(
+	(week_number, year) = getWeekAndYear(request)
+
+	player_list = YearData.objects.filter(year=year).annotate(
 		null_sort=Count('data__points')).order_by(
 		'-null_sort', '-data__points', 'player__name')[0:200]
 	player_list_json = json.dumps([ obj.as_dict() for obj in player_list ], cls=DjangoJSONEncoder)
@@ -111,21 +130,17 @@ class PlayerDetailView(generic.DetailView):
 	def get_context_data(self, **kwargs):
 		context = super(PlayerDetailView, self).get_context_data(**kwargs)
 
+		(week_number, year) = getWeekAndYear(self.request)
+
 		# TODO: change to get current year data
 		# Get this player's current year's data 
-		yd = YearData.objects.get(player__id=self.object.id, year=2013)
+		yd = YearData.objects.get(player__id=self.object.id, year=year)
 		context['cur_season_yeardata'] = yd
 		context['cur_season_team'] = yd.team
 
-		# If the user changed the week number, it will be in the get request
-		# We need to update the record in the session
-		if self.request.GET.get('week'):
-			self.request.session['week_number'] = int(self.request.GET.get('week'))
-		week_number = self.request.session.get('week_number', 1)
-
 		# Get the matchup for the week
 		matchup = Matchup.objects.get(Q(home_team=yd.team) | Q(away_team=yd.team), 
-			year=2013, week_number=week_number)
+			year=year, week_number=week_number)
 		context['matchup'] = matchup
 		context['matchup_location'] = matchup.home_team.stadium[
 			matchup.home_team.stadium.index(',')+2 : ]
@@ -152,7 +167,7 @@ class PlayerDetailView(generic.DetailView):
 		
 		# Get this player's full set of current season data
 		cur_season_gamedata = GameData.objects.filter(
-			player__id=self.object.id, matchup__year=2013, matchup__bye=False
+			player__id=self.object.id, matchup__year=year, matchup__bye=False
 		).exclude(data=1).order_by('matchup__week_number')
 		cur_season_gamedata_json = json.dumps([ obj.as_dict() for obj in cur_season_gamedata ], 
 			cls=DjangoJSONEncoder)
@@ -178,7 +193,7 @@ class PositionDetailView(generic.DetailView):
 	context_object_name = 'position'
 
 	# How many players of each position can a team have
-	posDepthLength = {'QB':3, 'RB':4, 'WR':7, 'TE':5, 'D/ST':1, 'K':1}
+	posDepthLength = {'QB':1, 'RB':4, 'WR':7, 'TE':5, 'D/ST':1, 'K':1}
 
 	# Retrieves the necessary data for the position detail page
 	def get_context_data(self, **kwargs):
@@ -191,19 +206,15 @@ class PositionDetailView(generic.DetailView):
 
 		posId = self.object.id
 
-		# TODO: make the default the most recent week of current year
-		# If the user changed the week number, it will be in the get request
-		# We need to update the record in the session
-		if self.request.GET.get('week'):
-			self.request.session['week_number'] = int(self.request.GET.get('week'))
-		week_number = self.request.session.get('week_number', 1)
+		(week_number, year) = getWeekAndYear(self.request)
 
 		# Get the matchups for the selected week
-		matchups = Matchup.objects.all().filter(week_number=week_number, year=2013)
+		matchups = Matchup.objects.all().filter(week_number=week_number, year=year)
 
 		# Get the players that are of this position and have a depth chart position
 		player_list = Player.objects.all().filter(
 			position=posId).exclude(depth_position__isnull=True)
+		if posId == 1: player_list = player_list.exclude(depth_position__gte=2)
 
 		# Create a map of each team to an ordered list of players of this position
 		team_map_list = [] 
@@ -215,7 +226,7 @@ class PositionDetailView(generic.DetailView):
 			
 			# Figure out the team's bye week
 			num_weeks = week_number
-			bye_week = Matchup.objects.get(home_team=t.id, bye=True, year=2013).week_number
+			bye_week = Matchup.objects.get(home_team=t.id, bye=True, year=year).week_number
 			if bye_week <= week_number: num_weeks -= 1
 
 			# Ordered list of players for this team of the position
@@ -234,7 +245,7 @@ class PositionDetailView(generic.DetailView):
 				pScore = 0
 				if opponent is not None and posId in [1, 2, 3, 4]:
 					try:
-						pScore = GameData.objects.get(player=p.id, matchup__year=2013, 
+						pScore = GameData.objects.get(player=p.id, matchup__year=year, 
 							matchup__week_number=week_number).performance_score
 						pScore = 0 if pScore is None else pScore
 					except:
@@ -242,13 +253,14 @@ class PositionDetailView(generic.DetailView):
 
 				elif posId == 5:
 					totalPtsEarned = GameData.objects.filter(player=p.id,
-						matchup__week_number__lte=week_number).aggregate(Sum('data__points'))['data__points__sum']
+						matchup__week_number__lte=week_number, matchup__year=year).aggregate(
+						Sum('data__points'))['data__points__sum']
 
 					pScore = [totalPtsEarned, num_weeks, 0, 0, 0, 0, 0, 0, 0, 0]
 
 					for i in [1, 2, 3, 4]:
 						allPos = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
-							player__position=i, matchup__week_number__lte=week_number).exclude(
+							player__position=i, matchup__year=year, matchup__week_number__lte=week_number).exclude(
 							player__team=t.id)
 						totalPosPts = allPos.aggregate(Sum('data__points'))['data__points__sum']
 						posCount = allPos.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
