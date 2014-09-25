@@ -18,6 +18,8 @@ def getWeekAndYear(request):
 	week_number = request.session.get('week_number', 1)
 	if request.GET.get('year'):
 		request.session['year'] = int(request.GET.get('year'))
+	# TODO: when year changes, reset the week. For prev years, make it W17
+	# 	for current season make it current week
 	year = request.session.get('year', 2014)
 	return (week_number, year)
 
