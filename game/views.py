@@ -18,7 +18,7 @@ def getWeekAndYear(request):
 	week_number = request.session.get('week_number', 1)
 	if request.GET.get('year'):
 		request.session['year'] = int(request.GET.get('year'))
-	year = request.session.get('year', 2013)
+	year = request.session.get('year', 2014)
 	return (week_number, year)
 
 # TODO: Clean up this code!!

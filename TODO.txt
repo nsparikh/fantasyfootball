@@ -10,9 +10,7 @@ Data issues:
 
 
 High Priority:
-- for wr/rb/te/qb table: fix computation for performance scores. do something similar to d/st graph
-	- find a place to store the data we need for D/ST graph page (total + avg points against each def per position)
-	- get rid of "average" fields in Position?
+- performance scores - should it be done by depth position or by overall position?
 - Complete individual player pages
 	- Figure out individual pages for D/ST, Kickers; get necessary data
 - Get rest of data
