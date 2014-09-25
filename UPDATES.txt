@@ -7,7 +7,7 @@ GameData
 	espn_projection (before game)
 	yahoo_projection (before game)
 	cbs_projection (before game)
-	performance score (before and after game?)
+	performance score (after game - for most recent + rest of weeks)
 	data (after/during game)
 
 YearData

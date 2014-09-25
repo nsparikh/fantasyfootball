@@ -35,7 +35,7 @@ class Command(NoArgsCommand):
 		totalPtsEarned = 0 if totalPtsEarned is None else totalPtsEarned
 
 		# Average points earned across all players of this position and depth_position
-		avgPtsEarned = YearData.objects.filter(player__position=player.position.id, 
+		avgPtsEarned = YearData.objects.filter(year=year, player__position=player.position.id, 
 			player__depth_position=player.depth_position).aggregate(
 			Avg('data__points'))['data__points__avg']
 
@@ -77,7 +77,7 @@ class Command(NoArgsCommand):
 
 					# If it's a bye week, set score as 0
 					score = 0
-					if matchup and not matchup.bye and not gameData.performance_score: 
+					if matchup and not matchup.bye: #and not gameData.performance_score: 
 						opponent = matchup.home_team if yd.team.id==matchup.away_team.id else matchup.away_team
 						score = self.performanceScore(player, year, week_number, opponent)
 
