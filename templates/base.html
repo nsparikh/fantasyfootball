@@ -42,7 +42,7 @@
 						<div id="year-select-container">
 							<span id="year-select-label" class="span-header">Season:</span>
 							<form method="get"><select id="year-select" name="year" class="custom-select" onchange="this.form.submit()">
-								{% for i in 7|count %}
+								{% for i in 2|count %}
 									{% if 2014|minus:i == request.session.year %}
 										<option value="{{ 2014|minus:i }}" selected="selected">{{ 2014|minus:i }}</option>
 									{% else %}

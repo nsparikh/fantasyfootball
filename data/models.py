@@ -28,6 +28,25 @@ class DataPoint(models.Model):
 	def __unicode__(self):
 		return str(self.id)
 
+	def fixtureString(self):
+		return ( '{ ' + '"model":"data.DataPoint", "pk":'+str(self.id) + 
+			', "fields":{"passC":' + str(self.passC) +
+			', "passA":' + str(self.passA) +
+			', "passYds":' + str(self.passYds) +
+			', "passTDs":' + str(self.passTDs) +
+			', "passInt":' + str(self.passInt) +
+			', "rush":' + str(self.rush) +
+			', "rushYds":' + str(self.rushYds) +
+			', "rushTDs":' + str(self.rushTDs) +
+			', "rec":' + str(self.rec) +
+			', "recYds":' + str(self.recYds) +
+			', "recTDs":' + str(self.recTDs) +
+			', "recTar":' + str(self.recTar) +
+			', "misc2pc":' + str(self.misc2pc) +
+			', "miscFuml":' + str(self.miscFuml) +
+			', "miscTDs":' + str(self.miscTDs) +
+			', "points":' + str(self.points) + '} },' )
+
 	def as_dict(self):
 		return {
 			"id": self.id,
@@ -57,6 +76,11 @@ class CareerData(models.Model):
 	def __unicode__(self):
 		return self.player.name
 
+	def fixtureString(self):
+		return ( '{ ' + '"model":"data.CareerData", "pk":'+str(self.id) + 
+			', "fields":{"player":' + str(self.player.id) +
+			', "data":' + str(self.data.id) + '} },' )
+
 	def as_dict(self):
 		return {
 			"id": self.id,
@@ -74,6 +98,14 @@ class YearData(models.Model):
 
 	def __unicode__(self):
 		return self.player.name + ',' + str(self.year)
+
+	def fixtureString(self):
+		return ('{ ' + '"model":"data.YearData", "pk":'+str(self.id) +  
+			', "fields":{"year":' + str(self.year) + 
+			', "player":' + str(self.player.id) +
+			', "team":' + str(self.team.id) +
+			', "average":' + str(self.average) +
+			', "data":' + str(self.data.id) + '} },')
 
 	def as_dict(self):
 		return {
@@ -95,6 +127,17 @@ class GameData(models.Model):
 	cbs_projection = models.DecimalField(max_digits=5, decimal_places=1, null=True)
 	performance_score = models.DecimalField(max_digits=5, decimal_places=2, null=True)
 	data = models.ForeignKey(DataPoint)
+
+	def fixtureString(self):
+		return ( '{ ' + '"model":"data.GameData", "pk":'+str(self.id) + 
+			', "fields":{"player":' + str(self.player.id) +
+			', "matchup":' + str(self.matchup.id) +
+			', "projection":' + str(self.projection) +  
+			', "espn_projection":' + str(self.espn_projection) + 
+			', "yahoo_projection":' + str(self.yahoo_projection) +
+			', "cbs_projection":' + str(self.cbs_projection) + 
+			', "performance_score":' + str(self.performance_score) + 
+			', "data":' + str(self.data.id) + '} },' )
 
 	def as_dict(self):
 		return {

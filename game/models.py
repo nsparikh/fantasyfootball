@@ -5,6 +5,7 @@ from django.db import models
 # p = position: QB=1, RB=2, WR=3, TE=4, D/ST=5, K=6
 # xxxx = random 4 digits
 class Player(models.Model):
+	espn_id = models.IntegerField()
 	name = models.CharField(max_length=200)
 	height = models.IntegerField() # height in inches
 	weight = models.IntegerField() # weight in lbs
@@ -13,15 +14,28 @@ class Player(models.Model):
 	position = models.ForeignKey('Position')
 	depth_position = models.IntegerField(null=True)
 	number = models.IntegerField()
-	espn_id = models.IntegerField()
 	status = models.CharField(max_length=200, null=True)
 
 	def __unicode__(self):
 		return self.name
 
+	def fixtureString(self):
+		return ('{ ' + '"model":"game.Player", "pk":'+str(self.id) +  
+			', "fields":{"espn_id":' + str(self.espn_id) + 
+			', "name":"' + self.name + 
+			'", "height":' + str(self.height) + 
+			', "weight":' + str(self.weight) + 
+			', "dob":"' + str(self.dob) + 
+			'", "team":' + str(self.team.id) + 
+			', "position":' + str(self.position.id) + 
+			', "depth_position":' + str(self.depth_position.id) + 
+			', "number":' + str(self.number) + 
+			', "status":"' + self.status + '"} },')
+
 	def as_dict(self):
 		return {
 			"id": self.id,
+			"espn_id": self.espn_id, 
 			"name": self.name,
 			"height": self.height,
 			"weight": self.weight,
@@ -30,7 +44,6 @@ class Player(models.Model):
 			"position": self.position.as_dict(),
 			"depth_position": self.depth_position,
 			"number": self.number,
-			"espn_id": self.espn_id, 
 			"status": self.status
 		}
 
@@ -41,6 +54,12 @@ class Position(models.Model):
 
 	def __unicode__(self):
 		return self.name
+
+	def fixtureString(self):
+		return ('{ ' + '"model":"game.Position", "pk":'+str(self.id) +  
+			', "fields":{"espn_id":' + str(self.espn_id) + 
+			', "name":"' + self.name + 
+			'", "abbr":"' + self.abbr + '"} },')
 
 	def as_dict(self):
 		return {
@@ -56,8 +75,8 @@ class Team(models.Model):
 	# "Buf", "Mia", "NE", "NYJ", "Den", "KC", "Oak", "SD", 
 	# "Bal", "Cin", "Cle", "Pit", "Hou", "Ind", "Jac", "Ten", "FA"]
 
-	name = models.CharField(max_length=200)
 	espn_id = models.IntegerField()
+	name = models.CharField(max_length=200)
 	abbr = models.CharField(max_length=200)
 	stadium = models.CharField(max_length=200)
 	division = models.CharField(max_length=200, null=True)
@@ -65,13 +84,22 @@ class Team(models.Model):
 	def __unicode__(self):
 		return self.name
 
+	def fixtureString(self):
+		return ('{ ' + '"model":"game.Team", "pk":'+str(self.id) +  
+			', "fields":{"espn_id":' + str(self.espn_id) + 
+			', "name":"' + self.name + 
+			'", "abbr":"' + self.abbr + 
+			'", "stadium":' + self.stadium +
+			'", "division":' + self.division + '"} },')
+
 	def as_dict(self):
 		return {
 			"id": self.id,
-			"name": self.name,
 			"espn_id": self.espn_id,
+			"name": self.name,
 			"abbr": self.abbr,
-			"stadium": self.stadium
+			"stadium": self.stadium,
+			"division": self.division
 		}
 
 # PK FORMAT: t1t2yyww
@@ -94,6 +122,19 @@ class Matchup(models.Model):
 		if self.away_team:
 			return self.home_team.name + ' vs ' + self.away_team.name + ', WEEK ' + str(self.week_number)
 		return self.home_team.name + ' BYE WEEK ' + str(self.week_number)
+
+	def fixtureString(self):
+		return ( '{ ' + '"model":"game.Matchup", "pk":'+str(self.id) +  
+			', "fields":{"espn_game_id":' + str(self.espn_game_id) + 
+			', "year":' + str(self.year) + 
+			', "date":"' + str(self.date) + 
+			'", "week_number":' + str(self.week_number) +
+			', "bye":' + str(self.bye).lower() + 
+			', "home_team":' + str(self.home_team.id) + 
+			', "away_team":' + str(self.away_team.id) + 
+			', "win":' + str(self.win).lower() +
+			', "home_team_points":' + str(self.home_team_points) + 
+			', "away_team_points":' + str(self.away_team_points) + '} },' )
 
 	def as_dict(self):
 		return {

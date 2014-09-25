@@ -35,23 +35,25 @@ UI Fixes:
 - Fix text overlap when hovering on d/st bottom graph
 	- fix flicker on hover (i.e. hover on whole bar on bottom graph, not each individual piece)
 - Make position detail tables sortable
+- Don't show W/L on player detail graph for games that haven't happened yet
+
+Quick Fixes:
+- on pages that calculate weekly averages (position detail pages, d/st detail page), if the week hasn't happened yet then subtract 1 from total number of weeks
 
 
 Low Priority:
 - Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
 - Change url paths to use names instead of IDs for positions, teams, maybe players?
 - figure out how to "toggle" links from asc/desc when clicked again
-- figure out which players don't have images and find alternatives ?
 - Add more info to player pages
 	- Depth chart position
 	- Current status (i.e. injured)
 - Make it so clicking on a week on player_detail graph opens ESPN game log for that game
 
 Eventual:
-- Get 2014 data. Set up something to get it automatically each week
-- Machine learning stuff
-	- augment game data with projection info
-	- for games in the past, add actual points to projections tab
+- Set up something to get data automatically each week
+	- Write something that will write the new data to fixture files after each update
+- Machine learning stuff - augment game data with projection info
 - Get historical data for past 5 years
 - Add side-by-side comparison page
 - User model -- see https://docs.djangoproject.com/en/1.6/topics/auth/
