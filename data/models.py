@@ -131,12 +131,12 @@ class GameData(models.Model):
 	def fixtureString(self):
 		return ( '{ ' + '"model":"data.GameData", "pk":'+str(self.id) + 
 			', "fields":{"player":' + str(self.player.id) +
-			', "matchup":' + str(self.matchup.id) +
-			', "projection":' + str(self.projection) +  
-			', "espn_projection":' + str(self.espn_projection) + 
-			', "yahoo_projection":' + str(self.yahoo_projection) +
-			', "cbs_projection":' + str(self.cbs_projection) + 
-			', "performance_score":' + str(self.performance_score) + 
+			', "matchup":' + ('null' if self.matchup is None else str(self.matchup.id)) +
+			', "projection":' + ('null' if self.projection is None else str(self.projection)) +  
+			', "espn_projection":' + ('null' if self.espn_projection is None else str(self.espn_projection)) + 
+			', "yahoo_projection":' + ('null' if self.yahoo_projection is None else str(self.yahoo_projection)) +
+			', "cbs_projection":' + ('null' if self.cbs_projection is None else str(self.cbs_projection)) + 
+			', "performance_score":' + ('null' if self.performance_score is None else str(self.performance_score)) + 
 			', "data":' + str(self.data.id) + '} },' )
 
 	def as_dict(self):

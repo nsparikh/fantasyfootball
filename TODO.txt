@@ -15,7 +15,7 @@ High Priority:
 	- Figure out individual pages for D/ST, Kickers; get necessary data
 - Get rest of data
 	- Fantasy points / projections (historic)
-	- Create CareerData model? Would have to keep it updated throughout the season	
+	- Create CareerData model
 - Add pagination to graph?
 - Fix search box on players table page
 - Draft K position detail page

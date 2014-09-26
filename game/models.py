@@ -25,12 +25,12 @@ class Player(models.Model):
 			', "name":"' + self.name + 
 			'", "height":' + str(self.height) + 
 			', "weight":' + str(self.weight) + 
-			', "dob":"' + str(self.dob) + 
+			', "dob":"' + ('null' if self.dob is None else str(self.dob)) + 
 			'", "team":' + str(self.team.id) + 
 			', "position":' + str(self.position.id) + 
-			', "depth_position":' + str(self.depth_position.id) + 
+			', "depth_position":' + ('null' if self.depth_position is None else str(self.depth_position)) + 
 			', "number":' + str(self.number) + 
-			', "status":"' + self.status + '"} },')
+			', "status":' + ('null' if self.status is None else ('"'+self.status+'"')) + '} },')
 
 	def as_dict(self):
 		return {
@@ -89,8 +89,8 @@ class Team(models.Model):
 			', "fields":{"espn_id":' + str(self.espn_id) + 
 			', "name":"' + self.name + 
 			'", "abbr":"' + self.abbr + 
-			'", "stadium":' + self.stadium +
-			'", "division":' + self.division + '"} },')
+			'", "stadium":"' + self.stadium +
+			'", "division":' + ('null' if self.division is None else '"'+self.division+'"') + '} },')
 
 	def as_dict(self):
 		return {
@@ -125,16 +125,16 @@ class Matchup(models.Model):
 
 	def fixtureString(self):
 		return ( '{ ' + '"model":"game.Matchup", "pk":'+str(self.id) +  
-			', "fields":{"espn_game_id":' + str(self.espn_game_id) + 
+			', "fields":{"espn_game_id":' + ('null' if self.espn_game_id is None else str(self.espn_game_id)) + 
 			', "year":' + str(self.year) + 
-			', "date":"' + str(self.date) + 
+			', "date":"' + ('null' if self.date is None else str(self.date)) + 
 			'", "week_number":' + str(self.week_number) +
 			', "bye":' + str(self.bye).lower() + 
 			', "home_team":' + str(self.home_team.id) + 
-			', "away_team":' + str(self.away_team.id) + 
-			', "win":' + str(self.win).lower() +
-			', "home_team_points":' + str(self.home_team_points) + 
-			', "away_team_points":' + str(self.away_team_points) + '} },' )
+			', "away_team":' + ('null' if self.away_team is None else str(self.away_team.id)) + 
+			', "win":' + ('null' if self.win is None else str(self.win).lower()) +
+			', "home_team_points":' + ('null' if self.home_team_points is None else str(self.home_team_points)) + 
+			', "away_team_points":' + ('null' if self.away_team_points is None else str(self.away_team_points)) + '} },' )
 
 	def as_dict(self):
 		return {

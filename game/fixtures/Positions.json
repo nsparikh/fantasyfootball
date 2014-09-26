@@ -1,0 +1,8 @@
+[
+{ "model":"game.Position", "pk":1, "fields": {"name":"Quarterback", "abbr":"QB"} },
+{ "model":"game.Position", "pk":2, "fields": {"name":"Runningback", "abbr":"RB"} },
+{ "model":"game.Position", "pk":3, "fields": {"name":"Wide Receiver", "abbr":"WR"} },
+{ "model":"game.Position", "pk":4, "fields": {"name":"Tight End", "abbr":"TE"} },
+{ "model":"game.Position", "pk":5, "fields": {"name":"Defense / Special Teams", "abbr":"D/ST"} },
+{ "model":"game.Position", "pk":6, "fields": {"name":"Kicker", "abbr":"K"} }
+]

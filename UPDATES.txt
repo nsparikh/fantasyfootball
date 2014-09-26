@@ -4,21 +4,21 @@ UPDATE WEEKLY
 
 GameData
 	projection (before game)
-	espn_projection (before game)
+	espn_projection (before game): dataScraper.py updatePlayerEspnProjection
 	yahoo_projection (before game)
 	cbs_projection (before game)
-	performance score (after game - for most recent + rest of weeks)
-	data (after/during game)
+	performance score (after game - for most recent + rest of weeks): scoreUpdates.py computePerformanceScores
+	data (after/during game): dataScraper.py updatePlayerGameData
 
 YearData
 	average (after game)
-	data (after game)
+	data (after game): dataScraper.py getPlayerDataPoint
 	team
 
 CareerData
 	data (after game)
 
-Matchups
+Matchups: dataScraper.py updateMatchups
 	espn_game_id (after game)
 	win (after game)
 	home_team_points (after game)
