@@ -179,9 +179,8 @@ class PlayerDetailView(generic.DetailView):
 					'-' + str(prev_matchup.away_team_points))
 				context['prev_matchup_date'] = prev_matchup.date
 				context['prev_matchup_espn_id'] = prev_matchup.espn_game_id 
-			except: prev_matchup_result = 'None'
+			except: prev_matchup_result = None
 			context['prev_matchup_result'] = prev_matchup_result
-
 
 
 		# Compute total feet and inches (from height in inches)
@@ -200,6 +199,7 @@ class PlayerDetailView(generic.DetailView):
 		#context['image_path'] = 'game/player_images/' + str(self.object.espn_id) + '.png'
 		context['image_path'] = ('http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/' + 
 			str(self.object.espn_id) + '.png')
+		context['espn_game_url'] = 'http://sports-ak.espn.go.com/nfl/boxscore?gameId='
 		
 		# Get this player's full set of current season data
 		cur_season_gamedata = GameData.objects.filter(

@@ -5,8 +5,10 @@ from data.models import YearData, GameData, DataPoint
 
 from django.core.management.base import NoArgsCommand, make_option
 
-from datetime import datetime
+import datetime
+import time
 import urllib2
+from random import randint
 
 class Command(NoArgsCommand):
 
@@ -15,7 +17,9 @@ class Command(NoArgsCommand):
 	weekDataPrefix = 'http://games.espn.go.com/ffl/leaders?&scoringPeriodId='
 	yearDataPrefix = 'http://games.espn.go.com/ffl/leaders?&seasonTotals=true&seasonId='
 	teamSchedulePrefix = 'http://espn.go.com/nfl/team/schedule/_/name/'
+	teamDepthPrefix = 'http://espn.go.com/nfl/team/depth/_/name/'
 	projectionPrefix = 'http://games.espn.go.com/ffl/tools/projections?&scoringPeriodId='
+	playerProfilePrefix = 'http://espn.go.com/nfl/players/profile?playerId='
 
 
 	option_list = NoArgsCommand.option_list + (
@@ -23,10 +27,9 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		# Write what we want to do here
 		pass
-			
 
+			
 
 	# Scrapes the data for the player in the given week and year
 	# 	If week_number is 0, then scrapes the data for the whole season
@@ -69,7 +72,8 @@ class Command(NoArgsCommand):
 			row = table[i].split('<td')
 			scrapedEspnId = int(row[1][row[1].index('id="playername_')+15 : 
 				row[1].index('" style')])
-			if scrapedEspnId == player.espn_id:
+			#scrapedName = row[1][row[1].index('cache="true">')+13 : row[1].index('</a>')]
+			if scrapedEspnId == player.espn_id: #or scrapedName == player.name:
 				if 'BYE' in row[3] and player.team.espn_id > 0: return None
 
 				# Get the corresponding DataPoint, or create a new one
@@ -145,7 +149,8 @@ class Command(NoArgsCommand):
 	# Updates the corresponding YearData object
 	def updatePlayerYearData(self, player, year):
 		# Get the YearData object (there should be one for every player)
-		yd = YearData.objects.get(player=player, year=year)
+		try: yd = YearData.objects.get(player=player, year=year)
+		except: return False
 
 		# Get the data and update the YearData object
 		dp = self.getPlayerDataPoint(player, year, 0)
@@ -156,7 +161,6 @@ class Command(NoArgsCommand):
 		yd.data = dp
 		yd.save()
 		return True
-
 
 	# Helper method to tell whether the given data point has all null fields
 	def isAllNullDataPoint(self, dp):
@@ -204,7 +208,7 @@ class Command(NoArgsCommand):
 			data = data[data.index('<table class="playerTableTable') : ]
 			data = data[ : data.index('</table>')]
 		except: 
-			return None
+			return False
 
 		# Multiple players could have the same last name, so we need to find the right one
 		table = data.split('<tr id="plyr') 
@@ -217,6 +221,7 @@ class Command(NoArgsCommand):
 
 				r = 14
 				projection = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
+				print projection
 				projection = None if (projection=='--') else int(projection)
 
 				# Find the corresponding GameData object and update it
@@ -225,7 +230,6 @@ class Command(NoArgsCommand):
 					gd.save()
 					return True
 		return False
-
 
 	# Scrapes the data for the team in the given week and year
 	# Updates the corresponding Matchup object
@@ -281,3 +285,112 @@ class Command(NoArgsCommand):
 				matchup.save()
 				return True # Indicates that the Matchup was successfully updated
 		return False
+
+	# Scrapes the depth positions of players on the team
+	# Updates the Player objects on that team
+	def updateDepthPositions(self, team):
+		if team.id == 33: return False
+
+		# Clear depth position of all players for this team before updating
+		for p in Player.objects.filter(team=team, depth_position__isnull=False):
+			p.depth_position = None
+			p.save()
+
+		# Read in the data and get the chunk we want
+		data = urllib2.urlopen(self.teamDepthPrefix + team.abbr.lower() + '/' + 
+			team.name.lower().replace(' ', '-')).read()
+		data = data[data.index('<tr class="oddrow">') : ]
+		data = data[ : data.index('</table>')]
+
+		table = data.split('<tr')
+		for i in range(1, len(table)):
+			row = table[i]
+			cells = row.split('<td>')[1:]
+			pos = cells[0][ : cells[0].index('</td>')]
+
+			if pos in ['QB', 'RB', 'WR', 'TE']:
+				for depth_pos in range(1, len(cells)):
+					cell = cells[depth_pos]
+					if '<a href' in cell: # There is a player here
+						cell = cell[cell.index('_/id/')+5 : ]
+						playerEspnId = int(cell[ : cell.index('/')])
+						try:
+							p = Player.objects.get(espn_id=playerEspnId)
+							p.depth_position = depth_pos
+							p.save()
+						except:
+							print playerEspnId
+
+		return True
+
+	# Scrapes the player info and creates the new player with the given ESPN ID
+	def createNewPlayer(self, espn_id):
+
+		# Read in the page data and get the chunk with the info we need
+		data = urllib2.urlopen(self.playerProfilePrefix + str(espn_id)).read()
+		if '<div class="team-logo"></div>' in data:
+			data = data[data.index('<div class="team-logo"></div>') : ]
+		else:
+			data = data[data.index('<div class="player-bio">') : ]
+
+		data = data[ : data.index('<div class="player-select-header">')]
+
+		# Get the player's name
+		name = data[data.index('<h1>')+4 : data.index('</h1>')]
+		data = data[data.index('<div class="line-divider"></div>') : ]
+
+		# Get the player's number and position
+		numPosText = '<li class="first">#'
+		numPosCode = data[data.index(numPosText)+len(numPosText) : ]
+		numPosCode = numPosCode[ : numPosCode.index('</li>')]
+		number = int(numPosCode.split(' ')[0])
+		posAbbr = numPosCode.split(' ')[1]
+		position = Position.objects.get(abbr=posAbbr)
+		data = data[data.index(numPosText)+len(numPosText) : ]
+
+		# Get the player's height and weight
+		hwCode = data[data.index('<li>')+4 : data.index(' lbs</li>')]
+		feet = int(hwCode[ : hwCode.index("'")])
+		inches = int(hwCode[hwCode.index("'")+2 : hwCode.index('"')])
+		height = feet*12 + inches
+		weight = int(hwCode[hwCode.index('", ')+3 : ])
+
+		# Get the player's team
+		teamCode = data[data.index('_/name/')+7 : data.index('</a>')]
+		teamAbbr = teamCode[ : teamCode.index('/')]
+		team = Team.objects.get(abbr__iexact=teamAbbr)
+		data = data[data.index('<ul class="player-metadata') : ]
+
+		# Get the player's DOB
+		dobCode = data[data.index('</span>')+7 : data.index('</li>')]
+		month = time.strptime(dobCode[ : 3],'%b').tm_mon
+		day = int(dobCode[dobCode.index(' ')+1 : dobCode.index(',')])
+		dobCode = dobCode[dobCode.index(', ')+2 : ]
+		year = int(dobCode[ : dobCode.index(' ')])
+		dob = datetime.date(year, month, day)
+
+		# Generate an ID for the player and create the Player object
+		playerId = self.generatePlayerId(position.id)
+		player = Player(id=playerId, name=name, espn_id=espn_id, height=height, 
+			weight=weight, dob=dob, team=team, position=position, 
+			depth_position=None, number=number, status=None)
+		player.save()
+		print player.fixtureString()
+
+		# TODO: Create a new YearData ?
+
+	# Generates a random 5-digit player ID that starts with the position_id
+	# Ensures that it is unique
+	def generatePlayerId(self, position_id):
+		playerIDs = [ p.id for p in Player.objects.all() ]
+		while True:
+			randId = (position_id*10000) + randint(0, 9999)
+			if randId not in playerIDs: 
+				return randId
+
+
+		
+
+
+
+

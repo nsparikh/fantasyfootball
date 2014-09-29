@@ -18,7 +18,7 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		# Write what we want to do here
-		pass
+		self.writeDataAndPoints(GameData, 2014)
 		
 
 
@@ -37,8 +37,8 @@ class Command(NoArgsCommand):
 		dataPointsFile.write('[\n')
 
 		# TODO: uncomment line for YearData
-		dataList = dataModel.objects.filter(year=year).order_by('player', 'id')
-		#dataList = dataModel.objects.filter(matchup__year=year).order_by('player', 'matchup__week_number')
+		#dataList = dataModel.objects.filter(year=year).order_by('player', 'id')
+		dataList = dataModel.objects.filter(matchup__year=year).order_by('player', 'matchup__week_number')
 		for d in dataList:
 			dataFile.write(d.fixtureString() + '\n')
 			if d.data.id > 1: dataPointsFile.write(d.data.fixtureString() + '\n')
@@ -64,8 +64,8 @@ class Command(NoArgsCommand):
 		outFile.write('[\n')
 
 		# TODO: uncomment line for Matchup
-		dataList = dataModel.objects.filter(year=year).order_by('id')
-		#dataList = dataModel.objects.all().order_by('id')
+		#dataList = dataModel.objects.filter(year=year).order_by('id')
+		dataList = dataModel.objects.all().order_by('id')
 		for d in dataList:
 			outFile.write(d.fixtureString() + '\n')
 

@@ -59,15 +59,17 @@
 		{% else %}
 		<div class="proj-col">
 			<h3>{{ matchup.home_team.abbr }} vs. {{ matchup.away_team.abbr }}</h3>
-			<p class="player-info-text">{{ matchup.date }}</p>
-			<p class="player-info-text">{{ matchup_location }}</p>
+			<a href='{{espn_game_url}}{{matchup.espn_game_id}}' target='_blank' class='player-info-text white-link'>
+				{{ matchup.date }}<br/>
+				{{ matchup_location }}<br/>
+			</a>
 			<br/>
 			<h3>Previous matchup</h3>
 			<p class="player-info-text">
 				{% if prev_matchup_result %}
-				<a href='http://sports-ak.espn.go.com/nfl/boxscore?gameId={{prev_matchup_espn_id}}' target='_blank' class='white-link'>{{ prev_matchup_result }}</a>
+					<a href='{{espn_game_url}}{{prev_matchup_espn_id}}' target='_blank' class='white-link'>{{ prev_matchup_result }}</a>
 				{% else %}
-				None
+					None
 				{% endif %}
 			</p>
 		</div>
@@ -118,6 +120,7 @@
 	var dataset = {{ cur_season_gamedata | safe }};
 	var playerTeamAbbr = '{{ cur_season_team.abbr }}';
 	var pos = '{{ player.position.abbr }}';
+	var gameUrl = 'http://sports-ak.espn.go.com/nfl/boxscore?gameId=';
 </script>
 <script type="text/javascript" src="{% static 'game/player_detail_weekly_graph.js' %}"></script>
 {% endblock %}

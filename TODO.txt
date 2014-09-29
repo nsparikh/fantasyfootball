@@ -10,6 +10,8 @@ Data issues:
 - Get Johnnie Lee Higgins GameData (middle name issue)
 - fix players with height=0 or weight=0, no DOB, no number
 	- double check players' positions
+- Figure out where to get historical data (before 2013) and projections (before 2014)
+- Get Matchups for pre/postseason games?
 
 
 High Priority:
@@ -33,12 +35,10 @@ High Priority:
 
 UI Fixes:
 - Highlight selected tab in nav bar on players/positions/teams pages
-- Change date display format on player detail page hover box
 - Fix 'F. Lastname' on position detail page for players with middle name or suffix
 - Fix text overlap when hovering on d/st bottom graph
 	- fix flicker on hover (i.e. hover on whole bar on bottom graph, not each individual piece)
 - Make position detail tables sortable
-- Don't show W/L on player detail graph for games that haven't happened yet
 
 Quick Fixes:
 - on pages that calculate weekly averages (position detail pages, d/st detail page), if the week hasn't happened yet then subtract 1 from total number of weeks
@@ -48,10 +48,7 @@ Low Priority:
 - Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
 - Change url paths to use names instead of IDs for positions, teams, maybe players?
 - figure out how to "toggle" links from asc/desc when clicked again
-- Add more info to player pages
-	- Depth chart position
-	- Current status (i.e. injured)
-- Make it so clicking on a week on player_detail graph opens ESPN game log for that game
+- Add current status to player pages
 
 Eventual:
 - Set up something to get data automatically each week
