@@ -128,8 +128,8 @@ class Matchup(models.Model):
 		return ( '{ ' + '"model":"game.Matchup", "pk":'+str(self.id) +  
 			', "fields":{"espn_game_id":' + ('null' if self.espn_game_id is None else str(self.espn_game_id)) + 
 			', "year":' + str(self.year) + 
-			', "date":"' + ('null' if self.date is None else str(self.date)) + 
-			'", "week_number":' + str(self.week_number) +
+			', "date":' + ('null' if self.date is None else '"'+str(self.date)+'"') + 
+			', "week_number":' + str(self.week_number) +
 			', "bye":' + str(self.bye).lower() + 
 			', "home_team":' + str(self.home_team.id) + 
 			', "away_team":' + ('null' if self.away_team is None else str(self.away_team.id)) + 
