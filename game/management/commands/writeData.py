@@ -18,7 +18,7 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		# Write what we want to do here
-		self.writeDataAndPoints(GameData, 2014)
+		pass
 		
 
 
