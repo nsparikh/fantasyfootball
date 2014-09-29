@@ -10,17 +10,31 @@ import json
 from game.models import Player, Position, Team, Matchup
 from data.models import YearData, GameData, DataPoint
 
+
 def getWeekAndYear(request):
+	(min_week, max_week) = (1, 17)
+	(min_year, max_year) = (2013, 2014) 
+
+	current_week = 5 # TODO: change this each week?
+	current_year = 2014
+
+	changedYear = False
+	if request.GET.get('year'):
+		request.session['year'] = max(min_year, min(int(request.GET.get('year')), current_year))
+		changedYear = True
+	year = request.session.get('year', current_year)
+
+	# Set the 'max' week based on whether it's the current season or a past one
+	request.session['max_week'] = current_week if request.session['year'] == current_year else max_week
+
 	# If the user changed the week number, it will be in the get request
 	# We need to update the record in the session
-	if request.GET.get('week'):
-		request.session['week_number'] = int(request.GET.get('week'))
-	week_number = request.session.get('week_number', 1)
-	if request.GET.get('year'):
-		request.session['year'] = int(request.GET.get('year'))
-	# TODO: when year changes, reset the week. For prev years, make it W17
-	# 	for current season make it current week
-	year = request.session.get('year', 2014)
+	if request.GET.get('week') and not changedYear:
+		request.session['week_number'] = max(min_week, min(int(request.GET.get('week')), 
+			request.session['max_week']))
+	elif changedYear: request.session['week_number'] = request.session['max_week']
+	week_number = request.session.get('week_number', request.session['max_week'])
+
 	return (week_number, year)
 
 # TODO: Clean up this code!!
@@ -134,7 +148,6 @@ class PlayerDetailView(generic.DetailView):
 
 		(week_number, year) = getWeekAndYear(self.request)
 
-		# TODO: change to get current year data
 		# Get this player's current year's data 
 		yd = YearData.objects.get(player__id=self.object.id, year=year)
 		context['cur_season_yeardata'] = yd
@@ -147,9 +160,29 @@ class PlayerDetailView(generic.DetailView):
 		context['matchup_location'] = matchup.home_team.stadium[
 			matchup.home_team.stadium.index(',')+2 : ]
 
-		# Selected week's number of points
-		context['week_points'] = GameData.objects.get(
-			player=self.object.id, matchup=matchup).data.points
+		# Selected week's data
+		context['week_gamedata'] = GameData.objects.get(
+			player=self.object.id, matchup=matchup)
+
+		# Previous matchup with this opponent
+		if not matchup.bye:
+			opponent = matchup.away_team if matchup.home_team.id==yd.team.id else matchup.home_team
+			try:
+				prev_matchup = Matchup.objects.filter(Q(home_team=yd.team) | 
+					Q(away_team=yd.team), date__lte=matchup.date).order_by(
+					'-date').exclude(id=matchup.id).filter(
+					Q(home_team=opponent) | Q(away_team=opponent))[0]
+				home_game = prev_matchup.home_team.id==yd.team.id
+				prev_win = (home_game and prev_matchup.win) or (not home_game and not prev_matchup.win)
+				prev_matchup_result = (prev_matchup.home_team.abbr + ' vs. ' + prev_matchup.away_team.abbr +
+					', ' + ('W ' if prev_win else 'L ') + str(prev_matchup.home_team_points) + 
+					'-' + str(prev_matchup.away_team_points))
+				context['prev_matchup_date'] = prev_matchup.date
+				context['prev_matchup_espn_id'] = prev_matchup.espn_game_id 
+			except: prev_matchup_result = 'None'
+			context['prev_matchup_result'] = prev_matchup_result
+
+
 
 		# Compute total feet and inches (from height in inches)
 		context['feet'] = self.object.height / 12
@@ -165,17 +198,21 @@ class PlayerDetailView(generic.DetailView):
 
 		# TODO: figure out where to store images? For now, get directly from ESPN url
 		#context['image_path'] = 'game/player_images/' + str(self.object.espn_id) + '.png'
-		context['image_path'] = 'http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/' + str(self.object.espn_id) + '.png'
+		context['image_path'] = ('http://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/' + 
+			str(self.object.espn_id) + '.png')
 		
 		# Get this player's full set of current season data
 		cur_season_gamedata = GameData.objects.filter(
-			player__id=self.object.id, matchup__year=year, matchup__bye=False
+			player__id=self.object.id, matchup__year=year, matchup__bye=False, 
+			matchup__week_number__lte=self.request.session['max_week']
 		).exclude(data=1).order_by('matchup__week_number')
 		cur_season_gamedata_json = json.dumps([ obj.as_dict() for obj in cur_season_gamedata ], 
 			cls=DjangoJSONEncoder)
 		context['cur_season_gamedata'] = cur_season_gamedata_json
 
-		context['player_detail_table_path'] = 'game/player_table_' + self.object.position.abbr.replace('/', '').lower() + '.html'
+		# The path for the player detail table template
+		context['player_detail_table_path'] = ('game/player_table_' + 
+			self.object.position.abbr.replace('/', '').lower() + '.html')
 
 		return context
 		
@@ -193,9 +230,6 @@ class PositionDetailView(generic.DetailView):
 	template_name = 'game/position_detail.html'
 	model = Position
 	context_object_name = 'position'
-
-	# How many players of each position can a team have
-	posDepthLength = {'QB':1, 'RB':4, 'WR':7, 'TE':5, 'D/ST':1, 'K':1}
 
 	# Retrieves the necessary data for the position detail page
 	def get_context_data(self, **kwargs):
@@ -232,17 +266,10 @@ class PositionDetailView(generic.DetailView):
 			if bye_week <= week_number: num_weeks -= 1
 
 			# Ordered list of players for this team of the position
-			depth_list = [None] * self.posDepthLength[self.object.abbr]
-			team_players = player_list.filter(team=t.id)
-			for p in team_players:
-				index = p.depth_position - 1
-				if self.object.id == 3: # WR have multiple in a single depth position
-					index = (p.depth_position - 1) * 2
-					if depth_list[index] is not None: index += 1
-				elif self.object.id == 4: # TE have multiple in depth position 1
-					index = p.depth_position if p.depth_position > 1 else p.depth_position - 1
-					if depth_list[index] is not None: index += 1
-
+			team_players = player_list.filter(team=t.id).order_by('depth_position', 'name')
+			depth_list = [None] * len(team_players)
+			for index in range(len(depth_list)):
+				p = team_players[index]
 				# Compute score for this player
 				pScore = 0
 				if opponent is not None and posId in [1, 2, 3, 4]:
@@ -260,7 +287,7 @@ class PositionDetailView(generic.DetailView):
 
 					pScore = [totalPtsEarned, num_weeks, 0, 0, 0, 0, 0, 0, 0, 0]
 
-					for i in [1, 2, 3, 4]:
+					for i in range(1, 5):
 						allPos = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
 							player__position=i, matchup__year=year, matchup__week_number__lte=week_number).exclude(
 							player__team=t.id)
@@ -294,17 +321,29 @@ class TeamDetailView(generic.DetailView):
 	model = Team
 	context_object_name = 'team'
 
+
+	# Need to provide the list of players of each position
 	def get_context_data(self, **kwargs):
 		context = super(TeamDetailView, self).get_context_data(**kwargs)
 		players = Player.objects.all().filter(team=self.object.id)
-		context['QB'] = players.filter(position=1)
-		context['RB'] = players.filter(position=2)
+		context['QB'] = players.filter(position=1).annotate(
+			null_sort=Count('depth_position')).order_by(
+				'-null_sort', 'depth_position', 'name')
+		context['RB'] = players.filter(position=2).annotate(
+			null_sort=Count('depth_position')).order_by(
+				'-null_sort', 'depth_position', 'name')
 		context['WR'] = players.filter(position=3).annotate(
 			null_sort=Count('depth_position')).order_by(
 				'-null_sort', 'depth_position', 'name')
-		context['TE'] = players.filter(position=4)
-		context['DST'] = players.filter(position=5)
-		context['K'] = players.filter(position=6)
+		context['TE'] = players.filter(position=4).annotate(
+			null_sort=Count('depth_position')).order_by(
+				'-null_sort', 'depth_position', 'name')
+		context['DST'] = players.filter(position=5).annotate(
+			null_sort=Count('depth_position')).order_by(
+				'-null_sort', 'depth_position', 'name')
+		context['K'] = players.filter(position=6).annotate(
+			null_sort=Count('depth_position')).order_by(
+				'-null_sort', 'depth_position', 'name')
 
 		context['numQB'] = len(context['QB'])
 		context['numRB'] = len(context['RB'])

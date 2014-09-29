@@ -5,11 +5,12 @@ from data.models import YearData, GameData, DataPoint
 
 from django.core.management.base import NoArgsCommand, make_option
 
-import time
+from datetime import datetime
+import urllib2
 
 class Command(NoArgsCommand):
 
-	help = ''
+	help = 'Update Matchups, weekly/yearly data'
 	suffixes = ['Jr.', 'Sr.', 'III']
 	weekDataPrefix = 'http://games.espn.go.com/ffl/leaders?&scoringPeriodId='
 	yearDataPrefix = 'http://games.espn.go.com/ffl/leaders?&seasonTotals=true&seasonId='
@@ -23,7 +24,8 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		# Write what we want to do here
-		writeDataAndPoints(GameData, 2013)
+		pass
+			
 
 
 	# Scrapes the data for the player in the given week and year
@@ -37,20 +39,29 @@ class Command(NoArgsCommand):
 		if len(nameArr) > 2 and nameArr[2] not in self.suffixes: 
 			lastName = nameArr[2]
 
+		(rowEndKey, rStart, hasSpan) = ('</td>', 6, False)
+		if week_number == 4: (rowEndKey, hasSpan) = ('</span>', True)
+
 		if week_number > 0:
-			url = (weekDataPrefix + str(week_number) + 
+			url = (self.weekDataPrefix + str(week_number) + 
 				'&seasonId=' + str(year) + '&search=' + lastName)
 			if player.position.id == 5:
-				url = (weekDataPrefix + str(week_number) + '&seasonId=' + 
-					str(year) + '&slotCategoryId=16&proTeamId=' + str(player.team.espn_id)
+				url = (self.weekDataPrefix + str(week_number) + '&seasonId=' + 
+					str(year) + '&slotCategoryId=16&proTeamId=' + str(player.team.espn_id))
 		else: # Get the season data
-			url = yearDataPrefix + str(year) + '&search=' + lastName
+			url = self.yearDataPrefix + str(year) + '&search=' + lastName
 			if player.position.id == 5:
-				url = (yearDataPrefix + str(year) + '&slotCategoryId=16&proTeamId=' + 
+				url = (self.yearDataPrefix + str(year) + '&slotCategoryId=16&proTeamId=' + 
 					str(player.team.espn_id))
+			rStart = 3
 
 		# Read in the page data
 		data = urllib2.urlopen(url).read()
+		try:
+			data = data[data.index('<table class="playerTableTable') : ]
+			data = data[ : data.index('</table>')]
+		except: 
+			return None
 
 		# Multiple players could have the same last name, so we need to find the right one
 		table = data.split('<tr id="plyr') 
@@ -64,76 +75,34 @@ class Command(NoArgsCommand):
 				# Get the corresponding DataPoint, or create a new one
 				# ID format: pppppyyww
 				dpId = int(str(player.id) + str(year)[2:] + str(week_number).zfill(2))
-				dp = DataPoint.objects.get(id=dpId)
-				if dp is None: dp = DataPoint(id=dpId)
+				try: dp = DataPoint.objects.get(id=dpId)
+				except: dp = DataPoint(id=dpId)
 
 				# Scrape data!
-				r = 6
-				if player.team.espn_id == 0: r -= 1 # Will automatically list BYE
+				fields = [('passC', rStart), ('passA', rStart), ('passYds', rStart+1), 
+					('passTDs', rStart+2), ('passInt', rStart+3),
+					('rush', rStart+5), ('rushYds', rStart+6), ('rushTDs', rStart+7),
+					('rec', rStart+9), ('recYds', rStart+10), ('recTDs', rStart+11), ('recTar', rStart+12),
+					('misc2pc', rStart+14), ('miscFuml', rStart+15), ('miscTDs', rStart+16), 
+					('points', rStart+18)]
+				for fTuple in fields:
+					r = fTuple[1]
+					rowString = row[r]
+					if hasSpan: rowString = rowString.replace('>', '', 1)
 
-				passC = (row[r][(row[r].index('>')+1) : row[r].index('/')])
-				dp.passC = None if (passC=='--') else int(passC)
+					if fTuple[0]=='passC':
+						if hasSpan: amt = rowString[rowString.index('_1">') + 4 : rowString.index(rowEndKey)]
+						else: amt = rowString[rowString.index('>') + 1 : rowString.index('/')]
+					elif fTuple[0]=='passA':
+						if hasSpan: amt = rowString[rowString.index('_0">') + 4 : rowString.index('</span></td>')]
+						else: amt = rowString[rowString.index('/') + 1 : rowString.index(rowEndKey)]
+					else:
+						amt = rowString[rowString.index('>') + 1 : rowString.index(rowEndKey)]
 
-				passA = row[r][(row[r].index('/')+1) : row[r].index('</td>')]
-				dp.passA = None if (passA=='--') else int(passA)
-				r += 1
+					amt = None if (amt=='--') else int(amt)
+					setattr(dp, fTuple[0], amt)
 
-				passYds = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.passYds = None if (passYds=='--') else int(passYds)
-				r += 1
-
-				passTDs = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.passTDs = None if (passTDs=='--') else int(passTDs)
-				r += 1
-
-				passInt = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.passInt = None if (passInt=='--') else int(passInt)
-				r += 2
-
-				rush = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.rush = None if (rush=='--') else int(rush)
-				r += 1
-
-				rushYds = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.rushYds = None if (rushYds=='--') else int(rushYds)
-				r += 1
-
-				rushTDs = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.rushTDs = None if (rushTDs=='--') else int(rushTDs)
-				r += 2
-
-				rec = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.rec = None if (rec=='--') else int(rec)
-				r += 1
-
-				recYds = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.recYds = None if (recYds=='--') else int(recYds)
-				r += 1
-
-				recTDs = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.recTDs = None if (recTDs=='--') else int(recTDs)
-				r += 1
-
-				recTar = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.recTar = None if (recTar=='--') else int(recTar)
-				r += 2
-
-				misc2pc = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.misc2pc = None if (misc2pc=='--') else int(misc2pc)
-				r += 1
-
-				miscFuml = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.miscFuml = None if (miscFuml=='--') else int(miscFuml)
-				r += 1
-
-				miscTDs = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.miscTDs = None if (miscTDs=='--') else int(miscTDs)
-				r += 2
-
-				points = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				dp.points = None if (points=='--') else int(points)
-				
-				if isAllNullDataPodp): return None
+				if self.isAllNullDataPoint(dp): return None
 
 				dp.save()
 				return dp
@@ -143,53 +112,99 @@ class Command(NoArgsCommand):
 	# Updates or creates the corresponding GameData object 
 	def updatePlayerGameData(self, player, year, week_number):
 
+		# If this player is a FA, there's no data
+		if player.team.id == 33: return False
+
 		# Get the GameData object, if there is one
-		gd = GameData.objects.get(player=player.id, matchup__year=year, 
-			matchup__week_number=week_number)
+		try:
+			gd = GameData.objects.get(player=player, matchup__year=year, 
+				matchup__week_number=week_number)
 
-		# Get the DataPoint object
-		dp = getPlayerGameDataPoint(player, year, week_number)
-
-		# If there is no GameData object, create one
-		if gd is None:
+			# If it's a bye week or the game is in the future or if it's already done, 
+			# don't try to update
+			if (gd.matchup.bye or gd.data.points > 0 or
+				gd.matchup.date >= datetime.date(datetime.now())):
+				return False
+		except: 
+			# If there is no GameData object, create one
 			gdId = int(str(player.id) + str(year)[2:] + str(week_number).zfill(2))
 			gd = GameData(id=gdId, player=player, projection=None, espn_projection=None, 
 				yahoo_projection=None, cbs_projection=None, performance_score=None)
 			matchup = Matchup.objects.get(Q(home_team=player.team) | Q(away_team=player.team),
 				year=year, week_number=week_number)
 			gd.matchup = matchup
-			gd.data = 1 if dp is None else dp
-		else: # Otherwise just assign the DataPoint
-			gd.dp = dp
+
+		# Get the DataPoint object and update the GameData object
+		dp = self.getPlayerDataPoint(player, year, week_number)
+		gd.data = DataPoint.objects.get(id=1) if dp is None else dp
 
 		gd.save()
+		return True
+
+	# Gets the data for the player in the given year
+	# Updates the corresponding YearData object
+	def updatePlayerYearData(self, player, year):
+		# Get the YearData object (there should be one for every player)
+		yd = YearData.objects.get(player=player, year=year)
+
+		# Get the data and update the YearData object
+		dp = self.getPlayerDataPoint(player, year, 0)
+		if dp is None:
+			yd.data = DataPoint.objects.get(id=1)
+			return False
+
+		yd.data = dp
+		yd.save()
+		return True
+
 
 	# Helper method to tell whether the given data point has all null fields
 	def isAllNullDataPoint(self, dp):
 		dpFields = [field for field in dp._meta.get_all_field_names() if (
 			'data' not in field and field != 'id')]
 		for field in dpFields:
-			if dp.field is not None: return False
+			if getattr(dp, field) is not None: return False
 		return True
 
 	# Scrapes the ESPN projection for the player in the given week and year
 	# Updates the corresponding GameData object
 	# Returns True if it is updated successfully
 	def updatePlayerEspnProjection(self, player, year, week_number):
+		# If this player is a FA, there's no data
+		if player.team.id == 33: return False
+
+		# Get the GameData object, if there is one
+		try:
+			gd = GameData.objects.get(player=player, matchup__year=year, 
+				matchup__week_number=week_number)
+
+			# If it's a bye week or the game is in the future or if it's already done, 
+			# don't try to update
+			if (gd.matchup.bye or gd.espn_projection is not None or
+				gd.matchup.date >= datetime.date(datetime.now())):
+				return False
+		except:
+			return False
+
 		# Get the player's last name
 		nameArr = player.name.split(' ')
 		lastName = nameArr[1]
 		if len(nameArr) > 2 and nameArr[2] not in self.suffixes: 
 			lastName = nameArr[2]
 
-		url = (projectionPrefix + str(week_number) + 
+		url = (self.projectionPrefix + str(week_number) + 
 			'&seasonId=' + str(year) + '&search=' + lastName)
 		if player.position.id == 5:
-			url = (projectionPrefix + str(week_number) + '&seasonId=' + 
-				str(year) + '&slotCategoryId=16&proTeamId=' + str(player.team.espn_id)
+			url = (self.projectionPrefix + str(week_number) + '&seasonId=' + 
+				str(year) + '&slotCategoryId=16&proTeamId=' + str(player.team.espn_id))
 
 		# Read in the page data
 		data = urllib2.urlopen(url).read()
+		try:
+			data = data[data.index('<table class="playerTableTable') : ]
+			data = data[ : data.index('</table>')]
+		except: 
+			return None
 
 		# Multiple players could have the same last name, so we need to find the right one
 		table = data.split('<tr id="plyr') 
@@ -198,7 +213,7 @@ class Command(NoArgsCommand):
 			scrapedEspnId = int(row[1][row[1].index('id="playername_')+15 : 
 				row[1].index('" style')])
 			if scrapedEspnId == player.espn_id: # Just need the projection column
-				if 'BYE' in row[3] and player.team.espn_id > 0: return # Don't need to do anything
+				if 'BYE' in row[3]: return False # Don't need to do anything if FA or Bye week
 
 				r = 14
 				projection = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
@@ -206,8 +221,6 @@ class Command(NoArgsCommand):
 
 				# Find the corresponding GameData object and update it
 				if projection is not None:
-					gd = GameData.objects.get(player=player, matchup__year=year, 
-						matchup__week_number=week_number)
 					gd.espn_projection = projection
 					gd.save()
 					return True
@@ -221,21 +234,26 @@ class Command(NoArgsCommand):
 		matchup = Matchup.objects.get(Q(home_team=team) | Q(away_team=team), 
 			year=year, week_number=week_number)
 
-		if matchup.bye: return # Don't need to do anything for a bye week
+		 # Don't need to do anything for a bye week, in the future,
+		 # or if it has already been updated
+		if (matchup.bye or matchup.date >= datetime.date(datetime.now()) or 
+			matchup.home_team_points is not None): 
+			return False
 
 		# Read in the page data
-		url = teamSchedulePrefix + team.abbr.lower() + '/year/' + str(year)
+		url = self.teamSchedulePrefix + team.abbr.lower() + '/year/' + str(year)
 		data = urllib2.urlopen(url).read()
 
 		table = data[data.index(str(year) + ' Regular Season Schedule') : 
 			data.index(str(year) + ' Preseason Schedule')].split('<tr')[2:]
 
-		for i in range(len(data)-1):
-			row = data[i]
+		for i in range(len(table)-1):
+			row = table[i]
 			if '"colhead"' in row or '"stathead"' in row: continue
 
 			row = row.split('<td')
-			curWeek = row[1][1 : row[1].index('</td>')]
+			curWeek = int(row[1][1 : row[1].index('</td>')])
+
 			if curWeek == week_number: # Get espn_game_id, win, score
 				win = None
 				curTeamWin = False
@@ -245,9 +263,9 @@ class Command(NoArgsCommand):
 				else: win = False
 
 				result = row[4][row[4].index('gameId=') : ]
-				espn_game_id = result[result.index('=')+1 : result.index('"')]
-				pointsFor = result[result.index('>')+1 : result.index('-')]
-				pointsAgainst = result[result.index('-')+1 : result.index('</a>')]
+				espn_game_id = int(result[result.index('=')+1 : result.index('"')])
+				pointsFor = int(result[result.index('>')+1 : result.index('-')])
+				pointsAgainst = int(result[result.index('-')+1 : result.index('</a>')])
 				if win:
 					home_team_points = pointsFor
 					away_team_points = pointsAgainst
@@ -262,5 +280,4 @@ class Command(NoArgsCommand):
 
 				matchup.save()
 				return True # Indicates that the Matchup was successfully updated
-
-			return False
+		return False

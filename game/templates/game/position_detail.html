@@ -15,7 +15,7 @@
 
 		<div id="week-select-container">
 			<form method="get"><select id="week-select" name="week" class="custom-select" onchange="this.form.submit()">
-				{% for i in 17|count %}
+				{% for i in request.session.max_week|count %}
 					{% if i|add:1 == request.session.week_number %}
 						<option value="{{ i|add:1 }}" selected="selected">Week {{ i|add:1 }}</option>
 					{% else %}

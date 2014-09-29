@@ -120,8 +120,9 @@ class Matchup(models.Model):
 
 	def __unicode__(self):
 		if self.away_team:
-			return self.home_team.name + ' vs ' + self.away_team.name + ', WEEK ' + str(self.week_number)
-		return self.home_team.name + ' BYE WEEK ' + str(self.week_number)
+			return (self.home_team.name + ' vs ' + self.away_team.name + ', WEEK ' + 
+				str(self.week_number) + ' ' + str(self.year))
+		return self.home_team.name + ' BYE WEEK ' + str(self.week_number) + ' ' + str(self.year)
 
 	def fixtureString(self):
 		return ( '{ ' + '"model":"game.Matchup", "pk":'+str(self.id) +  

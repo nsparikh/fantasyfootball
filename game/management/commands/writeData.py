@@ -18,8 +18,8 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		# Write what we want to do here
-		self.writeDataAndPoints(YearData, 2014)
-		#self.writeSeedData(Matchup, 2013)
+		pass
+		
 
 
 	# Writes the data and corresponding DataPoints to JSON fixture-style files
@@ -36,6 +36,7 @@ class Command(NoArgsCommand):
 		dataFile.write('[\n')
 		dataPointsFile.write('[\n')
 
+		# TODO: uncomment line for YearData
 		dataList = dataModel.objects.filter(year=year).order_by('player', 'id')
 		#dataList = dataModel.objects.filter(matchup__year=year).order_by('player', 'matchup__week_number')
 		for d in dataList:
@@ -62,6 +63,7 @@ class Command(NoArgsCommand):
 			str(year) + '_' + time.strftime('%Y%m%d%H%M') + '.json', 'w')
 		outFile.write('[\n')
 
+		# TODO: uncomment line for Matchup
 		dataList = dataModel.objects.filter(year=year).order_by('id')
 		#dataList = dataModel.objects.all().order_by('id')
 		for d in dataList:

@@ -59,7 +59,7 @@ var yAxisRTextMap = {'QB':'Passing yards', 'RB':'Rushing Yards', 'WR':'Receiving
 
 // Scales for axes
 var xScale = d3.scale.linear()
-	.domain([1, 17])
+	.domain([ 1, dataset[dataset.length-1]['matchup']['week_number'] ])
 	.range([padding, w-padding]);
 var minYScale = Math.min(d3.min(dataset, function(d) {return d['data'][redMap[pos]];}), 
 						  d3.min(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}),
@@ -104,7 +104,8 @@ var svg = d3.select('#player-graph-container')
 var xAxis = d3.svg.axis()
 	.scale(xScale)
 	.orient('bottom')
-	.tickValues(dataset.map(function(d) {return d['matchup']['week_number'];}));
+	.tickValues(dataset.map(function(d) {return d['matchup']['week_number'];}))
+	.tickFormat(d3.format('d'));
 
 // Define Y axes
 var yAxisL = d3.svg.axis()
@@ -465,18 +466,22 @@ svg.on('mousemove', function() {
 	var win = ((home && d['matchup']['win']) || (!home && !d['matchup']['win'])) ? 'W' : 'L';
 	var oppTeamAbbr = home ? d['matchup']['away_team']['abbr'] : d['matchup']['home_team']['abbr']
 
+	clearHoverText();
 	legSvg.select('#hover-box-header').text(playerTeamAbbr + loc + oppTeamAbbr);
 	legSvg.select('#hover-box-date').text(d['matchup']['date']);
-	legSvg.select('#hover-box-result').text(win + ' ' + d['matchup']['home_team_points'] + '-' + d['matchup']['away_team_points']);
-	legSvg.select('#hover-box-bluetext-header').text('Fantasy Points: ');
-	legSvg.select('#hover-box-bluetext').text(d['data']['points']); 
-	legSvg.select('#hover-box-orangetext-header').text(orangeTextMap[pos] + ': ');
-	legSvg.select('#hover-box-orangetext').text(d['data'][orangeMap[pos]]);
-	legSvg.select('#hover-box-redtext-header').text(redTextMap[pos] + ': ');
-	legSvg.select('#hover-box-redtext').text(d['data'][redMap[pos]]);
-	legSvg.select('#hover-box-greentext-header').text(greenTextMap[pos] + ': ');
-	legSvg.select('#hover-box-greentext').text(d['data'][greenMap[pos]]);
+	legSvg.select('#hover-box-result').text('');
 
+	if (d['matchup']['home_team_points'] != null) {
+		legSvg.select('#hover-box-result').text(win + ' ' + d['matchup']['home_team_points'] + '-' + d['matchup']['away_team_points']);
+		legSvg.select('#hover-box-bluetext-header').text('Fantasy Points: ');
+		legSvg.select('#hover-box-bluetext').text(d['data']['points']); 
+		legSvg.select('#hover-box-orangetext-header').text(orangeTextMap[pos] + ': ');
+		legSvg.select('#hover-box-orangetext').text(d['data'][orangeMap[pos]]);
+		legSvg.select('#hover-box-redtext-header').text(redTextMap[pos] + ': ');
+		legSvg.select('#hover-box-redtext').text(d['data'][redMap[pos]]);
+		legSvg.select('#hover-box-greentext-header').text(greenTextMap[pos] + ': ');
+		legSvg.select('#hover-box-greentext').text(d['data'][greenMap[pos]]);
+	}
 })
 .on('mouseout', function() {
 	if (curSelection != null) {
@@ -484,7 +489,11 @@ svg.on('mousemove', function() {
 			.attr('r', smallRadius)
 			.attr('opacity', 0.6);
 	}
+	clearHoverText();
+	
+});
 
+function clearHoverText() {
 	legSvg.select('#hover-box-header').text('');
 	legSvg.select('#hover-box-date').text('Hover over the graph');
 	legSvg.select('#hover-box-result').text('to see details.');
@@ -496,7 +505,7 @@ svg.on('mousemove', function() {
 	legSvg.select('#hover-box-redtext').text('');
 	legSvg.select('#hover-box-greentext-header').text('');
 	legSvg.select('#hover-box-greentext').text('');
-});
+}
 
 
 

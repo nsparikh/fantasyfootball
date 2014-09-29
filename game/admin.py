@@ -16,7 +16,12 @@ class TeamAdmin(admin.ModelAdmin):
 	fields = ('id', 'name', 'stadium')
 	search_fields = ['name']
 
+class MatchupAdmin(admin.ModelAdmin):
+	readonly_fields = ('id', 'espn_game_id', 'year', 'date', 'week_number',
+		'bye', 'home_team', 'away_team', 'win', 'home_team_points', 'away_team_points')
+	list_display = ('year', 'week_number', 'home_team', 'away_team')
+
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Position)
 admin.site.register(Team, TeamAdmin)
-admin.site.register(Matchup)
+admin.site.register(Matchup, MatchupAdmin)

@@ -63,15 +63,21 @@
 			<p class="player-info-text">{{ matchup_location }}</p>
 			<br/>
 			<h3>Previous matchup</h3>
-			<p class="player-info-text">Result</p>
+			<p class="player-info-text">
+				{% if prev_matchup_result %}
+				<a href='http://sports-ak.espn.go.com/nfl/boxscore?gameId={{prev_matchup_espn_id}}' target='_blank' class='white-link'>{{ prev_matchup_result }}</a>
+				{% else %}
+				None
+				{% endif %}
+			</p>
 		</div>
 		<div class="proj-col">
 			<h3>Our Projection</h3>
 			<p class="player-info-text projection-number">000 points</p>
 			<br/>
-			{% if week_points %}
+			{% if week_gamedata.data.points %}
 			<h3>Actual Score</h3>
-			<p class="player-info-text">{{ week_points }} points</p>
+			<p class="player-info-text">{{ week_gamedata.data.points }} points</p>
 			{% endif %}
 		</div>
 		<div class="proj-col">
@@ -83,9 +89,9 @@
 					<th>CBS</th>
 				</tr>
 				<tr>
-					<td>xxx</td>
-					<td>xxx</td>
-					<td>xxx</td>
+					<td>{% if week_gamedata.espn_projection %}{{ week_gamedata.espn_projection }}{% endif %}</td>
+					<td>{% if week_gamedata.yahoo_projection %}{{ week_gamedata.yahoo_projection }}{% endif %}</td>
+					<td>{% if week_gamedata.cbs_projection %}{{ week_gamedata.cbs_projection }}{% endif %}</td>
 				</tr>
 			</table>
 		</div>
@@ -93,7 +99,7 @@
 
 		<div id="week-select-container">
 			<form method="get"><select id="week-select" name="week" class="custom-select" onchange="this.form.submit()">
-				{% for i in 17|count %}
+				{% for i in request.session.max_week|count %}
 					{% if i|add:1 == request.session.week_number %}
 						<option value="{{ i|add:1 }}" selected="selected">Week {{ i|add:1 }}</option>
 					{% else %}

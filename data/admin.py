@@ -15,11 +15,12 @@ class DataPointAdmin(admin.ModelAdmin):
 	list_display = ('id', 'passYds', 'rushYds', 'recYds', 'points')
 
 class GameDataAdmin(admin.ModelAdmin):
-	readonly_fields = ('id', 'player', 'matchup', 'data', 'performance_score')
+	readonly_fields = ('id', 'player', 'matchup', 'data', 'projection', 
+		'espn_projection', 'yahoo_projection', 'cbs_projection',  'performance_score')
 	fields = ('id', 'player', 'matchup', 'projection', 'espn_projection', 
 		'yahoo_projection', 'cbs_projection', 'performance_score', 'data')
 	list_display = ('player', 'matchup')
-	search_fields = ['id']
+	search_fields = ['id', 'player__name']
 
 admin.site.register(DataPoint, DataPointAdmin)
 admin.site.register(YearData)

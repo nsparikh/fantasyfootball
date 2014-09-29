@@ -16,6 +16,7 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		# Do stuff here
+		pass
 
 
 	# Computes the performance score of the given player in the year and week 

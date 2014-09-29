@@ -1,6 +1,9 @@
 TO DO LIST
 ==========
 
+Startup stuff:
+- create splash page
+
 Data issues:
 - Fix Garrett Hartley 2013 Game Data (was on a team but now FA), find similar players?
 	- FIgure out actual BYE weeks for these players
