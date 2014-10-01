@@ -43,7 +43,7 @@ class Command(NoArgsCommand):
 			lastName = nameArr[2]
 
 		(rowEndKey, rStart, hasSpan) = ('</td>', 6, False)
-		if week_number == 4: (rowEndKey, hasSpan) = ('</span>', True)
+		if week_number == 5: (rowEndKey, hasSpan) = ('</span>', True)
 
 		if week_number > 0:
 			url = (self.weekDataPrefix + str(week_number) + 
@@ -182,10 +182,9 @@ class Command(NoArgsCommand):
 			gd = GameData.objects.get(player=player, matchup__year=year, 
 				matchup__week_number=week_number)
 
-			# If it's a bye week or the game is in the future or if it's already done, 
+			# If it's a bye week or if it's already done, 
 			# don't try to update
-			if (gd.matchup.bye or gd.espn_projection is not None or
-				gd.matchup.date >= datetime.date(datetime.now())):
+			if (gd.matchup.bye or gd.espn_projection is not None):
 				return False
 		except:
 			return False
@@ -221,7 +220,6 @@ class Command(NoArgsCommand):
 
 				r = 14
 				projection = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
-				print projection
 				projection = None if (projection=='--') else int(projection)
 
 				# Find the corresponding GameData object and update it
@@ -240,7 +238,7 @@ class Command(NoArgsCommand):
 
 		 # Don't need to do anything for a bye week, in the future,
 		 # or if it has already been updated
-		if (matchup.bye or matchup.date >= datetime.date(datetime.now()) or 
+		if (matchup.bye or matchup.date >= datetime.datetime.now().date() or 
 			matchup.home_team_points is not None): 
 			return False
 

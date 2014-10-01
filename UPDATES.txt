@@ -72,9 +72,9 @@ Fixtures
 	GameData2013Points - complete
 	YearData2013 - complete
 	YearData2013Points - complete
-	Matchups2014 - has game info through W4 Sun
-	GameData2014 - has game info + projections + performance scores through W4 Sun
-	GameData2014Points - has game info through W4 Sun
+	Matchups2014 - has game info through W4 
+	GameData2014 - has game info + projections through W4 + performance scores through W5
+	GameData2014Points - has game info through W4 
 	YearData2014 - has game info through W4; no averages
 	YearData2014Points - has game info through W4
 

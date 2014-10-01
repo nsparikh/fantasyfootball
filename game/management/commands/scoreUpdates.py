@@ -15,7 +15,6 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		# Do stuff here
 		pass
 
 
@@ -76,7 +75,7 @@ class Command(NoArgsCommand):
 
 					# If it's a bye week, set score as 0
 					score = 0
-					if matchup and not matchup.bye and not gameData.performance_score: 
+					if not matchup.bye:
 						opponent = matchup.home_team if yd.team.id==matchup.away_team.id else matchup.away_team
 						score = self.performanceScore(player, year, week_number, opponent)
 
