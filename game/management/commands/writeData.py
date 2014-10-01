@@ -63,13 +63,13 @@ class Command(NoArgsCommand):
 		if overwrite:
 			print 'overwriting default files'
 			originalFile = open(dataFilename)
-			overwriteFile = open('game/fixtures/' + dataModel.__name__ + str(year) + '.json', 'w')
+			overwriteFile = open('data/fixtures/' + dataModel.__name__ + str(year) + '.json', 'w')
 			overwriteFile.writelines([line for line in originalFile])
 			originalFile.close()
 			overwriteFile.close()
 
 			originalPointsFile = open(dataPointsFilename)
-			overwritePointsFile = open('game/fixtures/' + dataModel.__name__ + 
+			overwritePointsFile = open('data/fixtures/' + dataModel.__name__ + 
 				'Points' + str(year) + '.json', 'w')
 			overwritePointsFile.writelines([line for line in originalPointsFile])
 			originalPointsFile.close()
