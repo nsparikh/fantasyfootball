@@ -23,7 +23,7 @@ def getWeekAndYear(request):
 		request.session['year'] = max(min_year, min(int(request.GET.get('year')), current_year))
 		changedYear = True
 	year = request.session.get('year', current_year)
-	reques.session['year'] = year
+	request.session['year'] = year
 
 	# Set the 'max' week based on whether it's the current season or a past one
 	request.session['max_week'] = current_week if request.session['year'] == current_year else max_week
