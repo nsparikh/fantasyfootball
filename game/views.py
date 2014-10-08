@@ -15,7 +15,7 @@ def getWeekAndYear(request):
 	(min_week, max_week) = (1, 17)
 	(min_year, max_year) = (2013, 2014) 
 
-	current_week = 5 # TODO: change this each week?
+	current_week = 6 # TODO: change this each week?
 	current_year = 2014
 
 	changedYear = False
@@ -249,7 +249,7 @@ class PositionDetailView(generic.DetailView):
 
 		# Get the players that are of this position and have a depth chart position
 		player_list = Player.objects.all().filter(
-			position=posId).exclude(depth_position__isnull=True)
+			position__id=posId).exclude(depth_position__isnull=True)
 		if posId == 1: player_list = player_list.exclude(depth_position__gte=2)
 
 		# Create a map of each team to an ordered list of players of this position
@@ -268,36 +268,38 @@ class PositionDetailView(generic.DetailView):
 			# Ordered list of players for this team of the position
 			team_players = player_list.filter(team=t.id).order_by('depth_position', 'name')
 			depth_list = [None] * len(team_players)
-			for index in range(len(depth_list)):
-				p = team_players[index]
-				# Compute score for this player
-				pScore = 0
-				if opponent is not None and posId in [1, 2, 3, 4]:
-					try:
-						pScore = GameData.objects.get(player=p.id, matchup__year=year, 
-							matchup__week_number=week_number).performance_score
-						pScore = 0 if pScore is None else pScore
-					except:
-						pScore = 0
 
-				elif posId == 5:
-					totalPtsEarned = GameData.objects.filter(player=p.id,
-						matchup__week_number__lte=week_number, matchup__year=year).aggregate(
-						Sum('data__points'))['data__points__sum']
+			if posId == 5:
+				p = team_players[0]
+				totalPtsEarned = GameData.objects.filter(player=p.id,
+					matchup__week_number__lte=week_number, matchup__year=year).aggregate(
+					Sum('data__points'))['data__points__sum']
 
-					pScore = [totalPtsEarned, num_weeks, 0, 0, 0, 0, 0, 0, 0, 0]
+				pScore = [totalPtsEarned, num_weeks, 0, 0, 0, 0, 0, 0, 0, 0]
 
-					for i in range(1, 5):
-						allPos = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
-							player__position=i, matchup__year=year, matchup__week_number__lte=week_number).exclude(
-							player__team=t.id)
-						totalPosPts = allPos.aggregate(Sum('data__points'))['data__points__sum']
-						posCount = allPos.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
-						avgPosPts = totalPosPts * 1.0 / posCount
-						pScore[i+1] = totalPosPts
-						pScore[i+5] = avgPosPts	
-
-				depth_list[index] = (p.as_dict(), pScore)
+				for i in range(1, 5):
+					allPos = GameData.objects.filter(Q(matchup__home_team=t.id) | Q(matchup__away_team=t.id), 
+						player__position=i, matchup__year=year, matchup__week_number__lte=week_number).exclude(
+						player__team=t.id)
+					totalPosPts = allPos.aggregate(Sum('data__points'))['data__points__sum']
+					posCount = allPos.exclude(Q(data=1) | Q(player__depth_position__isnull=True)).count()
+					avgPosPts = totalPosPts * 1.0 / posCount
+					pScore[i+1] = totalPosPts
+					pScore[i+5] = avgPosPts	
+				depth_list[0] = (p.as_dict(), pScore)
+			else:
+				for index in range(len(depth_list)):
+					p = team_players[index]
+					# Compute score for this player
+					pScore = 0
+					if opponent is not None and posId in [1, 2, 3, 4]:
+						try:
+							pScore = GameData.objects.get(player=p.id, matchup__year=year, 
+								matchup__week_number=week_number).performance_score
+							pScore = 0 if pScore is None else pScore
+						except:
+							pScore = 0
+					depth_list[index] = (p.as_dict(), pScore)
 
 			team_map = {'team_id':t.id, 'opponent':opponent, 'players':depth_list}
 			team_map_list.append(team_map)

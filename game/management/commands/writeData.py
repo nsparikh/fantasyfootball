@@ -18,7 +18,9 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		# Write what we want to do here
-		pass
+		#self.writeSeedData(Matchup, 2014, True)
+		#self.writeDataAndPoints(GameData, 2014, True)
+		#self.writeDataAndPoints(YearData, 2014, True)
 		
 
 

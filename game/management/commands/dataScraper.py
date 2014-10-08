@@ -27,15 +27,23 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		pass
+		week_number = 5
+		current_week_number = 6
+		#for t in Team.objects.all().exclude(id=33):
+		#	print t.name, self.updateMatchup(t, 2014, week_number)
 
+		players = Player.objects.all().order_by('id')
+		for i in range(616, len(players)):
+			p = players[i]
+		#	print i, p.name, self.updatePlayerGameData(p, 2014, week_number, current_week_number), self.updatePlayerYearData(p, 2014)
+			print i, p.name, self.updatePlayerEspnProjection(p, 2014, week_number), self.updatePlayerEspnProjection(p, 2014, current_week_number)
 			
 
 	# Scrapes the data for the player in the given week and year
 	# 	If week_number is 0, then scrapes the data for the whole season
 	# Creates a new DataPoint object or updates it and saves it
 	# Returns the DataPoint object
-	def getPlayerDataPoint(self, player, year, week_number):
+	def getPlayerDataPoint(self, player, year, week_number, current_week_number):
 		# Get the player's last name
 		nameArr = player.name.split(' ')
 		lastName = nameArr[1]
@@ -43,7 +51,7 @@ class Command(NoArgsCommand):
 			lastName = nameArr[2]
 
 		(rowEndKey, rStart, hasSpan) = ('</td>', 6, False)
-		if week_number == 5: (rowEndKey, hasSpan) = ('</span>', True)
+		if week_number == current_week_number: (rowEndKey, hasSpan) = ('</span>', True)
 
 		if week_number > 0:
 			url = (self.weekDataPrefix + str(week_number) + 
@@ -114,7 +122,7 @@ class Command(NoArgsCommand):
 
 	# Gets the data for the player in the given week and year
 	# Updates or creates the corresponding GameData object 
-	def updatePlayerGameData(self, player, year, week_number):
+	def updatePlayerGameData(self, player, year, week_number, current_week_number):
 
 		# If this player is a FA, there's no data
 		if player.team.id == 33: return False
@@ -139,7 +147,7 @@ class Command(NoArgsCommand):
 			gd.matchup = matchup
 
 		# Get the DataPoint object and update the GameData object
-		dp = self.getPlayerDataPoint(player, year, week_number)
+		dp = self.getPlayerDataPoint(player, year, week_number, current_week_number)
 		gd.data = DataPoint.objects.get(id=1) if dp is None else dp
 
 		gd.save()
@@ -153,7 +161,7 @@ class Command(NoArgsCommand):
 		except: return False
 
 		# Get the data and update the YearData object
-		dp = self.getPlayerDataPoint(player, year, 0)
+		dp = self.getPlayerDataPoint(player, year, 0, -1)
 		if dp is None:
 			yd.data = DataPoint.objects.get(id=1)
 			return False
@@ -216,7 +224,7 @@ class Command(NoArgsCommand):
 			scrapedEspnId = int(row[1][row[1].index('id="playername_')+15 : 
 				row[1].index('" style')])
 			if scrapedEspnId == player.espn_id: # Just need the projection column
-				if 'BYE' in row[3]: return False # Don't need to do anything if FA or Bye week
+				if 'BYE' in row[2]: return False # Don't need to do anything if FA or Bye week
 
 				r = 14
 				projection = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
@@ -267,7 +275,7 @@ class Command(NoArgsCommand):
 				result = row[4][row[4].index('gameId=') : ]
 				espn_game_id = int(result[result.index('=')+1 : result.index('"')])
 				pointsFor = int(result[result.index('>')+1 : result.index('-')])
-				pointsAgainst = int(result[result.index('-')+1 : result.index('</a>')])
+				pointsAgainst = int((result[result.index('-')+1 : result.index('</a>')]).replace('OT', ''))
 				if win:
 					home_team_points = pointsFor
 					away_team_points = pointsAgainst
@@ -291,8 +299,9 @@ class Command(NoArgsCommand):
 
 		# Clear depth position of all players for this team before updating
 		for p in Player.objects.filter(team=team, depth_position__isnull=False):
-			p.depth_position = None
-			p.save()
+			if p.position.id < 5: # Don't need to do D/ST or K
+				p.depth_position = None
+				p.save()
 
 		# Read in the data and get the chunk we want
 		data = urllib2.urlopen(self.teamDepthPrefix + team.abbr.lower() + '/' + 
