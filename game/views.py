@@ -38,6 +38,9 @@ def getWeekAndYear(request):
 
 	return (week_number, year)
 
+def yahoo_api_verify(request):
+	return render(request, 'game/YuX85.hPUXs22k6fEvlyMflBMJlMOnTVYWHSJN1N8g--.html')
+
 # TODO: Clean up this code!!
 def players(request):
 	player_list = None
