@@ -5,7 +5,8 @@ from django.db import models
 # p = position: QB=1, RB=2, WR=3, TE=4, D/ST=5, K=6
 # xxxx = random 4 digits
 class Player(models.Model):
-	espn_id = models.IntegerField()
+	espn_id = models.IntegerField(null=True)
+	yahoo_id = models.IntegerField(null=True)
 	name = models.CharField(max_length=200)
 	height = models.IntegerField() # height in inches
 	weight = models.IntegerField() # weight in lbs
@@ -22,6 +23,7 @@ class Player(models.Model):
 	def fixtureString(self):
 		return ('{ ' + '"model":"game.Player", "pk":'+str(self.id) +  
 			', "fields":{"espn_id":' + str(self.espn_id) + 
+			', "fields":{"yahoo_id":' + str(self.yahoo_id) + 
 			', "name":"' + self.name + 
 			'", "height":' + str(self.height) + 
 			', "weight":' + str(self.weight) + 
@@ -36,6 +38,7 @@ class Player(models.Model):
 		return {
 			"id": self.id,
 			"espn_id": self.espn_id, 
+			"yahoo_id": self.yahoo_id,
 			"name": self.name,
 			"height": self.height,
 			"weight": self.weight,

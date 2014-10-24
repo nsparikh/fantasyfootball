@@ -27,17 +27,18 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		week_number = 5
-		current_week_number = 6
+		#week_number = 5
+		#current_week_number = 6
 		#for t in Team.objects.all().exclude(id=33):
 		#	print t.name, self.updateMatchup(t, 2014, week_number)
 
-		players = Player.objects.all().order_by('id')
-		for i in range(616, len(players)):
-			p = players[i]
+		#players = Player.objects.all().order_by('id')
+		#for i in range(616, len(players)):
+		#	p = players[i]
 		#	print i, p.name, self.updatePlayerGameData(p, 2014, week_number, current_week_number), self.updatePlayerYearData(p, 2014)
-			print i, p.name, self.updatePlayerEspnProjection(p, 2014, week_number), self.updatePlayerEspnProjection(p, 2014, current_week_number)
-			
+		#	print i, p.name, self.updatePlayerEspnProjection(p, 2014, week_number), self.updatePlayerEspnProjection(p, 2014, current_week_number)
+		
+		
 
 	# Scrapes the data for the player in the given week and year
 	# 	If week_number is 0, then scrapes the data for the whole season
@@ -329,6 +330,30 @@ class Command(NoArgsCommand):
 							print playerEspnId
 
 		return True
+
+	def updatePlayerTeam(self, player):
+		# Read in the page data and get the chunk with the info we need
+		data = urllib2.urlopen(self.playerProfilePrefix + str(player.espn_id)).read()
+		if '<div class="team-logo"></div>' in data:
+			data = data[data.index('<div class="team-logo"></div>') : ]
+		else:
+			data = data[data.index('<div class="player-bio">') : ]
+
+		data = data[ : data.index('<div class="player-select-header">')]
+		data = data[data.index('<div class="line-divider"></div>') : ]
+		numPosText = '<li class="first">#'
+		data = data[data.index(numPosText)+len(numPosText) : ]
+
+		# Get the player's team
+		teamCode = data[data.index('_/name/')+7 : data.index('</a>')]
+		teamAbbr = teamCode[ : teamCode.index('/')]
+		team = Team.objects.get(abbr__iexact=teamAbbr)
+		if team.id != player.team.id:
+			player.team = team
+			player.save()
+			return True
+		return False
+
 
 	# Scrapes the player info and creates the new player with the given ESPN ID
 	def createNewPlayer(self, espn_id):

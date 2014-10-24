@@ -17,8 +17,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		# Write what we want to do here
-		#self.writeSeedData(Matchup, 2014, True)
+		self.writeSeedData(Player, 2014, True)
 		#self.writeDataAndPoints(GameData, 2014, True)
 		#self.writeDataAndPoints(YearData, 2014, True)
 		
@@ -89,8 +88,8 @@ class Command(NoArgsCommand):
 		outFile.write('[\n')
 
 		# TODO: uncomment line for Matchup
-		dataList = dataModel.objects.filter(year=year).order_by('week_number', 'id')
-		#dataList = dataModel.objects.all().order_by('id')
+		#dataList = dataModel.objects.filter(year=year).order_by('week_number', 'id')
+		dataList = dataModel.objects.all().order_by('id')
 		for d in dataList:
 			outFile.write(d.fixtureString() + '\n')
 
@@ -101,6 +100,7 @@ class Command(NoArgsCommand):
 		outFile.close()
 
 		if overwrite:
+			print 'overwriting'
 			originalFile = open(outFilename)
 			overwriteFile = open('game/fixtures/' + dataModel.__name__ + str(year) + '.json', 'w')
 			overwriteFile.writelines([line for line in originalFile])
