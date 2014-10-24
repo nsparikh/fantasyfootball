@@ -21,7 +21,7 @@ class Command(NoArgsCommand):
 		players = Player.objects.all().order_by('id')
 		for i in range(len(players)):
 			p = players[i]
-			print i, p.name, self.getPlayerYahooId(p)
+			if p.yahoo_id is None: print p.name
 
 	def getPlayerYahooId(self, player):
 		searchUrl = self.searchPrefix + player.name.replace(' ', '+')
