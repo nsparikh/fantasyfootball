@@ -22,8 +22,8 @@ class Player(models.Model):
 
 	def fixtureString(self):
 		return ('{ ' + '"model":"game.Player", "pk":'+str(self.id) +  
-			', "fields":{"espn_id":' + str(self.espn_id) + 
-			', "yahoo_id":' + str(self.yahoo_id) + 
+			', "fields":{"espn_id":' + ('null' if self.espn_id is None else str(self.espn_id)) + 
+			', "yahoo_id":' + ('null' if self.yahoo_id is None else str(self.yahoo_id)) + 
 			', "name":"' + self.name + 
 			'", "height":' + str(self.height) + 
 			', "weight":' + str(self.weight) + 
