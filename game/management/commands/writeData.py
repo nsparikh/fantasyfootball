@@ -17,7 +17,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#self.writeSeedData(Player, 2014, True)
+		#self.writeSeedData(Player, 2014, False)
 		#self.writeDataAndPoints(GameData, 2014, True)
 		#self.writeDataAndPoints(YearData, 2014, True)
 		
