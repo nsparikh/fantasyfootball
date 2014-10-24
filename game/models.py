@@ -23,7 +23,7 @@ class Player(models.Model):
 	def fixtureString(self):
 		return ('{ ' + '"model":"game.Player", "pk":'+str(self.id) +  
 			', "fields":{"espn_id":' + str(self.espn_id) + 
-			', "fields":{"yahoo_id":' + str(self.yahoo_id) + 
+			', "yahoo_id":' + str(self.yahoo_id) + 
 			', "name":"' + self.name + 
 			'", "height":' + str(self.height) + 
 			', "weight":' + str(self.weight) + 
