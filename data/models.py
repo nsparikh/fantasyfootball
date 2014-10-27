@@ -23,6 +23,9 @@ class DataPoint(models.Model):
 	misc2pc = models.IntegerField(null=True)
 	miscFuml = models.IntegerField(null=True)
 	miscTDs = models.IntegerField(null=True)
+	bonus40YdPassTDs = models.IntegerField(null=True)
+	bonus40YdRushTDs = models.IntegerField(null=True)
+	bonus40YdRecTDs = models.IntegerField(null=True)
 	points = models.IntegerField(null=True)
 
 	def __unicode__(self):
@@ -45,6 +48,9 @@ class DataPoint(models.Model):
 			', "misc2pc":' + str(self.misc2pc) +
 			', "miscFuml":' + str(self.miscFuml) +
 			', "miscTDs":' + str(self.miscTDs) +
+			', "bonus40YdPassTDs":' + str(self.bonus40YdPassTDs) +
+			', "bonus40YdRushTDs":' + str(self.bonus40YdRushTDs) +
+			', "bonus40YdRecTDs":' + str(self.bonus40YdRecTDs) +
 			', "points":' + str(self.points) + '} },' )
 
 	def as_dict(self):

@@ -1,0 +1,2 @@
+[
+{ "model":"data.DataPoint", "pk":100581301, "fields":{"passC":28, "passA":43, "passYds":357, "passTDs":2, "passInt":1, "rush":6, "rushYds":-3, "rushTDs":0, "rec":0, "recYds":0, "recTDs":0, "recTar":0, "misc2pc":0, "miscFuml":0, "miscTDs":0, "bonus40YdPassTDs":1, "bonus40YdRushTDs":0, "bonus40YdRecTDs":0, "points":21} },
