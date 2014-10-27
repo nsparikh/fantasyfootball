@@ -1,8 +1,8 @@
 <?php
 
 // Open file to save results
-$outfile = fopen('GameDataPoints2013_Yahoo.json', 'w');
-fwrite($outfile, "[\n");
+$outfile = fopen('GameDataPoints2013_Yahoo_2.json', 'a');
+//fwrite($outfile, "[\n");
 
 // Array mapping Yahoo our stat names to yahoo stat_categories IDs
 $stat_categories = [
@@ -48,7 +48,7 @@ $players_json = json_decode($players_string, true);
 
 // Go through each player
 foreach ($players_json as $player_index=>$player) {
-    //if ($player_index < 1331) continue;
+    if ($player_index < 526) continue;
 
     // Get player's Yahoo ID and open the API URL
     $yahoo_id = $player['fields']['yahoo_id'];
@@ -61,11 +61,13 @@ foreach ($players_json as $player_index=>$player) {
         if (is_null($dp)) {
             print 'NULL DP' . "\n";
             continue;
-        } else if (is_null($yahoo_id)) {
+        } 
+
+        $dp['fields']['bonus40YdPassTDs'] = 0;
+        $dp['fields']['bonus40YdRushTDs'] = 0;
+        $dp['fields']['bonus40YdRecTDs'] = 0;
+        if (is_null($yahoo_id)) {
             print 'NULL YAHOO_ID' . "\n";
-            $dp['fields']['bonus40YdPassTDs'] = 0;
-            $dp['fields']['bonus40YdRushTDs'] = 0;
-            $dp['fields']['bonus40YdRecTDs'] = 0;
             fwrite($outfile, dpFixtureString($dp));
             continue;
         }
@@ -78,11 +80,14 @@ foreach ($players_json as $player_index=>$player) {
                 $statArray = $xmlResponse->players->player->player_stats->stats;
                 fwrite($outfile, dpFixtureString(getStats(
                     $statArray, $player, $week_num, $dp, $stat_categories, $bonus_stat_categories)));
+                print "SUCCESS\n";
             } else {
                 print "Couldn't fetch\n";
             }
         } catch (OAuthException $e) {
             print 'Error: ' . $e->getMessage() . "\n";
+            fwrite($outfile, dpFixtureString($dp));
+            continue;
         }
     }
 }
@@ -127,7 +132,6 @@ function getStats($statArray, $player, $week_num, $dp, $stat_categories, $bonus_
     }
 
     $new_dp['fields']['points'] = computeFantasyPoints($new_dp);
-    print_r($new_dp);
     return $new_dp;
 }
 
@@ -157,10 +161,16 @@ function dpFixtureString($dp) {
 
 // Computes the number of (offensive) fantasy points from the given data point
 function computeFantasyPoints($dp) {
+    $passYdPts = ($dp['fields']['passYds']>=0 ? 
+        floor($dp['fields']['passYds']/25) : ceil($dp['fields']['passYds']/25));
+    $rushYdPts = ($dp['fields']['rushYds']>=0 ? 
+        floor($dp['fields']['rushYds']/10) : ceil($dp['fields']['rushYds']/10));
+    $recYdPts = ($dp['fields']['recYds']>=0 ? 
+        floor($dp['fields']['recYds']/10) : ceil($dp['fields']['recYds']/10));
+
     $pts = ( ($dp['fields']['rushTDs']*6) + ($dp['fields']['recTDs']*6) + 
         ($dp['fields']['miscTDs']*6) + ($dp['fields']['passTDs']*4) + 
-        ($dp['fields']['misc2pc']*2) + floor($dp['fields']['rushYds']/10) + 
-        floor($dp['fields']['recYds']/10) + floor($dp['fields']['passYds']/25) );
+        ($dp['fields']['misc2pc']*2) + $rushYdPts + $recYdPts + $passYdPts );
     $pts = $pts - ($dp['fields']['passInt']*2) - ($dp['fields']['miscFuml']*2);
     $pts = $pts + (($dp['fields']['bonus40YdPassTDs']*2) + 
         ($dp['fields']['bonus40YdRushTDs']*2) + ($dp['fields']['bonus40YdRecTDs']*2));
