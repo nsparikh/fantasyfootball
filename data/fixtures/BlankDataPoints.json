@@ -1,3 +1,4 @@
 [
-{ "model":"data.DataPoint", "pk":1, "fields":{"passC":null, "passA":null, "passYds":null, "passTDs":null, "passInt":null, "rush":null, "rushYds":null, "rushTDs":null, "rec":null, "recYds":null, "recTDs":null, "recTar":null, "misc2pc":null, "miscFuml":null, "miscTDs":null, "points":null} }
+{ "model":"data.DataPoint", "pk":1, "fields":{"passC":null, "passA":null, "passYds":null, "passTDs":null, "passInt":null, "rush":null, "rushYds":null, "rushTDs":null, "rec":null, "recYds":null, "recTDs":null, "recTar":null, "misc2pc":null, "miscFuml":null, "miscTDs":null, "bonus40YdPassTDs":null, "bonus40YdRushTDs":null, "bonus40YdRecTDs":null, "points":null} },
+{ "model":"data.DataPoint", "pk":100, "fields":{"passC":0, "passA":0, "passYds":0, "passTDs":0, "passInt":0, "rush":0, "rushYds":0, "rushTDs":0, "rec":0, "recYds":0, "recTDs":0, "recTar":0, "misc2pc":0, "miscFuml":0, "miscTDs":0, "bonus40YdPassTDs":0, "bonus40YdRushTDs":0, "bonus40YdRecTDs":0, "points":0} }
 ]

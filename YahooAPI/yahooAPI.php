@@ -1,8 +1,5 @@
 <?php
-
-// Open file to save results
-$outfile = fopen('GameDataPoints2013_Yahoo_2.json', 'a');
-//fwrite($outfile, "[\n");
+date_default_timezone_set('America/New_York');
 
 // Array mapping Yahoo our stat names to yahoo stat_categories IDs
 $stat_categories = [
@@ -17,116 +14,140 @@ $stat_categories = [
     'rec' => 11,
     'recYds' => 12,
     'recTDs' => 13,
+    'recTar' => 78,
     'misc2pc' => 16,
     'miscFuml' => 18,
-    'miscTDs' => 15
+    'miscTDs' => 15,
+    'bonus40YdPassTDs' => 60,
+    'bonus40YdRushTDs' => 62,
+    'bonus40YdRecTDs' => 64
 ];
 
-$bonus_stat_categories = [
-    '40YdPassTDs' => 60,
-    '40YdRushTDs' => 62,
-    '40YdRecTDs' => 64
+$yahoo_year_codes = [
+    2014 => 331,
+    2013 => 314,
+    2012 => 273,
+    2011 => 257,
+    2010 => 242,
+    2009 => 222,
+    2008 => 199,
+    2007 => 175,
+    2006 => 153,
+    2005 => 124,
+    2004 => 101,
+    2003 => 79,
+    2002 => 49,
+    2001 => 57
 ];
 
 // Initialize OAuth for Yahoo API
 $consumer_key = 'dj0yJmk9M1dNVnJvODNJYzhRJmQ9WVdrOWMyWnhkbVV3Tm0wbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0wMg--';
 $consumer_secret = '5f20e6490769986958f3d7ad64656982fd86a822';
-$o = new OAuth($consumer_key, $consumer_secret, 
+$oauth = new OAuth($consumer_key, $consumer_secret, 
                 OAUTH_SIG_METHOD_HMACSHA1,
                 OAUTH_AUTH_TYPE_URI);
 
-$yahoo_url_prefix = 'http://fantasysports.yahooapis.com/fantasy/v2/players;player_keys=314.p.';
-$yahoo_url_suffix = '/stats;type=week;week=';
+// API URL
+$yahoo_url = 'http://fantasysports.yahooapis.com/fantasy/v2/players;player_keys=year_code.p.player_code/stats;type=week;week=';
 
-// Load 2013 game data from JSON fixture file
-$gamedata_string = file_get_contents('../data/fixtures/GameDataPoints2013.json');
-$gamedata_json = json_decode($gamedata_string, true);
+// Load Player and GameDataPoints from JSON fixture files
+$players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'), true);
+$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014.json'), true);
 
-// Load Player data from JSON fixture file
-$players_string = file_get_contents('../game/fixtures/Player2014.json');
-$players_json = json_decode($players_string, true);
 
-// Go through each player
-foreach ($players_json as $player_index=>$player) {
-    if ($player_index < 526) continue;
+writeGameData(2014);
 
-    // Get player's Yahoo ID and open the API URL
-    $yahoo_id = $player['fields']['yahoo_id'];
 
-    // Loop through each week in the season
-    foreach (range(1, 17) as $week_num) {
-        print $player_index.'/1486 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
-        // Get the corresponding data point
-        $dp = getPointById($player['pk'].'13'.sprintf('%02s', $week_num), $gamedata_json);
-        if (is_null($dp)) {
-            print 'NULL DP' . "\n";
-            continue;
-        } 
+function writeGameData($year) {
+    // Open output files
+    $outfile_gd2014 = fopen('GameData2014_Yahoo.json', 'a');
+    $outfile_gdpoints2014 = fopen('GameDataPoints2014_Yahoo.json', 'a');
 
-        $dp['fields']['bonus40YdPassTDs'] = 0;
-        $dp['fields']['bonus40YdRushTDs'] = 0;
-        $dp['fields']['bonus40YdRecTDs'] = 0;
-        if (is_null($yahoo_id)) {
-            print 'NULL YAHOO_ID' . "\n";
-            fwrite($outfile, dpFixtureString($dp));
-            continue;
-        }
+    // Go through each player
+    foreach ($GLOBALS['players_json'] as $player_index=>$player) {
+        if ($player_index < 314) continue;
 
-        // Fetch the data from the Yahoo API
-        $player_url = $yahoo_url_prefix . $yahoo_id . $yahoo_url_suffix . $week_num;
-        try {
-            if ($o->fetch($player_url)) {
-                $xmlResponse = simplexml_load_string($o->getLastResponse());
-                $statArray = $xmlResponse->players->player->player_stats->stats;
-                fwrite($outfile, dpFixtureString(getStats(
-                    $statArray, $player, $week_num, $dp, $stat_categories, $bonus_stat_categories)));
-                print "SUCCESS\n";
-            } else {
-                print "Couldn't fetch\n";
+        // Loop through each week in the season
+        foreach (range(1, 8) as $week_num) {
+            print $player_index.'/1486 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
+
+            // Get the corresponding GameData point 
+            $gd = getPointById(getDataPk($player, $year, $week_num), $GLOBALS['gd_2014']);
+            if (is_null($gd)) $gd = blankGameData($player, $year, $week_num);
+
+            // Get the Yahoo game data for this player and week
+            $result = getYahooPlayerGameData($player, $year, $week_num);
+            if ($result == -1) { // We've hit the API limit
+                print 'CURRENT TIME: ' . date('m/d/Y h:i:s a', time()) . "\n";
+                return;
+            } else if ($result == 100 or $result == 1) { // We got an all 0 or null data point
+                $gd['fields']['data'] = $result;
+                fwrite($outfile_gd2014, gdFixtureString($gd));
+            } else { // Write both points to file
+                $gd['fields']['data'] = $result['pk'];
+                fwrite($outfile_gd2014, gdFixtureString($gd));
+                fwrite($outfile_gdpoints2014, dpFixtureString($result));
             }
-        } catch (OAuthException $e) {
-            print 'Error: ' . $e->getMessage() . "\n";
-            fwrite($outfile, dpFixtureString($dp));
-            continue;
         }
     }
 }
 
-fclose($outfile);
+// Gets the given player's game data for the given week and year 
+// Returns -1 if we hit the API limit
+function getYahooPlayerGameData($player, $year, $week_num) {
+    // Get player's Yahoo ID and corresponding GameData point
+    $yahoo_id = $player['fields']['yahoo_id'];
 
+    // Get the URL for this player, year, and week
+    $year_code = $GLOBALS['yahoo_year_codes'][$year];
+    $player_url = str_replace('player_code', $player['fields']['yahoo_id'], 
+        str_replace('year_code', $year_code, $GLOBALS['yahoo_url'])) . $week_num;
+
+    // Try to fetch the API response
+    try {
+        if ($GLOBALS['oauth'] -> fetch($player_url)) {
+            $xmlResponse = simplexml_load_string($GLOBALS['oauth'] -> getLastResponse());
+            $statArray = $xmlResponse->players->player->player_stats->stats;
+            $new_dp = getStats($statArray, $player, $year, $week_num);
+
+            // Check if the resulting data point has all 0's
+            if (isAllZeroDataPoint($new_dp)) {
+                print "ALL 0\n";
+                return 100; // This is the PK for the all 0 DataPoint
+            } else {
+                print "SUCCESS\n";
+                return $new_dp;
+            }
+        } else { 
+            print "Couldn't fetch\n";
+            return -1;
+        }
+    } catch (OAuthException $e) {
+        print 'Error: ' . $e->getMessage() . "\n";
+        if (strpos($e->getMessage(), '999') === false) { // Record as null DataPoint
+            return 1;
+        } else { // We've hit the API limit
+            return -1;
+        }
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // HELPER METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Gets the relevant stats from the stat array and compares to the player's stats
-function getStats($statArray, $player, $week_num, $dp, $stat_categories, $bonus_stat_categories) {
-    $new_dp = $dp;
+// Gets the relevant stats from the stat array and returns a DataPoint array
+function getStats($statArray, $player, $year, $week_num) {
+    $new_dp = [];
+    $new_dp['pk'] = getDataPk($player, $year, $week_num);
 
-    // First compare Yahoo's stats to what we have
-    foreach ($stat_categories as $stat_name=>$stat_cat_num) {
+    // Get stats for each of the categories
+    foreach ($GLOBALS['stat_categories'] as $stat_name=>$stat_cat_num) {
         foreach ($statArray->children() as $s) {
             $cur_stat_cat_num = (int) $s->stat_id;
             if ($cur_stat_cat_num == $stat_cat_num) {
                 $stat_val = (int) $s->value;
-                if ($stat_val != $dp['fields'][$stat_name]) {
-                    print $stat_name . ': ' . $dp['fields'][$stat_name] . ', yahoo: ' . $stat_val . '; ';
-                    $new_dp['fields'][$stat_name] = $stat_val;
-                    //fwrite($outfile, $player['pk'].' '.$player['fields']['name'].' W'.$week_num.' '.
-                    //    $stat_name.': '.$dp['fields'][$stat_name].', yahoo: '.$stat_val."\n");
-                } 
-            }
-        }
-    }
-
-    // Get bonus points stats
-    $bonus_pts = 0;
-    foreach ($bonus_stat_categories as $bonus_stat_name=>$bonus_stat_cat_num) {
-        foreach ($statArray->children() as $s) {
-            $cur_stat_cat_num = (int) $s->stat_id;
-            if ($cur_stat_cat_num == $bonus_stat_cat_num) {
-                $bonus_stat_val = (int) $s->value;
-                $new_dp['fields']['bonus'.$bonus_stat_name] = $bonus_stat_val;
+                $new_dp['fields'][$stat_name] = $stat_val;
             }
         }
     }
@@ -159,6 +180,44 @@ function dpFixtureString($dp) {
         ', "points":' . $dp['fields']['points'] . '} },' . "\n");
 }
 
+// Returns the fixture string for the given GameData point
+function gdFixtureString($gd) {
+    return ('{ ' . '"model":"data.GameData", "pk":' . $gd['pk'] . 
+        ', "fields":{"player":' . $gd['fields']['player'] .
+        ', "matchup":' . (is_null($gd['fields']['matchup']) ? 'null' : $gd['fields']['matchup']) .
+        ', "projection":' . (is_null($gd['fields']['projection']) ? 'null' : $gd['fields']['projection']) .  
+        ', "espn_projection":' . (is_null($gd['fields']['espn_projection']) ? 'null' : $gd['fields']['espn_projection']) . 
+        ', "yahoo_projection":' . (is_null($gd['fields']['yahoo_projection']) ? 'null' : $gd['fields']['yahoo_projection']) .
+        ', "cbs_projection":' . (is_null($gd['fields']['cbs_projection']) ? 'null' : $gd['fields']['cbs_projection']) . 
+        ', "performance_score":' . (is_null($gd['fields']['performance_score']) ? 'null' : $gd['fields']['performance_score']) . 
+        ', "data":' . $gd['fields']['data'] . '} },' . "\n");
+}
+
+// Returns a "blank" GameData point for the given player, year, and week
+function blankGameData($player, $year, $week_num) {
+    $blank_gd = [];
+    $blank_gd['pk'] = getDataPk($player, $year, $week_num);
+    $blank_gd['fields']['player'] = $player['pk'];
+    $blank_gd['fields']['matchup'] = 'null';
+    $blank_gd['fields']['projection'] = 'null';
+    $blank_gd['fields']['espn_projection'] = 'null';
+    $blank_gd['fields']['yahoo_projection'] = 'null';
+    $blank_gd['fields']['cbs_projection'] = 'null';
+    $blank_gd['fields']['performance_score'] = 'null';
+    $blank_gd['fields']['data'] = 1;
+    return $blank_gd;
+}
+
+// Checks whether the given data point has all 0 fields
+function isAllZeroDataPoint($dp) {
+    foreach ($GLOBALS['stat_categories'] as $stat_name=>$stat_cat_num) {
+        if ($dp['fields'][$stat_name] != 0) return false;
+    }
+    if ($dp['fields']['points'] != 0) return false;
+
+    return true;
+}
+
 // Computes the number of (offensive) fantasy points from the given data point
 function computeFantasyPoints($dp) {
     $passYdPts = ($dp['fields']['passYds']>=0 ? 
@@ -177,7 +236,7 @@ function computeFantasyPoints($dp) {
     return $pts;
 }
 
-// Retrieves the point from the GameDataPoint dataset with the given ID
+// Retrieves the point from the GameDataPoint dataset with the given ID (PK)
 function getPointById($id, $dataset) {
     foreach ($dataset as $dp) {
         if ($dp['pk'] == $id) {
@@ -187,12 +246,10 @@ function getPointById($id, $dataset) {
     return NULL;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SEASON CODES
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 2001-2012 at https://developer.yahoo.com/fantasysports/guide/game-resource.html#game-resource-key_format
-// 2013 is 314
-// 2014 is 331
+// Returns the GameData / DataPoint pk that matches the given player, year, and week
+function getDataPk($player, $year, $week_num) {
+    return $player['pk'] . substr($year, 2) . sprintf('%02s', $week_num);
+}
 
 ?>
         

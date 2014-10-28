@@ -42,8 +42,8 @@ class Command(NoArgsCommand):
 		print 'writing data'
 
 		# TODO: uncomment line for YearData
-		#dataList = dataModel.objects.filter(year=year).order_by('player', 'id')
-		dataList = dataModel.objects.filter(matchup__year=year).order_by('player', 'matchup__week_number')
+		#dataList = dataModel.objects.filter(year=year).order_by('id')
+		dataList = dataModel.objects.filter(matchup__year=year).order_by('id')
 		for d in dataList:
 			dataFile.write(d.fixtureString() + '\n')
 			if d.data.id > 1: dataPointsFile.write(d.data.fixtureString() + '\n')
