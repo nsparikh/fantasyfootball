@@ -65,10 +65,10 @@ $yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013.json'), 
 // EXECUTION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-temp();
+writeGameData(2014);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DEFINED METHODS FOR GETTING DATA
+// METHODS FOR GETTING AND WRITING DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function writeGameData($year) {
@@ -187,15 +187,6 @@ function writeYearData($year) {
         fwrite($outfile_yd, ydFixtureString($yd));
         
     }
-}
-
-function temp() {
-    $oldYdPoints = json_decode(file_get_contents('YearDataPoints2013_Yahoo.json'), true);
-    $newYdPoints = fopen('YearDataPoints2013_Yahoo_fixed.json', 'w');
-    foreach ($oldYdPoints as $ydp) {
-        if (!isAllZeroDataPoint($ydp)) fwrite($newYdPoints, dpFixtureString($ydp));
-    }
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

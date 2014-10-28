@@ -1,13 +1,13 @@
 TO DO LIST
 ==========
 
-Data issues:
-- Fix Garrett Hartley 2013 Game Data (was on a team but now FA), find similar players?
-	- FIgure out actual BYE weeks for these players
-- Get Johnnie Lee Higgins GameData (middle name issue)
+Data tasks:
+- Get rest of 2014 game data from Yahoo
+- Compute 2014 year data 
+- Recompute 2013, 2014 performance scores
+- Compute career data
 - fix players with height=0 or weight=0, no DOB, no number
 	- double check players' positions
-- Figure out where to get historical data (before 2013) and projections (before 2014)
 - Get Matchups for pre/postseason games?
 
 
