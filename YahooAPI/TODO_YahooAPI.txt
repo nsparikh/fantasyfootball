@@ -1,7 +1,7 @@
 1) Get Yahoo IDs for every player -- done
 	- what about D/ST ???
-2) Get 2013 stats - almost done
-3) Get 2014 stats 
+2) Get 2013 stats -- done
+3) Get 2014 stats -- almost done
 4) Write method to compute fantasy points -- done
 5) Compute fantasy points for 2013, 2014 years
 6) Get historical stats 2002-2012

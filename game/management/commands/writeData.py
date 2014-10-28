@@ -17,7 +17,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#self.writeSeedData(Player, 2014, False)
+		self.writeSeedData(Matchup, 2014, True)
 		#self.writeDataAndPoints(GameData, 2014, True)
 		#self.writeDataAndPoints(YearData, 2014, True)
 		
@@ -88,8 +88,8 @@ class Command(NoArgsCommand):
 		outFile.write('[\n')
 
 		# TODO: uncomment line for Matchup
-		#dataList = dataModel.objects.filter(year=year).order_by('week_number', 'id')
-		dataList = dataModel.objects.all().order_by('id')
+		dataList = dataModel.objects.filter(year=year).order_by('week_number', 'id')
+		#dataList = dataModel.objects.all().order_by('id')
 		for d in dataList:
 			outFile.write(d.fixtureString() + '\n')
 

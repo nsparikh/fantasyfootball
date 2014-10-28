@@ -27,16 +27,14 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#week_number = 5
-		#current_week_number = 6
+		week_number = 7
 		#for t in Team.objects.all().exclude(id=33):
 		#	print t.name, self.updateMatchup(t, 2014, week_number)
 
-		#players = Player.objects.all().order_by('id')
-		#for i in range(616, len(players)):
-		#	p = players[i]
-		#	print i, p.name, self.updatePlayerGameData(p, 2014, week_number, current_week_number), self.updatePlayerYearData(p, 2014)
-		#	print i, p.name, self.updatePlayerEspnProjection(p, 2014, week_number), self.updatePlayerEspnProjection(p, 2014, current_week_number)
+		players = Player.objects.all().order_by('id')
+		for i in range(0, len(players)):
+			p = players[i]
+			print i, p.name, self.updatePlayerEspnProjection(p, 2014, week_number)
 		
 		
 
@@ -252,7 +250,8 @@ class Command(NoArgsCommand):
 			return False
 
 		# Read in the page data
-		url = self.teamSchedulePrefix + team.abbr.lower() + '/year/' + str(year)
+		abbr = 'jax' if team.abbr.lower()=='jac' else team.abbr.lower()
+		url = self.teamSchedulePrefix + abbr + '/year/' + str(year)
 		data = urllib2.urlopen(url).read()
 
 		table = data[data.index(str(year) + ' Regular Season Schedule') : 
