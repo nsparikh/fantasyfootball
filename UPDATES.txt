@@ -8,11 +8,11 @@ GameData
 	yahoo_projection (before game)
 	cbs_projection (before game)
 	performance score (after game - for most recent + rest of weeks): scoreUpdates.py computePerformanceScores
-	data (after/during game): dataScraper.py updatePlayerGameData
+	data (after/during game): in YahooAPI.php
 
 YearData
 	average (after game)
-	data (after game): dataScraper.py getPlayerDataPoint
+	data (after game): in YahooAPI.php
 	team
 
 CareerData

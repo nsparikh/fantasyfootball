@@ -28,8 +28,8 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		week_number = 7
-		#for t in Team.objects.all().exclude(id=33):
-		#	print t.name, self.updateMatchup(t, 2014, week_number)
+		for t in Team.objects.all().exclude(id=33):
+			print t.name, self.updateMatchup(t, 2014, week_number)
 
 		players = Player.objects.all().order_by('id')
 		for i in range(0, len(players)):
