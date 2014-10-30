@@ -17,7 +17,8 @@ class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		#week_number = 5
 		for i in range(1, 18):
-			self.computePerformanceScores(2013, i)
+			print 'WEEK:', i
+			self.computePerformanceScores(2013, week_number)
 		#self.computePerformanceScores(2014, week_number+1)
 
 

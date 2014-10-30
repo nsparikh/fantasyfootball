@@ -3,9 +3,12 @@ TO DO LIST
 
 Data tasks:
 - Get rest of 2014 game data from Yahoo
+- Recompute 2014 fantasy points
 - Compute 2014 year data 
+- Clear and reload database
 - Recompute 2013, 2014 performance scores
-- Compute career data
+- Write all game and player data to file
+
 - fix players with height=0 or weight=0, no DOB, no number
 	- double check players' positions
 - Get Matchups for pre/postseason games?

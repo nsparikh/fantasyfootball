@@ -57,9 +57,9 @@ $yahoo_url = 'http://fantasysports.yahooapis.com/fantasy/v2/players;player_keys=
 // Load Player and GameDataPoints from JSON fixture files
 $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'), true);
 $gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014.json'), true);
-$gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013.json'), true);
-$gdpoints_2013 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2013.json'), true);
-$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013.json'), true);
+$gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013_Yahoo.json'), true);
+$gdpoints_2013 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2013_Yahoo.json'), true);
+$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EXECUTION
@@ -71,6 +71,19 @@ writeGameData(2014);
 // METHODS FOR GETTING AND WRITING DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Recompute fantasy points
+function temp() {
+    $outfile_gdpoints = fopen('GameDataPoints2014_Yahoo_FixedPts.json', 'w');
+
+    $old_gdpoints = json_decode(file_get_contents('GameDataPoints2014_Yahoo.json'), true);
+
+    foreach ($old_gdpoints as $gd_index=>$dp) {
+        $new_pts = computeFantasyPoints($dp);
+        $dp['fields']['points'] = $new_pts;
+        fwrite($outfile_gdpoints, dpFixtureString($dp));
+    }
+}
+
 function writeGameData($year) {
     // Open output files
     $outfile_gd = fopen('GameData'.$year.'_Yahoo.json', 'a');
@@ -78,7 +91,7 @@ function writeGameData($year) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        if ($player_index < 314) continue;
+        if ($player_index < 657) continue;
 
         // Loop through each week in the season
         foreach (range(1, 8) as $week_num) {
@@ -147,8 +160,8 @@ function getYahooPlayerGameData($player, $year, $week_num) {
 
 // Computes and writes the data for each player in the given year
 function writeYearData($year) {
-    $outfile_yd = fopen('YearData'.$year.'_Yahoo.json', 'a');
-    $outfile_ydpoints = fopen('YearDataPoints'.$year.'_Yahoo.json', 'a');
+    $outfile_yd = fopen('YearData'.$year.'_Yahoo.json', 'w');
+    $outfile_ydpoints = fopen('YearDataPoints'.$year.'_Yahoo.json', 'w');
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
@@ -308,8 +321,8 @@ function computeFantasyPoints($dp) {
         ($dp['fields']['miscTDs']*6) + ($dp['fields']['passTDs']*4) + 
         ($dp['fields']['misc2pc']*2) + $rushYdPts + $recYdPts + $passYdPts );
     $pts = $pts - ($dp['fields']['passInt']*2) - ($dp['fields']['miscFuml']*2);
-    $pts = $pts + (($dp['fields']['bonus40YdPassTDs']*2) + 
-        ($dp['fields']['bonus40YdRushTDs']*2) + ($dp['fields']['bonus40YdRecTDs']*2));
+    //$pts = $pts + (($dp['fields']['bonus40YdPassTDs']*2) + 
+    //    ($dp['fields']['bonus40YdRushTDs']*2) + ($dp['fields']['bonus40YdRecTDs']*2));
     return $pts;
 }
 
