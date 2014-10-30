@@ -1,3 +1,4 @@
+[
 { "model":"data.GameData", "pk":100581301, "fields":{"player":10058, "matchup":10121301, "projection":null, "espn_projection":null, "yahoo_projection":null, "cbs_projection":null, "performance_score":66.68, "data":100581301} },
 { "model":"data.GameData", "pk":100581302, "fields":{"player":10058, "matchup":5101302, "projection":null, "espn_projection":null, "yahoo_projection":null, "cbs_projection":null, "performance_score":51.61, "data":100581302} },
 { "model":"data.GameData", "pk":100581303, "fields":{"player":10058, "matchup":4101303, "projection":null, "espn_projection":null, "yahoo_projection":null, "cbs_projection":null, "performance_score":78.18, "data":100581303} },
@@ -15875,4 +15876,5 @@
 { "model":"data.GameData", "pk":697391314, "fields":{"player":69739, "matchup":null, "projection":null, "espn_projection":null, "yahoo_projection":null, "cbs_projection":null, "performance_score":null, "data":1} },
 { "model":"data.GameData", "pk":697391315, "fields":{"player":69739, "matchup":null, "projection":null, "espn_projection":null, "yahoo_projection":null, "cbs_projection":null, "performance_score":null, "data":1} },
 { "model":"data.GameData", "pk":697391316, "fields":{"player":69739, "matchup":null, "projection":null, "espn_projection":null, "yahoo_projection":null, "cbs_projection":null, "performance_score":null, "data":1} },
-{ "model":"data.GameData", "pk":697391317, "fields":{"player":69739, "matchup":null, "projection":null, "espn_projection":null, "yahoo_projection":null, "cbs_projection":null, "performance_score":null, "data":1} },
+{ "model":"data.GameData", "pk":697391317, "fields":{"player":69739, "matchup":null, "projection":null, "espn_projection":null, "yahoo_projection":null, "cbs_projection":null, "performance_score":null, "data":1} }
+]

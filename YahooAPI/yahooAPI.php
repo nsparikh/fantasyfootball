@@ -75,7 +75,8 @@ $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'
 //$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014_Yahoo.json'), true);
 $gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013_Yahoo.json'), true);
 $gdpoints_2013 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2013_Yahoo.json'), true);
-//$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
+$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
+//$yd_2014 = json_decode(file_get_contents('../data/fixtures/YearData2014.json'), true);
 $matchups_2013 = json_decode(file_get_contents('../game/fixtures/Matchup2013.json'), true);
 //$matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.json'), true);
 
@@ -83,33 +84,11 @@ $matchups_2013 = json_decode(file_get_contents('../game/fixtures/Matchup2013.jso
 // EXECUTION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+writeYearData(2014);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function removeByeWeekData($year) {
-    $outfile_gd = fopen('GameData'.$year.'_Yahoo_NoBye.json', 'a');
-    $outfile_gdpoints = fopen('GameDataPoints'.$year.'_Yahoo_NoBye.json', 'a');
-
-    foreach ($GLOBALS['gd_'.$year] as $gd_index=>$gd) {
-        // Get matchup and check if bye
-        $matchup = getPointById($gd['fields']['matchup'], $GLOBALS['matchups_'.$year]);
-        if ($matchup['fields']['bye']) {
-            $gd['fields']['data'] = 1;
-        } 
-
-        // If actual data, write data point to file
-        if ($gd['fields']['data'] > 100) {
-            $dp = getPointById($gd['fields']['data'], $GLOBALS['gdpoints_'.$year]);
-            fwrite($outfile_gdpoints, dpFixtureString($dp));
-        }
-
-        // Regardless, we need to write game data to file
-        fwrite($outfile_gd, gdFixtureString($gd));
-    }
-}
 
 function writeGameData($year) {
     // Open output files
@@ -188,8 +167,8 @@ function getYahooPlayerGameData($player, $year, $week_num) {
 
 // Computes and writes the data for each player in the given year
 function writeYearData($year) {
-    $outfile_yd = fopen('YearData'.$year.'_Yahoo.json', 'w');
-    $outfile_ydpoints = fopen('YearDataPoints'.$year.'_Yahoo.json', 'w');
+    $outfile_yd = fopen('YearData'.$year.'_Yahoo_Fixed.json', 'w');
+    $outfile_ydpoints = fopen('YearDataPoints'.$year.'_Yahoo_Fixed.json', 'w');
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
@@ -206,7 +185,7 @@ function writeYearData($year) {
 
             $dp = getPointById($gd['fields']['data'], $GLOBALS['gdpoints_'.$year]);
             if (!array_key_exists('fields', $total)) $total = $dp; // It's the first data point in the year
-            $total = addDataPoints($total, $dp);
+            else $total = addDataPoints($total, $dp);
             $count = $count + 1;
         }
 
@@ -227,6 +206,28 @@ function writeYearData($year) {
         print ' ' . $yd['fields']['data'] . "\n";
         fwrite($outfile_yd, ydFixtureString($yd));
         
+    }
+}
+
+function removeByeWeekData($year) {
+    $outfile_gd = fopen('GameData'.$year.'_Yahoo_NoBye.json', 'a');
+    $outfile_gdpoints = fopen('GameDataPoints'.$year.'_Yahoo_NoBye.json', 'a');
+
+    foreach ($GLOBALS['gd_'.$year] as $gd_index=>$gd) {
+        // Get matchup and check if bye
+        $matchup = getPointById($gd['fields']['matchup'], $GLOBALS['matchups_'.$year]);
+        if ($matchup['fields']['bye']) {
+            $gd['fields']['data'] = 1;
+        } 
+
+        // If actual data, write data point to file
+        if ($gd['fields']['data'] > 100) {
+            $dp = getPointById($gd['fields']['data'], $GLOBALS['gdpoints_'.$year]);
+            fwrite($outfile_gdpoints, dpFixtureString($dp));
+        }
+
+        // Regardless, we need to write game data to file
+        fwrite($outfile_gd, gdFixtureString($gd));
     }
 }
 
