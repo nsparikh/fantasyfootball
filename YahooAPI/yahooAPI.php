@@ -80,12 +80,41 @@ $yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.js
 // EXECUTION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-writeGameData(2014);
+//fix2013GameData();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function fix2013GameData() {
+    $outfile_gd = fopen('GameData2013_Yahoo_Complete.json', 'a');
+    $outfile_gdpoints = fopen('GameDataPoints2013_Yahoo_Complete.json', 'a');
+
+    foreach ($GLOBALS['players_json'] as $player_index=>$player) {
+        if ($player['pk'] < 50000) continue;
+        foreach (range(1, 17) as $week_num) {
+            print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
+
+            // Get the corresponding GameData point 
+            $gd = getPointById(getDataPk($player, 2013, $week_num), $GLOBALS['gd_2013']);
+            if (is_null($gd)) $gd = blankGameData($player, 2013, $week_num);
+
+            // Get the Yahoo game data for this player and week
+            $result = getYahooPlayerGameData($player, 2013, $week_num);
+            if ($result == -1) { // We've hit the API limit
+                print 'CURRENT TIME: ' . date('m/d/Y h:i:s a', time()) . "\n";
+                return;
+            } else if ($result == 100 or $result == 1) { // We got an all 0 or null data point
+                $gd['fields']['data'] = $result;
+                fwrite($outfile_gd, gdFixtureString($gd));
+            } else { // Write both points to file
+                $gd['fields']['data'] = $result['pk'];
+                fwrite($outfile_gd, gdFixtureString($gd));
+                fwrite($outfile_gdpoints, dpFixtureString($result));
+            }
+        }
+    }
+}
 
 
 function writeGameData($year) {
@@ -95,11 +124,11 @@ function writeGameData($year) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        if ($player_index < 1339) continue;
+        if ($player_index < 1409) continue;
 
         // Loop through each week in the season
         foreach (range(1, 8) as $week_num) {
-            print $player_index.'/1486 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
+            print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
 
             // Get the corresponding GameData point 
             $gd = getPointById(getDataPk($player, $year, $week_num), $GLOBALS['gd_'.$year]);
@@ -169,7 +198,7 @@ function writeYearData($year) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        print $player_index.'/1486 '.$player['pk'].' '.$player['fields']['name'];
+        print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'];
         $yd = getPointById(getYearDataPk($player, $year), $GLOBALS['yd_'.$year]);
 
         $total = [];
