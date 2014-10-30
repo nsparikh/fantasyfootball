@@ -7,24 +7,38 @@ date_default_timezone_set('America/New_York');
 
 // Array mapping Yahoo our stat names to yahoo stat_categories IDs
 $stat_categories = [
-    'passC' => 2,
-    'passA' => 1,
-    'passYds' => 4,
-    'passTDs' => 5,
-    'passInt' => 6,
-    'rush' => 8,
-    'rushYds' => 9,
-    'rushTDs' => 10,
-    'rec' => 11,
-    'recYds' => 12,
-    'recTDs' => 13,
-    'recTar' => 78,
-    'misc2pc' => 16,
-    'miscFuml' => 18,
-    'miscTDs' => 15,
-    'bonus40YdPassTDs' => 60,
-    'bonus40YdRushTDs' => 62,
-    'bonus40YdRecTDs' => 64
+    'passC' => [2],
+    'passA' => [1],
+    'passYds' => [4],
+    'passTDs' => [5],
+    'passInt' => [6],
+    'rush' => [8],
+    'rushYds' => [9],
+    'rushTDs' => [10],
+    'rec' => [11],
+    'recYds' => [12],
+    'recTDs' => [13],
+    'recTar' => [78],
+    'misc2pc' => [16],
+    'miscFuml' => [18],
+    'miscTDs' => [15],
+    'bonus40YdPassTDs' => [60],
+    'bonus40YdRushTDs' => [62],
+    'bonus40YdRecTDs' => [64],
+    'fg0_19' => [19],
+    'fg20_29' => [20],
+    'fg30_39' => [21],
+    'fg40_49' => [22],
+    'fg50' => [23],
+    'fgMissed' => [24, 25, 26, 27, 28],
+    'pat' => [29],
+    'dstTDs' => [35],
+    'dstInt' => [33],
+    'dstFumlRec' => [34],
+    'dstBlockedKicks' => [37],
+    'dstSafeties' => [36],
+    'dstSacks' => [32],
+    'dstPtsAllowed' => [31]
 ];
 
 $yahoo_year_codes = [
@@ -64,6 +78,7 @@ $yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.js
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EXECUTION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 temp();
 //writeGameData(2014);
 
@@ -71,31 +86,14 @@ temp();
 // METHODS FOR GETTING AND WRITING DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Recompute fantasy points
+
 function temp() {
-    $outfile_gdpoints = fopen('GameDataPoints2014_Yahoo_FixedPts.json', 'w');
-
-    $old_gdpoints = json_decode(file_get_contents('GameDataPoints2014_Yahoo.json'), true);
-
-    foreach ($old_gdpoints as $gd_index=>$dp) {
-        $new_pts = computeOffenseFantasyPoints($dp);
-        $dp['fields']['points'] = $new_pts;
-        fwrite($outfile_gdpoints, dpFixtureString($dp));
+    $pos_url = 'http://fantasysports.yahooapis.com/fantasy/v2/game/nfl/position_types';
+    if ($GLOBALS['oauth'] -> fetch($pos_url)) {
+        $xmlResponse = simplexml_load_string($GLOBALS['oauth'] -> getLastResponse());
+        print_r($xmlResponse);
     }
-}
 
-function removeZeroDatapoints() {
-    $outfile_gd = fopen('GameData2013_NoZeros.json', 'w');
-    $outfile_gdpoints = fopen('GameDataPoints2013_NoZeros.json', 'w');
-
-    foreach ($GLOBALS['gd_2013'] as $gd_index=>$gd) {
-        if ($gd['fields']['data'] > 100) {
-            $dp = getPointById($gd['fields']['data'], $GLOBALS['gdpoints_2013']);
-            if (isAllZeroDataPoint($dp)) $gd['fields']['data'] = 100;
-            else fwrite($outfile_gdpoints, dpFixtureString($dp));
-        } 
-        fwrite($outfile_gd, gdFixtureString($gd));
-    }
 }
 
 function writeGameData($year) {
@@ -105,7 +103,7 @@ function writeGameData($year) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        if ($player_index < 657) continue;
+        if ($player_index < 1002) continue;
 
         // Loop through each week in the season
         foreach (range(1, 8) as $week_num) {
@@ -220,18 +218,21 @@ function writeYearData($year) {
 // HELPER METHODS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Gets the relevant stats from the stat array and returns a DataPoint array
+// Gets the relevant stats from the stat array and returns corresponding DataPoint 
 function getStats($statArray, $player, $year, $week_num) {
     $new_dp = [];
     $new_dp['pk'] = getDataPk($player, $year, $week_num);
 
     // Get stats for each of the categories
-    foreach ($GLOBALS['stat_categories'] as $stat_name=>$stat_cat_num) {
-        foreach ($statArray->children() as $s) {
-            $cur_stat_cat_num = (int) $s->stat_id;
-            if ($cur_stat_cat_num == $stat_cat_num) {
-                $stat_val = (int) $s->value;
-                $new_dp['fields'][$stat_name] = $stat_val;
+    foreach ($GLOBALS['stat_categories'] as $stat_name=>$stat_cat_nums) {
+        $new_dp['fields'][$stat_name] = 0;
+
+        // Go through the array of numbers that go with this category
+        foreach ($stat_cat_nums as $num) {
+            // Get the value of this stat_id from the Yahoo statArray and add into new_dp
+            foreach ($statArray->children() as $s) {
+                if ((int)$s->stat_id == $num) 
+                    $new_dp['fields'][$stat_name] = $new_dp['fields'][$stat_name] + (int)$s->value;
             }
         }
     }
@@ -261,6 +262,20 @@ function dpFixtureString($dp) {
         ', "bonus40YdPassTDs":' . $dp['fields']['bonus40YdPassTDs'] .
         ', "bonus40YdRushTDs":' . $dp['fields']['bonus40YdRushTDs'] .
         ', "bonus40YdRecTDs":' . $dp['fields']['bonus40YdRecTDs'] .
+        ', "fg0_19":' . $dp['fields']['fg0_19'] .
+        ', "fg20_29":' . $dp['fields']['fg20_29'] .
+        ', "fg30_39":' . $dp['fields']['fg30_39'] .
+        ', "fg40_49":' . $dp['fields']['fg40_49'] .
+        ', "fg50":' . $dp['fields']['fg50'] .
+        ', "fgMissed":' . $dp['fields']['fgMissed'] .
+        ', "pat":' . $dp['fields']['pat'] .
+        ', "dstTDs":' . $dp['fields']['dstTDs'] .
+        ', "dstInt":' . $dp['fields']['dstInt'] .
+        ', "dstFumlRec":' . $dp['fields']['dstFumlRec'] .
+        ', "dstBlockedKicks":' . $dp['fields']['dstBlockedKicks'] .
+        ', "dstSafeties":' . $dp['fields']['dstSafeties'] .
+        ', "dstSacks":' . $dp['fields']['dstSacks'] .
+        ', "dstPtsAllowed":' . $dp['fields']['dstPtsAllowed'] .
         ', "points":' . $dp['fields']['points'] . '} },' . "\n");
 }
 
@@ -338,6 +353,11 @@ function computeOffenseFantasyPoints($dp) {
     //$pts = $pts + (($dp['fields']['bonus40YdPassTDs']*2) + 
     //    ($dp['fields']['bonus40YdRushTDs']*2) + ($dp['fields']['bonus40YdRecTDs']*2));
     return $pts;
+}
+
+// Computes the number of fantasy points for a kicker from the given data point
+function computeKickerFantasyPoints($dp) {
+
 }
 
 // Retrieves the point from the GameDataPoint dataset with the given ID (PK)

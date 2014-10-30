@@ -3,9 +3,8 @@ TO DO LIST
 
 Data tasks:
 - Get rest of 2014 game data from Yahoo
-- Recompute 2014 fantasy points
 - Compute 2014 year data 
-- Clear and reload database
+- Reload database
 - Recompute 2013, 2014 performance scores
 - Write all game and player data to file
 
