@@ -3,12 +3,14 @@ TO DO LIST
 
 Data tasks:
 - Get rest of 2014 game data from Yahoo
-- Compute 2014 year data 
+- Get D/ST and K 2013 game data
+- Fix FP scoring for D/ST; recompute for 2013 
+- Recompute fantasy points for 2013 and 2014 game data
+- Get rid of GameDataPoints that correspond to BYE weeks
+- Compute 2013 and 2014 year data 
 - Reload database
 - Recompute 2013, 2014 performance scores
 - Write all game and player data to file
-
-- Get 2013,2014 D/ST and K data; compute fantasy points
 
 - fix players with height=0 or weight=0, no DOB, no number
 	- double check players' positions

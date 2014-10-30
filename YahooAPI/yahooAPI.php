@@ -38,7 +38,8 @@ $stat_categories = [
     'dstBlockedKicks' => [37],
     'dstSafeties' => [36],
     'dstSacks' => [32],
-    'dstPtsAllowed' => [31]
+    'dstPtsAllowed' => [31],
+    'dstYdsAllowed' => [69]
 ];
 
 $yahoo_year_codes = [
@@ -79,22 +80,13 @@ $yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.js
 // EXECUTION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-temp();
-//writeGameData(2014);
+writeGameData(2014);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-function temp() {
-    $pos_url = 'http://fantasysports.yahooapis.com/fantasy/v2/game/nfl/position_types';
-    if ($GLOBALS['oauth'] -> fetch($pos_url)) {
-        $xmlResponse = simplexml_load_string($GLOBALS['oauth'] -> getLastResponse());
-        print_r($xmlResponse);
-    }
-
-}
 
 function writeGameData($year) {
     // Open output files
@@ -103,7 +95,7 @@ function writeGameData($year) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        if ($player_index < 1002) continue;
+        if ($player_index < 1151) continue;
 
         // Loop through each week in the season
         foreach (range(1, 8) as $week_num) {
@@ -237,7 +229,11 @@ function getStats($statArray, $player, $year, $week_num) {
         }
     }
 
-    $new_dp['fields']['points'] = computeOffenseFantasyPoints($new_dp);
+    // Compute fantasy points based on player's position
+    if ($player['fields']['position'] == 5) $new_dp['fields']['points'] = computeDefenseFantasyPoints($new_dp);
+    else if ($player['fields']['position'] == 6) $new_dp['fields']['points'] = computeKickerFantasyPoints($new_dp);
+    else $new_dp['fields']['points'] = computeOffenseFantasyPoints($new_dp);
+
     return $new_dp;
 }
 
@@ -276,6 +272,7 @@ function dpFixtureString($dp) {
         ', "dstSafeties":' . $dp['fields']['dstSafeties'] .
         ', "dstSacks":' . $dp['fields']['dstSacks'] .
         ', "dstPtsAllowed":' . $dp['fields']['dstPtsAllowed'] .
+        ', "dstYdsAllowed":' . $dp['fields']['dstYdsAllowed'] .
         ', "points":' . $dp['fields']['points'] . '} },' . "\n");
 }
 
@@ -337,7 +334,7 @@ function isAllZeroDataPoint($dp) {
     return true;
 }
 
-// Computes the number of (offensive) fantasy points from the given data point
+// Computes the number of offensive fantasy points from the given data point
 function computeOffenseFantasyPoints($dp) {
     $passYdPts = ($dp['fields']['passYds']>=0 ? 
         floor($dp['fields']['passYds']/25) : ceil($dp['fields']['passYds']/25));
@@ -357,7 +354,42 @@ function computeOffenseFantasyPoints($dp) {
 
 // Computes the number of fantasy points for a kicker from the given data point
 function computeKickerFantasyPoints($dp) {
+    $pts = ( ($dp['fields']['fg0_19']*3) + ($dp['fields']['fg20_29']*3) + ($dp['fields']['fg30_39']*3) + 
+       ($dp['fields']['fg40_49']*4) + ($dp['fields']['fg50']*5) + ($dp['fields']['pat']*1) );
+    $pts = $pts - $dp['fields']['fgMissed'];
+    return $pts;
+}
 
+// Computes the number of defensive fantasy points from the given data point
+function computeDefenseFantasyPoints($dp) {
+    $pts = ( ($dp['fields']['dstTDs']*6) + ($dp['fields']['dstInt']*2) + 
+        ($dp['fields']['dstFumlRec']*2) + ($dp['fields']['dstBlockedKicks']*2) +
+        ($dp['fields']['dstSafeties']*2) + ($dp['fields']['dstSacks']*1) );
+
+    // Compute change based on points allowed
+    $ptsAllowed = $dp['fields']['dstPtsAllowed'];
+    if ($ptsAllowed >= 46) $pts = $pts - 5;
+    else if ($ptsAllowed >= 35) $pts = $pts - 3;
+    else if ($ptsAllowed >= 28) $pts = $pts - 1;
+    else if ($ptsAllowed >= 18) $pts = $pts + 0;
+    else if ($ptsAllowed >= 14) $pts = $pts + 1;
+    else if ($ptsAllowed >= 7) $pts = $pts + 3;
+    else if ($ptsAllowed >= 1) $pts = $pts + 4;
+    else $pts = $pts + 5;
+
+    // Compute change based on yards allowed
+    $ydsAllowed = $dp['fields']['dstYdsAllowed'];
+    if ($ydsAllowed >= 550) $pts = $pts - 7;
+    else if ($ydsAllowed >= 500) $pts = $pts - 6;
+    else if ($ydsAllowed >= 450) $pts = $pts - 5;
+    else if ($ydsAllowed >= 400) $pts = $pts - 3;
+    else if ($ydsAllowed >= 350) $pts = $pts - 1;
+    else if ($ydsAllowed >= 300) $pts = $pts + 0;
+    else if ($ydsAllowed >= 200) $pts = $pts + 2;
+    else if ($ydsAllowed >= 100) $pts = $pts + 3;
+    else $pts = $pts + 5;
+
+    return $pts;
 }
 
 // Retrieves the point from the GameDataPoint dataset with the given ID (PK)

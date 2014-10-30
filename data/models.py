@@ -46,6 +46,7 @@ class DataPoint(models.Model):
 	dstSafeties = models.IntegerField(null=True)
 	dstSacks = models.IntegerField(null=True)
 	dstPtsAllowed = models.IntegerField(null=True)
+	dstYdsAllowed = models.IntegerField(null=True)
 
 	# Total fantasy points
 	points = models.IntegerField(null=True)
@@ -87,6 +88,7 @@ class DataPoint(models.Model):
 			', "dstSafeties":' + ('null' if self.dstSafeties is None else str(self.dstSafeties)) +
 			', "dstSacks":' + ('null' if self.dstSacks is None else str(self.dstSacks)) +
 			', "dstPtsAllowed":' + ('null' if self.dstPtsAllowed is None else str(self.dstPtsAllowed)) +
+			', "dstYdsAllowed":' + ('null' if self.dstYdsAllowed is None else str(self.dstYdsAllowed)) +
 			', "points":' + ('null' if self.points is None else str(self.points)) + '} },' )
 
 	def as_dict(self):
@@ -124,6 +126,7 @@ class DataPoint(models.Model):
 			"dstSafeties": self.dstSafeties,
 			"dstSacks": self.dstSacks,
 			"dstPtsAllowed": self.dstPtsAllowed,
+			"dstYdsAllowed": self.dstYdsAllowed,
 			"points": self.points
 		}
 
