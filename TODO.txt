@@ -9,6 +9,8 @@ Data tasks:
 - Recompute 2013, 2014 performance scores
 - Write all game and player data to file
 
+- Get 2013,2014 D/ST and K data; compute fantasy points
+
 - fix players with height=0 or weight=0, no DOB, no number
 	- double check players' positions
 - Get Matchups for pre/postseason games?

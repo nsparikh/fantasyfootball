@@ -64,8 +64,8 @@ $yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.js
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EXECUTION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-writeGameData(2014);
+temp();
+//writeGameData(2014);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
@@ -78,9 +78,23 @@ function temp() {
     $old_gdpoints = json_decode(file_get_contents('GameDataPoints2014_Yahoo.json'), true);
 
     foreach ($old_gdpoints as $gd_index=>$dp) {
-        $new_pts = computeFantasyPoints($dp);
+        $new_pts = computeOffenseFantasyPoints($dp);
         $dp['fields']['points'] = $new_pts;
         fwrite($outfile_gdpoints, dpFixtureString($dp));
+    }
+}
+
+function removeZeroDatapoints() {
+    $outfile_gd = fopen('GameData2013_NoZeros.json', 'w');
+    $outfile_gdpoints = fopen('GameDataPoints2013_NoZeros.json', 'w');
+
+    foreach ($GLOBALS['gd_2013'] as $gd_index=>$gd) {
+        if ($gd['fields']['data'] > 100) {
+            $dp = getPointById($gd['fields']['data'], $GLOBALS['gdpoints_2013']);
+            if (isAllZeroDataPoint($dp)) $gd['fields']['data'] = 100;
+            else fwrite($outfile_gdpoints, dpFixtureString($dp));
+        } 
+        fwrite($outfile_gd, gdFixtureString($gd));
     }
 }
 
@@ -222,7 +236,7 @@ function getStats($statArray, $player, $year, $week_num) {
         }
     }
 
-    $new_dp['fields']['points'] = computeFantasyPoints($new_dp);
+    $new_dp['fields']['points'] = computeOffenseFantasyPoints($new_dp);
     return $new_dp;
 }
 
@@ -309,7 +323,7 @@ function isAllZeroDataPoint($dp) {
 }
 
 // Computes the number of (offensive) fantasy points from the given data point
-function computeFantasyPoints($dp) {
+function computeOffenseFantasyPoints($dp) {
     $passYdPts = ($dp['fields']['passYds']>=0 ? 
         floor($dp['fields']['passYds']/25) : ceil($dp['fields']['passYds']/25));
     $rushYdPts = ($dp['fields']['rushYds']>=0 ? 
