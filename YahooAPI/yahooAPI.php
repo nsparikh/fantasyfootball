@@ -71,51 +71,45 @@ $yahoo_url = 'http://fantasysports.yahooapis.com/fantasy/v2/players;player_keys=
 
 // Load Player and GameDataPoints from JSON fixture files
 $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'), true);
-$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014.json'), true);
+//$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014_Yahoo.json'), true);
+//$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014_Yahoo.json'), true);
 $gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013_Yahoo.json'), true);
 $gdpoints_2013 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2013_Yahoo.json'), true);
-$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
+//$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
+$matchups_2013 = json_decode(file_get_contents('../game/fixtures/Matchup2013.json'), true);
+//$matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.json'), true);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EXECUTION
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//fix2013GameData();
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function fix2013GameData() {
-    $outfile_gd = fopen('GameData2013_Yahoo_Complete.json', 'a');
-    $outfile_gdpoints = fopen('GameDataPoints2013_Yahoo_Complete.json', 'a');
+function removeByeWeekData($year) {
+    $outfile_gd = fopen('GameData'.$year.'_Yahoo_NoBye.json', 'a');
+    $outfile_gdpoints = fopen('GameDataPoints'.$year.'_Yahoo_NoBye.json', 'a');
 
-    foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        if ($player['pk'] < 50000) continue;
-        foreach (range(1, 17) as $week_num) {
-            print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
+    foreach ($GLOBALS['gd_'.$year] as $gd_index=>$gd) {
+        // Get matchup and check if bye
+        $matchup = getPointById($gd['fields']['matchup'], $GLOBALS['matchups_'.$year]);
+        if ($matchup['fields']['bye']) {
+            $gd['fields']['data'] = 1;
+        } 
 
-            // Get the corresponding GameData point 
-            $gd = getPointById(getDataPk($player, 2013, $week_num), $GLOBALS['gd_2013']);
-            if (is_null($gd)) $gd = blankGameData($player, 2013, $week_num);
-
-            // Get the Yahoo game data for this player and week
-            $result = getYahooPlayerGameData($player, 2013, $week_num);
-            if ($result == -1) { // We've hit the API limit
-                print 'CURRENT TIME: ' . date('m/d/Y h:i:s a', time()) . "\n";
-                return;
-            } else if ($result == 100 or $result == 1) { // We got an all 0 or null data point
-                $gd['fields']['data'] = $result;
-                fwrite($outfile_gd, gdFixtureString($gd));
-            } else { // Write both points to file
-                $gd['fields']['data'] = $result['pk'];
-                fwrite($outfile_gd, gdFixtureString($gd));
-                fwrite($outfile_gdpoints, dpFixtureString($result));
-            }
+        // If actual data, write data point to file
+        if ($gd['fields']['data'] > 100) {
+            $dp = getPointById($gd['fields']['data'], $GLOBALS['gdpoints_'.$year]);
+            fwrite($outfile_gdpoints, dpFixtureString($dp));
         }
+
+        // Regardless, we need to write game data to file
+        fwrite($outfile_gd, gdFixtureString($gd));
     }
 }
-
 
 function writeGameData($year) {
     // Open output files
@@ -136,6 +130,7 @@ function writeGameData($year) {
 
             // Get the Yahoo game data for this player and week
             $result = getYahooPlayerGameData($player, $year, $week_num);
+
             if ($result == -1) { // We've hit the API limit
                 print 'CURRENT TIME: ' . date('m/d/Y h:i:s a', time()) . "\n";
                 return;

@@ -9,6 +9,7 @@ Data tasks:
 - Reload database
 - Recompute 2013, 2014 performance scores
 - Write all game and player data to file
+- Get updated depth chart kickers?
 
 - fix players with height=0 or weight=0, no DOB, no number
 	- double check players' positions
