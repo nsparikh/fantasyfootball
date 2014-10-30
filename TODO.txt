@@ -2,8 +2,6 @@ TO DO LIST
 ==========
 
 Data tasks:
-- Compute 2013 and 2014 year data 
-- Reload database
 - Recompute 2013, 2014 performance scores
 - Write all game and player data to file
 - Get updated depth chart kickers?

@@ -264,41 +264,41 @@ function getStats($statArray, $player, $year, $week_num) {
 
 // Returns the fixture string for the given data point
 function dpFixtureString($dp) {
-    return ('{ "model":"data.DataPoint", "pk":' . $dp['pk'] .
-        ', "fields":{"passC":' . $dp['fields']['passC'] .
-        ', "passA":' . $dp['fields']['passA'] .
-        ', "passYds":' . $dp['fields']['passYds'] .
-        ', "passTDs":' . $dp['fields']['passTDs'] .
-        ', "passInt":' . $dp['fields']['passInt'] .
-        ', "rush":' . $dp['fields']['rush'] .
-        ', "rushYds":' . $dp['fields']['rushYds'] .
-        ', "rushTDs":' . $dp['fields']['rushTDs'] .
-        ', "rec":' . $dp['fields']['rec'] .
-        ', "recYds":' . $dp['fields']['recYds'] .
-        ', "recTDs":' . $dp['fields']['recTDs'] .
-        ', "recTar":' . $dp['fields']['recTar'] .
-        ', "misc2pc":' . $dp['fields']['misc2pc'] .
-        ', "miscFuml":' . $dp['fields']['miscFuml'] .
-        ', "miscTDs":' . $dp['fields']['miscTDs'] .
-        ', "bonus40YdPassTDs":' . $dp['fields']['bonus40YdPassTDs'] .
-        ', "bonus40YdRushTDs":' . $dp['fields']['bonus40YdRushTDs'] .
-        ', "bonus40YdRecTDs":' . $dp['fields']['bonus40YdRecTDs'] .
-        ', "fg0_19":' . $dp['fields']['fg0_19'] .
-        ', "fg20_29":' . $dp['fields']['fg20_29'] .
-        ', "fg30_39":' . $dp['fields']['fg30_39'] .
-        ', "fg40_49":' . $dp['fields']['fg40_49'] .
-        ', "fg50":' . $dp['fields']['fg50'] .
-        ', "fgMissed":' . $dp['fields']['fgMissed'] .
-        ', "pat":' . $dp['fields']['pat'] .
-        ', "dstTDs":' . $dp['fields']['dstTDs'] .
-        ', "dstInt":' . $dp['fields']['dstInt'] .
-        ', "dstFumlRec":' . $dp['fields']['dstFumlRec'] .
-        ', "dstBlockedKicks":' . $dp['fields']['dstBlockedKicks'] .
-        ', "dstSafeties":' . $dp['fields']['dstSafeties'] .
-        ', "dstSacks":' . $dp['fields']['dstSacks'] .
-        ', "dstPtsAllowed":' . $dp['fields']['dstPtsAllowed'] .
-        ', "dstYdsAllowed":' . $dp['fields']['dstYdsAllowed'] .
-        ', "points":' . $dp['fields']['points'] . '} },' . "\n");
+    return ( '{ "model":"data.DataPoint", "pk":' . $dp['pk'] .
+        ', "fields":{"passC":' . (is_null($dp['fields']['passC']) ? 'null' : $dp['fields']['passC']) .
+        ', "passA":' . (is_null($dp['fields']['passA']) ? 'null' : $dp['fields']['passA']) .
+        ', "passYds":' . (is_null($dp['fields']['passYds']) ? 'null' : $dp['fields']['passYds']) .
+        ', "passTDs":' . (is_null($dp['fields']['passTDs']) ? 'null' : $dp['fields']['passTDs']) .
+        ', "passInt":' . (is_null($dp['fields']['passInt']) ? 'null' : $dp['fields']['passInt']) .
+        ', "rush":' . (is_null($dp['fields']['rush']) ? 'null' : $dp['fields']['rush']) .
+        ', "rushYds":' . (is_null($dp['fields']['rushYds']) ? 'null' : $dp['fields']['rushYds']) .
+        ', "rushTDs":' . (is_null($dp['fields']['rushTDs']) ? 'null' : $dp['fields']['rushTDs']) .
+        ', "rec":' . (is_null($dp['fields']['rec']) ? 'null' : $dp['fields']['rec']) .
+        ', "recYds":' . (is_null($dp['fields']['recYds']) ? 'null' : $dp['fields']['recYds']) .
+        ', "recTDs":' . (is_null($dp['fields']['recTDs']) ? 'null' : $dp['fields']['recTDs']) .
+        ', "recTar":' . (is_null($dp['fields']['recTar']) ? 'null' : $dp['fields']['recTar']) .
+        ', "misc2pc":' . (is_null($dp['fields']['misc2pc']) ? 'null' : $dp['fields']['misc2pc']) .
+        ', "miscFuml":' . (is_null($dp['fields']['miscFuml']) ? 'null' : $dp['fields']['miscFuml']) .
+        ', "miscTDs":' . (is_null($dp['fields']['miscTDs']) ? 'null' : $dp['fields']['miscTDs']) .
+        ', "bonus40YdPassTDs":' . (is_null($dp['fields']['bonus40YdPassTDs']) ? 'null' : $dp['fields']['bonus40YdPassTDs']) .
+        ', "bonus40YdRushTDs":' . (is_null($dp['fields']['bonus40YdRushTDs']) ? 'null' : $dp['fields']['bonus40YdRushTDs']) .
+        ', "bonus40YdRecTDs":' . (is_null($dp['fields']['bonus40YdRecTDs']) ? 'null' : $dp['fields']['bonus40YdRecTDs']) .
+        ', "fg0_19":' . (is_null($dp['fields']['fg0_19']) ? 'null' : $dp['fields']['fg0_19']) .
+        ', "fg20_29":' . (is_null($dp['fields']['fg20_29']) ? 'null' : $dp['fields']['fg20_29']) .
+        ', "fg30_39":' . (is_null($dp['fields']['fg30_39']) ? 'null' : $dp['fields']['fg30_39']) .
+        ', "fg40_49":' . (is_null($dp['fields']['fg40_49']) ? 'null' : $dp['fields']['fg40_49']) .
+        ', "fg50":' . (is_null($dp['fields']['fg50']) ? 'null' : $dp['fields']['fg50']) .
+        ', "fgMissed":' . (is_null($dp['fields']['fgMissed']) ? 'null' : $dp['fields']['fgMissed']) .
+        ', "pat":' . (is_null($dp['fields']['pat']) ? 'null' : $dp['fields']['pat']) .
+        ', "dstTDs":' . (is_null($dp['fields']['dstTDs']) ? 'null' : $dp['fields']['dstTDs']) .
+        ', "dstInt":' . (is_null($dp['fields']['dstInt']) ? 'null' : $dp['fields']['dstInt']) .
+        ', "dstFumlRec":' . (is_null($dp['fields']['dstFumlRec']) ? 'null' : $dp['fields']['dstFumlRec']) .
+        ', "dstBlockedKicks":' . (is_null($dp['fields']['dstBlockedKicks']) ? 'null' : $dp['fields']['dstBlockedKicks']) .
+        ', "dstSafeties":' . (is_null($dp['fields']['dstSafeties']) ? 'null' : $dp['fields']['dstSafeties']) .
+        ', "dstSacks":' . (is_null($dp['fields']['dstSacks']) ? 'null' : $dp['fields']['dstSacks']) .
+        ', "dstPtsAllowed":' . (is_null($dp['fields']['dstPtsAllowed']) ? 'null' : $dp['fields']['dstPtsAllowed']) .
+        ', "dstYdsAllowed":' . (is_null($dp['fields']['dstYdsAllowed']) ? 'null' : $dp['fields']['dstYdsAllowed']) .
+        ', "points":' . (is_null($dp['fields']['points']) ? 'null' : $dp['fields']['points']) . '} },' . "\n" );
 }
 
 // Returns the fixture string for the given GameData point
