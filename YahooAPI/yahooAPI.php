@@ -71,14 +71,14 @@ $yahoo_url = 'http://fantasysports.yahooapis.com/fantasy/v2/players;player_keys=
 
 // Load Player and GameDataPoints from JSON fixture files
 $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'), true);
-//$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014_Yahoo.json'), true);
-//$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014_Yahoo.json'), true);
-$gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013_Yahoo.json'), true);
-$gdpoints_2013 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2013_Yahoo.json'), true);
-$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
-//$yd_2014 = json_decode(file_get_contents('../data/fixtures/YearData2014.json'), true);
-$matchups_2013 = json_decode(file_get_contents('../game/fixtures/Matchup2013.json'), true);
-//$matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.json'), true);
+$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014_Yahoo.json'), true);
+$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014_Yahoo.json'), true);
+//$gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013_Yahoo.json'), true);
+//$gdpoints_2013 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2013_Yahoo.json'), true);
+//$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
+$yd_2014 = json_decode(file_get_contents('../data/fixtures/YearData2014.json'), true);
+//$matchups_2013 = json_decode(file_get_contents('../game/fixtures/Matchup2013.json'), true);
+$matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.json'), true);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EXECUTION

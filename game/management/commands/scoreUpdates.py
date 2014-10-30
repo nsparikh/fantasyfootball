@@ -16,10 +16,8 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		#week_number = 5
-		for i in range(1, 18):
-			print 'WEEK:', i
-			self.computePerformanceScores(2013, week_number)
-		#self.computePerformanceScores(2014, week_number+1)
+		print "COMPUTING PERFORMANCE SCORES: 2013 WEEK 1"
+		self.computePerformanceScores(2013, 1)
 
 
 	# Computes the performance score of the given player in the year and week 
