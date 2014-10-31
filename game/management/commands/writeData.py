@@ -17,8 +17,9 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#self.writeSeedData(Matchup, 2014, True)
-		self.writeDataAndPoints(GameData, 2014, True)
+		#self.writeSeedData(Player, 2014, True)
+		#self.writeDataAndPoints(GameData, 2014, True)
+		self.writeDataAndPoints(YearData, 2014, True)
 		
 
 
@@ -41,8 +42,8 @@ class Command(NoArgsCommand):
 		print 'writing', dataModel.__name__, year
 
 		# TODO: uncomment line for YearData
-		#dataList = dataModel.objects.filter(year=year).order_by('id')
-		dataList = dataModel.objects.filter(matchup__year=year).order_by('id')
+		dataList = dataModel.objects.filter(year=year).order_by('id')
+		#dataList = dataModel.objects.filter(matchup__year=year).order_by('id')
 		for d in dataList:
 			dataFile.write(d.fixtureString() + '\n')
 			if d.data.id != 1 and d.data.id != 100: dataPointsFile.write(d.data.fixtureString() + '\n')
@@ -85,8 +86,8 @@ class Command(NoArgsCommand):
 		outFile.write('[\n')
 
 		# TODO: uncomment line for Matchup
-		dataList = dataModel.objects.filter(year=year).order_by('week_number', 'id')
-		#dataList = dataModel.objects.all().order_by('id')
+		#dataList = dataModel.objects.filter(year=year).order_by('week_number', 'id')
+		dataList = dataModel.objects.all().order_by('id')
 		for d in dataList:
 			outFile.write(d.fixtureString() + '\n')
 

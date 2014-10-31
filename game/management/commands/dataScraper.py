@@ -27,16 +27,40 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		week_number = 7
-		for t in Team.objects.all().exclude(id=33):
-			print t.name, self.updateMatchup(t, 2014, week_number)
+		week_number = 9
 
-		players = Player.objects.all().order_by('id')
-		for i in range(0, len(players)):
-			p = players[i]
-			print i, p.name, self.updatePlayerEspnProjection(p, 2014, week_number)
+		#for t in Team.objects.all().exclude(id=33):
+		#	print t.name, self.updateDepthPositions(t)
+
+		#players = Player.objects.all().order_by('id')
+		#for i in range(0, len(players)):
+			#p = players[i]
+			#print i, p.name, self.updatePlayerTeam(p)
+			#print i, p.name, self.createEmptyGameData(p, 2014, week_number)
+			#print i, p.name, self.updatePlayerEspnProjection(p, 2014, week_number)
+
 		
-		
+	# Creates empty GameData objects for the player in the given week and year
+	def createEmptyGameData(self, player, year, week_number):
+		# If player is a FA, no need to create one
+		if player.team.id == 33: return False
+
+		# Get PK for this week and year
+		gdId = int(str(player.id) + str(year)[2:] + str(week_number).zfill(2))
+
+		# First see if already exists
+		try:
+			gd = GameData.objects.get(id=gdId)
+			return False
+		except: # This means it doesn't already exist, so create an "empty" one
+			matchup = Matchup.objects.get(Q(home_team=player.team) | Q(away_team=player.team), 
+				year=year, week_number=week_number)
+			nullDp = DataPoint.objects.get(id=1)
+			gd = GameData(id=gdId, player=player, matchup=matchup, projection=None, 
+				espn_projection=None, yahoo_projection=None, cbs_projection=None,
+				performance_score=None, data=nullDp)
+			gd.save()
+			return True
 
 	# Scrapes the data for the player in the given week and year
 	# 	If week_number is 0, then scrapes the data for the whole season
@@ -304,7 +328,8 @@ class Command(NoArgsCommand):
 				p.save()
 
 		# Read in the data and get the chunk we want
-		data = urllib2.urlopen(self.teamDepthPrefix + team.abbr.lower() + '/' + 
+		abbr = team.abbr.lower() if team.name != 'Jacksonville Jaguars' else 'jax'
+		data = urllib2.urlopen(self.teamDepthPrefix + abbr + '/' + 
 			team.name.lower().replace(' ', '-')).read()
 		data = data[data.index('<tr class="oddrow">') : ]
 		data = data[ : data.index('</table>')]
@@ -326,11 +351,13 @@ class Command(NoArgsCommand):
 							p.depth_position = depth_pos
 							p.save()
 						except:
-							print playerEspnId
+							print 'error on', playerEspnId
 
 		return True
 
-	def updatePlayerTeam(self, player):
+	def updatePlayerTeam(self, player, year):
+		if player.position.id == 5: return False # D/ST aren't going to change teams
+
 		# Read in the page data and get the chunk with the info we need
 		data = urllib2.urlopen(self.playerProfilePrefix + str(player.espn_id)).read()
 		if '<div class="team-logo"></div>' in data:
@@ -338,19 +365,31 @@ class Command(NoArgsCommand):
 		else:
 			data = data[data.index('<div class="player-bio">') : ]
 
-		data = data[ : data.index('<div class="player-select-header">')]
 		data = data[data.index('<div class="line-divider"></div>') : ]
 		numPosText = '<li class="first">#'
-		data = data[data.index(numPosText)+len(numPosText) : ]
 
-		# Get the player's team
-		teamCode = data[data.index('_/name/')+7 : data.index('</a>')]
-		teamAbbr = teamCode[ : teamCode.index('/')]
-		team = Team.objects.get(abbr__iexact=teamAbbr)
-		if team.id != player.team.id:
-			player.team = team
-			player.save()
-			return True
+		try:
+			data = data[data.index(numPosText)+len(numPosText) : ]
+
+			# Get the player's team
+			teamCode = data[data.index('_/name/')+7 : data.index('</a>')]
+			teamAbbr = teamCode[ : teamCode.index('/')]
+			team = Team.objects.get(abbr__iexact=teamAbbr)
+			yd = YearData.objects.get(player=player, year=year)
+			if team.id != player.team.id:
+				player.team = team
+				player.save()
+				yd.team = team
+				yd.save()
+				return team.name
+		except: # Player has no number/position -- Free Agent
+			if player.team.id != 33:
+				player.team = Team.objects.get(id=33)
+				player.save()
+				yd.team = team
+				yd.save()
+				return player.team.name
+
 		return False
 
 

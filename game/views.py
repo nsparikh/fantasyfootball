@@ -161,9 +161,11 @@ class PlayerDetailView(generic.DetailView):
 		context['matchup_location'] = matchup.home_team.stadium[
 			matchup.home_team.stadium.index(',')+2 : ]
 
-		# Selected week's data
-		context['week_gamedata'] = GameData.objects.get(
-			player=self.object.id, matchup=matchup)
+		# Selected week's data (if any)
+		try:
+			context['week_gamedata'] = GameData.objects.get(player=self.object.id, matchup=matchup)
+		except:
+			context['week_gamedata'] = None
 
 		# Previous matchup with this opponent
 		if not matchup.bye:
