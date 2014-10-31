@@ -7,6 +7,7 @@ Data tasks:
 	- double check players' positions
 - Get Matchups for pre/postseason games?
 - Get matchups, team assignments, depth positions (?) from Yahoo API
+- Change jacksonville abbr to JAX ?
 
 
 High Priority:

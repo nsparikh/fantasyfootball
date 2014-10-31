@@ -20,6 +20,7 @@ class Command(NoArgsCommand):
 	teamDepthPrefix = 'http://espn.go.com/nfl/team/depth/_/name/'
 	projectionPrefix = 'http://games.espn.go.com/ffl/tools/projections?&scoringPeriodId='
 	playerProfilePrefix = 'http://espn.go.com/nfl/players/profile?playerId='
+	months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 
 	option_list = NoArgsCommand.option_list + (
@@ -27,8 +28,6 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		week_number = 9
-
 		#for t in Team.objects.all().exclude(id=33):
 		#	print t.name, self.updateDepthPositions(t)
 
@@ -260,6 +259,90 @@ class Command(NoArgsCommand):
 					return True
 		return False
 
+	# Gets and saves the matchups for the team in the given year
+	def getTeamMatchups(self, team, year):
+		# Read the data from the web page
+		abbr = 'jax' if team.name=='Jacksonville Jaguars' else team.abbr.lower()
+		data = urllib2.urlopen(self.teamSchedulePrefix + abbr + '/year/' + str(year)).read()
+		data = data[data.index(str(year) + ' Regular Season Schedule') : data.index(str(year) + ' Preseason Schedule')].split('<tr')[2:]
+
+		# Go through each row in the table
+		for i in range(len(data)-1):
+			row = data[i]
+			if '"colhead"' in row or '"stathead"' in row: continue
+
+			row = row.split('<td')
+			week_number = int(row[1][1 : row[1].index('</td>')])
+			print 'Week number', week_number
+
+			# If the matchup already exists, no need to get all the data so move on to the next week
+			try:
+				Matchup.objects.get(Q(home_team=team) | Q(away_team=team), 
+					year=year, week_number=week_number)
+				print 'already have data'
+				continue
+			except:
+				pass
+
+			# Initialize variables as per bye week
+			date = None
+			home_team = team
+			away_team = None
+			win = None
+			espn_game_id = None
+			bye = True
+			win = None
+			home_team_points = None
+			away_team_points = None
+			pk = int(str(team.id) + '00' + str(year)[2:] + str(week_number).zfill(2))
+
+			# If it's not a bye week, get the necessary info
+			if 'BYE WEEK' not in row[2]:
+				bye = False
+				date = str(year) + '-'
+				month = self.months.index(row[2][6 : 9]) + 1
+				day = row[2][10 : row[2].index('</td>')]
+				date += str(month) + '-' + str(day)
+				date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+
+				opp = row[3]
+				opp = opp[opp.index('name/')+5 : ]
+				opp = opp[ : opp.index('/')]
+				if 'vs' in row[3]:
+					home_team = team
+					away_team = Team.objects.get(abbr__iexact=opp)
+				else:
+					home_team = Team.objects.get(abbr__iexact=opp)
+					away_team = team
+
+				win = None
+				curTeamWin = False
+				if 'game-status win' in row[4]: curTeamWin = True
+				if curTeamWin and home_team == team: win = True
+				elif not curTeamWin and home_team != team: win = True
+				else: win = False
+
+				result = row[4][row[4].index('gameId=') : ]
+				espn_game_id = int(result[result.index('=')+1 : result.index('"')])
+				pointsFor = int(result[result.index('>')+1 : result.index('-')].replace('OT', ''))
+				pointsAgainst = int(result[result.index('-')+1 : result.index('</a>')].replace('OT', ''))
+				if win:
+					home_team_points = pointsFor
+					away_team_points = pointsAgainst
+				else:
+					home_team_points = pointsAgainst
+					away_team_points = pointsFor
+
+				t1 = min(home_team, away_team)
+				t2 = max(home_team, away_team)
+				pk = int(str(t1.id) + str(t2.id).zfill(2) + str(year)[2:] + str(week_number).zfill(2))
+
+			matchup = Matchup(id=pk, espn_game_id=espn_game_id, year=year, date=date, 
+				week_number=week_number, bye=bye, home_team=home_team, away_team=away_team,
+				win=win, home_team_points=home_team_points, away_team_points=away_team_points)
+			print matchup.id, matchup.espn_game_id, matchup.year, matchup.date, matchup.week_number, matchup.bye, matchup.home_team, matchup.away_team, matchup.win, matchup.home_team_points, matchup.away_team_points
+			matchup.save()
+
 	# Scrapes the data for the team in the given week and year
 	# Updates the corresponding Matchup object
 	# Returns True if the Matchup is updated successfully, False if not
@@ -355,6 +438,7 @@ class Command(NoArgsCommand):
 
 		return True
 
+	# Update's the given player's team
 	def updatePlayerTeam(self, player, year):
 		if player.position.id == 5: return False # D/ST aren't going to change teams
 
@@ -391,7 +475,6 @@ class Command(NoArgsCommand):
 				return player.team.name
 
 		return False
-
 
 	# Scrapes the player info and creates the new player with the given ESPN ID
 	def createNewPlayer(self, espn_id):

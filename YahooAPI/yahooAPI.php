@@ -71,27 +71,27 @@ $yahoo_url = 'http://fantasysports.yahooapis.com/fantasy/v2/players;player_keys=
 
 // Load Player and GameDataPoints from JSON fixture files
 $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'), true);
-$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014_Yahoo.json'), true);
-$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014_Yahoo.json'), true);
+//$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014_Yahoo.json'), true);
+//$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014_Yahoo.json'), true);
 //$gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013_Yahoo.json'), true);
 //$gdpoints_2013 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2013_Yahoo.json'), true);
 //$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
-$yd_2014 = json_decode(file_get_contents('../data/fixtures/YearData2014.json'), true);
+//$yd_2014 = json_decode(file_get_contents('../data/fixtures/YearData2014.json'), true);
 //$matchups_2013 = json_decode(file_get_contents('../game/fixtures/Matchup2013.json'), true);
-$matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.json'), true);
+//$matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.json'), true);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EXECUTION ("main")
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+writeGameData(2012);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Retrieves and writes to file the game data for the given week and year
-function writeGameData($year, $week_num) {
+function writeGameData($year) {
     // Open output files
     $outfile_gd = fopen('GameData'.$year.'_W'.$week_num.'.json', 'w');
     $outfile_gdpoints = fopen('GameDataPoints'.$year.'_W'.$week_num.'.json', 'w');
@@ -100,28 +100,31 @@ function writeGameData($year, $week_num) {
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
         //if ($player_index < 1409) continue;
 
-        // Get the data for the given week
-        print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
+        // Go through each week
+        foreach (range(1, 17) as $week_num) {
+            // Get the data for the given week
+            print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
 
-        // Get the corresponding GameData point 
-        $gd = getPointById(getDataPk($player, $year, $week_num), $GLOBALS['gd_'.$year]);
-        if (is_null($gd)) $gd = blankGameData($player, $year, $week_num);
+            // Get the corresponding GameData point 
+            //$gd = getPointById(getDataPk($player, $year, $week_num), $GLOBALS['gd_'.$year]);
+            //if (is_null($gd)) 
+            $gd = blankGameData($player, $year, $week_num);
 
-        // Get the Yahoo game data for this player and week
-        $result = getYahooPlayerGameData($player, $year, $week_num);
+            // Get the Yahoo game data for this player and week
+            $result = getYahooPlayerGameData($player, $year, $week_num);
 
-        if ($result == -1) { // We've hit the API limit
-            print 'CURRENT TIME: ' . date('m/d/Y h:i:s a', time()) . "\n";
-            return;
-        } else if ($result == 100 or $result == 1) { // We got an all 0 or null data point
-            $gd['fields']['data'] = $result;
-            fwrite($outfile_gd, gdFixtureString($gd));
-        } else { // Write both points to file
-            $gd['fields']['data'] = $result['pk'];
-            fwrite($outfile_gd, gdFixtureString($gd));
-            fwrite($outfile_gdpoints, dpFixtureString($result));
-        }
-        
+            if ($result == -1) { // We've hit the API limit
+                print 'CURRENT TIME: ' . date('m/d/Y h:i:s a', time()) . "\n";
+                return;
+            } else if ($result == 100 or $result == 1) { // We got an all 0 or null data point
+                $gd['fields']['data'] = $result;
+                fwrite($outfile_gd, gdFixtureString($gd));
+            } else { // Write both points to file
+                $gd['fields']['data'] = $result['pk'];
+                fwrite($outfile_gd, gdFixtureString($gd));
+                fwrite($outfile_gdpoints, dpFixtureString($result));
+            }
+        }    
     }
 }
 

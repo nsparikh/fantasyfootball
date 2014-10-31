@@ -29,7 +29,7 @@
 { "model":"game.Team", "pk":28, "fields": {"name":"Pittsburgh Steelers", "espn_id": 23, "abbr":"Pit", "stadium":"Heinz Field, Pittsburgh, PA", "division":"AFC North"} },
 { "model":"game.Team", "pk":29, "fields": {"name":"Houston Texans", "espn_id": 34, "abbr":"Hou", "stadium":"NRG Stadium, Houston, TX", "division":"AFC South"} },
 { "model":"game.Team", "pk":30, "fields": {"name":"Indianapolis Colts", "espn_id": 11, "abbr":"Ind", "stadium":"Lucas Oil Stadium, Indianapolis, IN", "division":"AFC South"} },
-{ "model":"game.Team", "pk":31, "fields": {"name":"Jacksonville Jaguars", "espn_id": 30, "abbr":"Jac", "stadium":"EverBank Field, Jacksonville, FL", "division":"AFC South"} },
+{ "model":"game.Team", "pk":31, "fields": {"name":"Jacksonville Jaguars", "espn_id": 30, "abbr":"Jax", "stadium":"EverBank Field, Jacksonville, FL", "division":"AFC South"} },
 { "model":"game.Team", "pk":32, "fields": {"name":"Tennessee Titans", "espn_id": 10, "abbr":"Ten", "stadium":"LP Field, Nashville, TN", "division":"AFC South"} },
 { "model":"game.Team", "pk":33, "fields": {"name":"Free Agent", "espn_id": 0, "abbr":"FA", "stadium":"", "division":null} }
 ]

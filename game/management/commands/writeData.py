@@ -17,9 +17,9 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#self.writeSeedData(Player, 2014, True)
+		#self.writeSeedData(Matchup, 2001, True)
 		#self.writeDataAndPoints(GameData, 2014, True)
-		self.writeDataAndPoints(YearData, 2014, True)
+		#self.writeDataAndPoints(YearData, 2014, True)
 		
 
 
@@ -80,14 +80,16 @@ class Command(NoArgsCommand):
 	#	where timestamp is current date and time (hour/minute)
 	# Meant to be used with any of the game.models
 	def writeSeedData(self, dataModel, year, overwrite=False):
+		print 'WRITING DATA FOR:', dataModel.__name__, year
+
 		outFilename = ('game/fixtures/backups/' + dataModel.__name__ + 
 			str(year) + '_' + time.strftime('%Y%m%d%H%M') + '.json')
 		outFile = open(outFilename, 'w')
 		outFile.write('[\n')
 
 		# TODO: uncomment line for Matchup
-		#dataList = dataModel.objects.filter(year=year).order_by('week_number', 'id')
-		dataList = dataModel.objects.all().order_by('id')
+		dataList = dataModel.objects.filter(year=year).order_by('week_number', 'id')
+		#dataList = dataModel.objects.all().order_by('id')
 		for d in dataList:
 			outFile.write(d.fixtureString() + '\n')
 
