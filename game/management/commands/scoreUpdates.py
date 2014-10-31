@@ -15,9 +15,8 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#week_number = 5
-		print "COMPUTING PERFORMANCE SCORES: 2013 WEEK 1"
-		self.computePerformanceScores(2013, 1)
+		for i in range(1, 18):
+			self.computePerformanceScores(2014, i)
 
 
 	# Computes the performance score of the given player in the year and week 
@@ -62,6 +61,7 @@ class Command(NoArgsCommand):
 	# Computes the performance scores for each player in the given year/week
 	# Saves to database
 	def computePerformanceScores(self, year, week_number):
+		print 'COMPUTING PERFORMANCE SCORES:', year, 'WEEK', week_number
 		players = Player.objects.all().order_by('team', 'name')
 		matchups = Matchup.objects.filter(year=year, week_number=week_number)
 
