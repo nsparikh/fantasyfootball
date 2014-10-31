@@ -93,8 +93,8 @@ writeGameData(2012);
 // Retrieves and writes to file the game data for the given week and year
 function writeGameData($year) {
     // Open output files
-    $outfile_gd = fopen('GameData'.$year.'_W'.$week_num.'.json', 'w');
-    $outfile_gdpoints = fopen('GameDataPoints'.$year.'_W'.$week_num.'.json', 'w');
+    $outfile_gd = fopen('GameData'.$year.'_Yahoo.json', 'a');
+    $outfile_gdpoints = fopen('GameDataPoints'.$year.'_Yahoo.json', 'a');
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
@@ -102,6 +102,8 @@ function writeGameData($year) {
 
         // Go through each week
         foreach (range(1, 17) as $week_num) {
+            if ($player_index < 218) continue;
+
             // Get the data for the given week
             print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
 
