@@ -15,20 +15,49 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		for i in range(1, 18):
-			self.computePerformanceScores(2014, i)
+		pass
+
+
+	# Computes the performance scores for each player in the given year/week
+	# Saves to database
+	def computePerformanceScores(self, year, week_number):
+		print 'COMPUTING PERFORMANCE SCORES:', year, 'WEEK', week_number
+		players = Player.objects.all().order_by('team', 'name')
+		matchups = Matchup.objects.filter(year=year, week_number=week_number)
+
+		# TODO: compute averages for the week here so don't do it every time in performanceScore?
+		
+		# Calculate and save score for every player
+		for player in players:
+			yd = YearData.objects.get(player=player, year=year)
+			if yd.team.id < 33:
+				try:
+					matchup = matchups.get(Q(home_team=yd.team) | Q(away_team=yd.team))
+					gameData = GameData.objects.get(player=player, matchup=matchup)
+
+					# If it's a bye week, set score as 0
+					score = 0
+					if not matchup.bye:
+						opponent = matchup.home_team if yd.team.id==matchup.away_team.id else matchup.away_team
+						score = self.playerPerformanceScore(player, year, week_number, opponent)
+
+					# Save the score
+					gameData.performance_score = score
+					gameData.save()
+				except:
+					pass
 
 
 	# Computes the performance score of the given player in the year and week 
 	# player is a Player object, opponent is a Team object
 	# The performance score is computed as follows:
 	#	offScore = (total fantasy pts earned this season) - 
-	#		(avg fantasy pts earned across all players of this pos and depth_pos)
-	#	defScore = (avg fantasy pts earned by all players of 
+	#		(avg total fantasy pts earned across all players of this pos and depth_pos)
+	#	defScore = (avg total fantasy pts earned by all players of 
 	#			    this pos and depth_pos across each defense) - 
 	#		(total fantasy pts earned by players of this pos and depth_pos against this defense)
 	#	score = offScore - defScore
-	def performanceScore(self, player, year, week_number, opponent):
+	def playerPerformanceScore(self, player, year, week_number, opponent):
 		# Total points earned by the player this season
 		totalPtsEarned = YearData.objects.get(year=year, player=player.id).data.points
 		totalPtsEarned = 0 if totalPtsEarned is None else totalPtsEarned
@@ -58,34 +87,7 @@ class Command(NoArgsCommand):
 		score = offScore - defScore
 		return score
 
-	# Computes the performance scores for each player in the given year/week
-	# Saves to database
-	def computePerformanceScores(self, year, week_number):
-		print 'COMPUTING PERFORMANCE SCORES:', year, 'WEEK', week_number
-		players = Player.objects.all().order_by('team', 'name')
-		matchups = Matchup.objects.filter(year=year, week_number=week_number)
 
-		# TODO: compute averages for the week here so don't do it every time in performanceScore?
-		
-		# Calculate and save score for every player
-		for player in players:
-			yd = YearData.objects.get(player=player, year=year)
-			if yd.team.id < 33:
-				try:
-					matchup = matchups.get(Q(home_team=yd.team) | Q(away_team=yd.team))
-					gameData = GameData.objects.get(player=player, matchup=matchup)
-
-					# If it's a bye week, set score as 0
-					score = 0
-					if not matchup.bye:
-						opponent = matchup.home_team if yd.team.id==matchup.away_team.id else matchup.away_team
-						score = self.performanceScore(player, year, week_number, opponent)
-
-					# Save the score
-					gameData.performance_score = score
-					gameData.save()
-				except:
-					pass
-
-
-
+	# Computes the projection of the given player in the year and week
+	def playerProjection(self, player, year, week_number, opponent):
+		pass

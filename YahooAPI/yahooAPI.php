@@ -102,7 +102,7 @@ function writeGameData($year) {
 
         // Go through each week
         foreach (range(1, 17) as $week_num) {
-            if ($player_index < 218) continue;
+            if ($player_index < 542) continue;
 
             // Get the data for the given week
             print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';

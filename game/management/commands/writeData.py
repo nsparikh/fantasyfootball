@@ -3,6 +3,7 @@ from django.db.models import Count, Avg, Sum, Q
 from game.models import Player, Position, Team, Matchup
 from data.models import YearData, GameData, DataPoint
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import NoArgsCommand, make_option
 
 import time
@@ -17,9 +18,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#self.writeSeedData(Matchup, 2001, True)
-		#self.writeDataAndPoints(GameData, 2014, True)
-		#self.writeDataAndPoints(YearData, 2014, True)
+		self.writePerformanceScores(2013)
 		
 
 
@@ -106,6 +105,24 @@ class Command(NoArgsCommand):
 			overwriteFile.writelines([line for line in originalFile])
 
 		
+	# Writes the performance scores and actual pts earned for each player in CSV format
+	def writePerformanceScores(self, year):
+		outfile = open('data/fixtures/PerformanceScores' + str(year) + '.csv', 'w')
+		outfile.write('Player,Year,Week,Score,Points\n')
+
+		for p in Player.objects.all().order_by('id'):
+			print p.id, p.name
+			for week_number in range(1, 18):
+				try:
+					gd = GameData.objects.get(player=p, matchup__year=year, 
+						matchup__week_number=week_number)
+					if gd.matchup.bye or gd.data.id <= 100: continue
+					outfile.write(p.name + ',' + str(year) + ',' + str(week_number) + 
+						',' + str(gd.performance_score) + ',' + str(gd.data.points) + '\n')
+				except ObjectDoesNotExist:
+					continue
+
+		outfile.close()
 
 
 
