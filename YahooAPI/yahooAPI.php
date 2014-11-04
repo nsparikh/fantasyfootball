@@ -98,12 +98,10 @@ function writeGameData($year) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        //if ($player_index < 1409) continue;
+        if ($player_index < 1000) continue;
 
         // Go through each week
         foreach (range(1, 17) as $week_num) {
-            if ($player_index < 703) continue;
-
             // Get the data for the given week
             print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
 
