@@ -98,7 +98,7 @@ function writeGameData($year) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        if ($player_index < 1162) continue;
+        if ($player_index < 1314) continue;
 
         // Go through each week
         foreach (range(1, 17) as $week_num) {
