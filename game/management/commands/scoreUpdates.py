@@ -87,7 +87,3 @@ class Command(NoArgsCommand):
 		score = offScore - defScore
 		return score
 
-
-	# Computes the projection of the given player in the year and week
-	def playerProjection(self, player, year, week_number, opponent):
-		pass
