@@ -22,39 +22,35 @@ class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		outfile = open('results.txt', 'a')
 
-		for week_number in range(2, 10):
-			pos = Position.objects.get(id=1)
-			year = 2014
-			numNeighbors = 100
-			weight = 'uniform'
+		pos = Position.objects.get(id=2)
+		year = 2014
+		#numNeighbors = 100
+		weight = 'uniform'
+		mechanism = 'Total average'
 
-			outfile.write('Position: ' + pos.name + '\n')
-			outfile.write('Year: ' + str(year) + '\n')
-			outfile.write('Week: ' + str(week_number) + '\n')
-			outfile.write('# Neighbors: ' + str(numNeighbors) + '\n')
-			outfile.write('Weighting: ' + weight + '\n')  
-			outfile.write('Mechanism: Total average\n')
+		for numNeighbors in [20, 30, 40, 50, 60, 70, 80, 90, 100]:
+			for week_number in range(2, 10):
+				(xArray, yArray) = self.getDataForModel(pos, year, week_number, False)
+				knn = self.buildModel(xArray, yArray, numNeighbors, weight)
 
-			(xArray, yArray) = self.getDataForModel(pos, year, week_number)
-			knn = self.buildModel(xArray, yArray, numNeighbors, weight)
-
-			totalError = 0
-			espnError = 0
-			for p in Player.objects.filter(position=pos).order_by('id'):
-				try:
-					gd = GameData.objects.get(player=p, 
-						matchup__year=year, matchup__week_number=week_number)
-					projection = self.playerProjection(knn, p, year, week_number)
-					totalError += abs(gd.data.points - projection)
-					espnError += abs(gd.data.points - gd.espn_projection)
-				except:
-					pass
-
-			outfile.write('Computed error: ' + str(totalError) + '\n')
-			outfile.write('ESPN error: ' + str(espnError) + '\n')
-			outfile.write('\n')
-
+				totalError = 0
+				espnError = 0
+				for p in Player.objects.filter(position=pos).order_by('id'):
+					try:
+						gd = GameData.objects.get(player=p, 
+							matchup__year=year, matchup__week_number=week_number)
+						projection = self.playerProjection(knn, p, year, week_number)
+						totalError += abs(gd.data.points - projection)
+						espnError += abs(gd.data.points - gd.espn_projection)
+					except:
+						pass
+				outstring = (pos.name+','+str(year)+','+str(week_number)+','+str(numNeighbors)+
+					','+weight+','+mechanism+','+str(totalError)+','+str(espnError)+'\n')
+				print outstring
+				outfile.write(outstring);
 	
+
+
 	# Computes the projection of the given player in the year and week
 	#	using the model provided
 	def playerProjection(self, model, player, year, week_number):
@@ -110,11 +106,11 @@ class Command(NoArgsCommand):
 	# Computes feature vectors for each week through week_number, using cumulative
 	#	data from week 1 through that week
 	# Four features for each player in each week through week_number:
-	# 1) average total fantasy points earned across all players of this position
-	# 2) difference in total fantasy points earned so far by this player and (1)
-	# 3) average total fantasy points allowed by players of this position across all defenses
-	# 4) diff in total fantasy points allowed by players of this position and (3)
-	def getDataForModel(self, position, year, week_number):
+	# 1) average weekly fantasy points earned across all players of this position
+	# 2) difference in weekly avg fantasy points earned so far by this player and (1)
+	# 3) average weekly fantasy points allowed to players of this position across all defenses
+	# 4) diff in weekly avg fantasy points allowed to players of this position and (3)
+	def getDataForModel(self, position, year, week_number, weekly_average=False):
 		print 'GETTING DATA for', position.name, 'til week', week_number, year
 
 		# Dictionaries of data that will be used in feature vectors
@@ -122,7 +118,7 @@ class Command(NoArgsCommand):
 		labelsDict = {} # Maps (player ID, week) to actual fantasy points earned that week
 
 		# Train the model with data from each week through the given week number
-		for week in range(1, week_number+1):
+		for week in range(2, week_number+1):
 			# Get matchups for this week
 			matchups = Matchup.objects.filter(year=year, week_number=week)
 
@@ -134,6 +130,7 @@ class Command(NoArgsCommand):
 					Q(matchup__away_team=team), player__position=position,
 					matchup__year=year, matchup__week_number__lt=week).exclude(
 					player__team=team).aggregate(Sum('data__points'))['data__points__sum']
+				if weekly_average: defPtsAllowed /= (week_number-1.0)
 				defDict[team.id] = defPtsAllowed
 
 			# Go through each player of this position and compute feature (2)
@@ -151,6 +148,8 @@ class Command(NoArgsCommand):
 					matchup__week_number__lt=week).aggregate(
 					Sum('data__points'))['data__points__sum']
 				if ptsEarned is not None and ptsEarned > 0:
+					if weekly_average: ptsEarned /= (week_number-1.0)
+
 					# Get feature (4) from already comptued data
 					opponent = (curMatchup.home_team if playerTeam.id==curMatchup.away_team.id 
 						else curMatchup.away_team)
@@ -158,9 +157,13 @@ class Command(NoArgsCommand):
 
 					# Compute features (1) and (3) if not already computed
 					if (position.id, week) not in self.avgPtsEarnedDict:
-						self.avgPtsEarnedDict[(position.id, week)] = self.computeAveragePointsEarned(position, year, week)
+						self.avgPtsEarnedDict[(position.id, week)] = (self.computeWeeklyAveragePointsEarned(
+							position, year, week) if weekly_average else self.computeAveragePointsEarned(
+							position, year, week))
 					if (opponent.id, week) not in self.avgDefPtsAllowedDict:
-						self.avgDefPtsAllowedDict[(opponent.id, week)] = self.computeAveragePointsAllowed(position, year, week)
+						self.avgDefPtsAllowedDict[(opponent.id, week)] = (self.computeWeeklyAveragePointsAllowed(
+							position, year, week) if weekly_average else self.computeAveragePointsAllowed(
+							position, year, week))
 
 					# Assign the values in the dictionary
 					dataDict[(player.id, week)] = [
@@ -204,7 +207,7 @@ class Command(NoArgsCommand):
 
 
 	# Computes the average total fantasy points earned across players of the given
-	#	position through the given week_number of the given year
+	#	position up to the given week_number of the given year
 	def computeAveragePointsEarned(self, position, year, week_number):
 		totalPtsEarned = 0
 		numPlayers = 0
@@ -218,6 +221,20 @@ class Command(NoArgsCommand):
 		avgPtsEarned = totalPtsEarned*1.0 / numPlayers
 		return avgPtsEarned
 
+	# Computes the average of player weekly averages up to week_number
+	def computeWeeklyAveragePointsEarned(self, position, year, week_number):
+		sumPlayerAverages = 0
+		numPlayers = 0
+		for p in Player.objects.filter(position=position):
+			weeklyAvgPtsEarned = GameData.objects.filter(player=p, matchup__year=year,
+				matchup__week_number__lt=week_number).exclude(data__id=1).aggregate(
+				Avg('data__points'))['data__points__avg']
+			if weeklyAvgPtsEarned is not None and weeklyAvgPtsEarned > 0:
+				sumPlayerAverages += weeklyAvgPtsEarned
+				numPlayers += 1
+		weeklyAvg = sumPlayerAverages*1.0 / numPlayers
+		return weeklyAvg
+
 	# Computes the average total fantasy points allowed to players of the given
 	#	position across all defenses
 	def computeAveragePointsAllowed(self, position, year, week_number):
@@ -230,6 +247,23 @@ class Command(NoArgsCommand):
 			totalPtsAllowed += defPtsAllowed
 		avgDefPtsAllowed = totalPtsAllowed*1.0 / self.numTeams
 		return avgDefPtsAllowed
+
+	def computeWeeklyAveragePointsAllowed(self, position, year, week_number):
+		sumAverages = 0
+		for team in Team.objects.exclude(id=33):
+			numWeeksPlayed = len(Matchup.objects.filter(Q(home_team=team) | 
+				Q(away_team=team), year=year, week_number__lt=week_number, bye=False))
+			weeklyAvgPtsAllowed = (GameData.objects.filter(Q(matchup__home_team=team) | 
+				Q(matchup__away_team=team), player__position=position,
+				matchup__year=year, matchup__week_number__lt=week_number).exclude(
+				player__team=team).aggregate(Sum('data__points'))['data__points__sum'] / 
+				(numWeeksPlayed*1.0))
+			sumAverages += weeklyAvgPtsAllowed
+		weeklyAvg = sumAverages*1.0 / self.numTeams
+		return weeklyAvg
+
+
+
 
 
 
