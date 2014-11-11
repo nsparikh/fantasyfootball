@@ -22,38 +22,37 @@ class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		outfile = open('results.txt', 'a')
 
-		pos = Position.objects.get(id=1)
-		year = 2014
-		week_number = 6
-		numNeighbors = 100
-		weight = 'uniform'
+		for week_number in range(2, 10):
+			pos = Position.objects.get(id=1)
+			year = 2014
+			numNeighbors = 100
+			weight = 'uniform'
 
-		outfile.write('Position: ' + pos.name + '\n')
-		outfile.write('Year: ' + str(year) + '\n')
-		outfile.write('Week: ' + str(week_number) + '\n')
-		outfile.write('# Neighbors: ' + str(numNeighbors) + '\n')
-		outfile.write('Weighting: ' + weight + '\n')  
-		outfile.write('Mechanism: Total average\n')
+			outfile.write('Position: ' + pos.name + '\n')
+			outfile.write('Year: ' + str(year) + '\n')
+			outfile.write('Week: ' + str(week_number) + '\n')
+			outfile.write('# Neighbors: ' + str(numNeighbors) + '\n')
+			outfile.write('Weighting: ' + weight + '\n')  
+			outfile.write('Mechanism: Total average\n')
 
-		(xArray, yArray) = self.getDataForModel(pos, year, week_number-1)
-		knn = self.buildModel(xArray, yArray, numNeighbors, weight)
+			(xArray, yArray) = self.getDataForModel(pos, year, week_number)
+			knn = self.buildModel(xArray, yArray, numNeighbors, weight)
 
-		totalError = 0
-		espnError = 0
-		for p in Player.objects.filter(position=pos).order_by('id'):
-			try:
-				gd = GameData.objects.get(player=p, 
-					matchup__year=year, matchup__week_number=week_number)
-				projection = self.playerProjection(knn, p, year, week_number)
-				print p.id, p.name, projection, gd.espn_projection, gd.data.points
-				totalError += abs(gd.data.points - projection)
-				espnError += abs(gd.data.points - gd.espn_projection)
-			except:
-				print p.id, p.name, 'no game data'
+			totalError = 0
+			espnError = 0
+			for p in Player.objects.filter(position=pos).order_by('id'):
+				try:
+					gd = GameData.objects.get(player=p, 
+						matchup__year=year, matchup__week_number=week_number)
+					projection = self.playerProjection(knn, p, year, week_number)
+					totalError += abs(gd.data.points - projection)
+					espnError += abs(gd.data.points - gd.espn_projection)
+				except:
+					pass
 
-		outfile.write('Computed error: ' + str(totalError) + '\n')
-		outfile.write('ESPN error: ' + str(espnError) + '\n')
-		outfile.write('\n')
+			outfile.write('Computed error: ' + str(totalError) + '\n')
+			outfile.write('ESPN error: ' + str(espnError) + '\n')
+			outfile.write('\n')
 
 	
 	# Computes the projection of the given player in the year and week
@@ -116,7 +115,7 @@ class Command(NoArgsCommand):
 	# 3) average total fantasy points allowed by players of this position across all defenses
 	# 4) diff in total fantasy points allowed by players of this position and (3)
 	def getDataForModel(self, position, year, week_number):
-		print 'GETTING DATA for', position.name, 'through week', week_number, year
+		print 'GETTING DATA for', position.name, 'til week', week_number, year
 
 		# Dictionaries of data that will be used in feature vectors
 		dataDict = {} # Maps (player ID, week) to arrays of features [(1), (2), (3), (4)]

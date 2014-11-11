@@ -28,14 +28,16 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		week_number = 10
+		#week_number = 10
 		#for t in Team.objects.all().exclude(id=33):
 			#print t.name, self.updateDepthPositions(t)
 			#print t.name, self.updateMatchup(t, 2014, week_number)
 
-		#players = Player.objects.all().order_by('id')
-		#for i in range(0, len(players)):
-			#p = players[i]
+		players = Player.objects.all().order_by('id')
+		for i in range(0, len(players)):
+			for week_number in range(8, 11):
+				p = players[i]
+				#print i, p.name, week_number, self.updatePlayerEspnProjection(p, 2014, week_number)
 
 		
 	# Creates empty GameData objects for the player in the given week and year
