@@ -84,7 +84,7 @@ $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'
 // EXECUTION ("main")
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-writeGameData(2012);
+writeGameData(2014);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
@@ -98,10 +98,10 @@ function writeGameData($year) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        if ($player_index < 1476) continue;
+        if ($player_index < 167) continue;
 
         // Go through each week
-        foreach (range(1, 17) as $week_num) {
+        foreach (range(9, 10) as $week_num) {
             // Get the data for the given week
             print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
 

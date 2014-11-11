@@ -18,7 +18,8 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		self.writePerformanceScores(2013)
+		#self.writeSeedData(Player, 2014, True)
+		self.writeSeedData(Matchup, 2014, True)
 		
 
 

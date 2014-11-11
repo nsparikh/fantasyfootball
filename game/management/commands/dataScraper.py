@@ -28,13 +28,15 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
+		#week_number = 10
 		#for t in Team.objects.all().exclude(id=33):
-		#	print t.name, self.updateDepthPositions(t)
+			#print t.name, self.updateDepthPositions(t)
+			#print t.name, self.updateMatchup(t, 2014, week_number)
 
 		#players = Player.objects.all().order_by('id')
 		#for i in range(0, len(players)):
 			#p = players[i]
-			#print i, p.name, self.updatePlayerTeam(p)
+			#print i, p.name, self.updatePlayerTeam(p, 2014)
 			#print i, p.name, self.createEmptyGameData(p, 2014, week_number)
 			#print i, p.name, self.updatePlayerEspnProjection(p, 2014, week_number)
 
@@ -470,7 +472,8 @@ class Command(NoArgsCommand):
 			if player.team.id != 33:
 				player.team = Team.objects.get(id=33)
 				player.save()
-				yd.team = team
+				yd = YearData.objects.get(player=player, year=year)
+				yd.team = player.team
 				yd.save()
 				return player.team.name
 

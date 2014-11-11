@@ -20,12 +20,39 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		pos = Position.objects.get(id=3)
-		(xArray, yArray) = self.getDataForModel(pos, 2013, 16)
-		knn = self.buildModel(xArray, yArray, 100, 'uniform')
+		outfile = open('results.txt', 'a')
 
-		for p in Player.objects.filter(position__id=3).order_by('id'):
-			print self.playerProjection(knn, p, 2013, 17)
+		pos = Position.objects.get(id=1)
+		year = 2014
+		week_number = 6
+		numNeighbors = 100
+		weight = 'uniform'
+
+		outfile.write('Position: ' + pos.name + '\n')
+		outfile.write('Year: ' + str(year) + '\n')
+		outfile.write('Week: ' + str(week_number) + '\n')
+		outfile.write('# Neighbors: ' + str(numNeighbors) + '\n')
+		outfile.write('Weighting: ' + weight + '\n')  
+
+		(xArray, yArray) = self.getDataForModel(pos, year, week_number-1)
+		knn = self.buildModel(xArray, yArray, numNeighbors, weight)
+
+		totalError = 0
+		espnError = 0
+		for p in Player.objects.filter(position=pos).order_by('id'):
+			try:
+				gd = GameData.objects.get(player=p, 
+					matchup__year=year, matchup__week_number=week_number)
+				projection = self.playerProjection(knn, p, year, week_number)
+				print p.id, p.name, projection, gd.espn_projection, gd.data.points
+				totalError += abs(gd.data.points - projection)
+				espnError += abs(gd.data.points - gd.espn_projection)
+			except:
+				print p.id, p.name, 'no game data'
+
+		outfile.write('Computed error: ' + str(totalError) + '\n')
+		outfile.write('ESPN error: ' + str(espnError) + '\n')
+		outfile.write('\n')
 
 	
 	# Computes the projection of the given player in the year and week
@@ -48,7 +75,8 @@ class Command(NoArgsCommand):
 
 		# Compute feature (2) -- difference in points earned by this player and (1)
 		ptsEarned = GameData.objects.filter(player=player, matchup__year=year, 
-			matchup__week_number__lte=week_number).aggregate(Sum('data__points'))['data__points__sum']
+			matchup__week_number__lt=week_number).aggregate(Sum('data__points'))['data__points__sum']
+		if ptsEarned is None: return None
 		diffPtsEarned = ptsEarned - self.avgPtsEarnedDict[(position.id, week_number)]
 
 		# Compute feature (3) -- avg pts allowed to players of this position across all defenses
@@ -61,9 +89,9 @@ class Command(NoArgsCommand):
 		#	by opponent's defense and (3)
 		defPtsAllowed = GameData.objects.filter(Q(matchup__home_team=opponent) | 
 			Q(matchup__away_team=opponent), player__position=position,
-			matchup__year=year, matchup__week_number__lte=week_number).exclude(
+			matchup__year=year, matchup__week_number__lt=week_number).exclude(
 			player__team=opponent).aggregate(Sum('data__points'))['data__points__sum']
-		diffPtsAllowed = defPtsAllowed - self.avgDefPtsAllowedDict([opponent.id, week_number])
+		diffPtsAllowed = defPtsAllowed - self.avgDefPtsAllowedDict[(opponent.id, week_number)]
 
 		# Make the prediction!
 		vect = np.array([
@@ -104,7 +132,7 @@ class Command(NoArgsCommand):
 				# Compute total fantasy points allowed on team's defense by players of position
 				defPtsAllowed = GameData.objects.filter(Q(matchup__home_team=team) | 
 					Q(matchup__away_team=team), player__position=position,
-					matchup__year=year, matchup__week_number__lte=week).exclude(
+					matchup__year=year, matchup__week_number__lt=week).exclude(
 					player__team=team).aggregate(Sum('data__points'))['data__points__sum']
 				defDict[team.id] = defPtsAllowed
 
@@ -120,7 +148,7 @@ class Command(NoArgsCommand):
 
 				# Compute total fantasy points earned by this player so far
 				ptsEarned = GameData.objects.filter(player=player, matchup__year=year, 
-					matchup__week_number__lte=week).aggregate(
+					matchup__week_number__lt=week).aggregate(
 					Sum('data__points'))['data__points__sum']
 				if ptsEarned is not None and ptsEarned > 0:
 					# Get feature (4) from already comptued data
@@ -143,8 +171,9 @@ class Command(NoArgsCommand):
 					]
 
 					# Add fantasy points to labels dict
-					labelsDict[(player.id, week)] = GameData.objects.get(player=player, 
+					curWeekPts = GameData.objects.get(player=player, 
 						matchup__year=year, matchup__week_number=week).data.points
+					labelsDict[(player.id, week)] = curWeekPts if curWeekPts is not None else 0
 
 		# Get numpy arrays of data and "labels" (fantasy points)
 		xArray = self.dictToNumpy(dataDict, 4)
@@ -153,7 +182,7 @@ class Command(NoArgsCommand):
 
 	# Builds and fits the model with the provided parameters
 	# weights is either 'uniform' or 'distance'
-	def buildModel(xArray, yArray, numNeighbors, weights):
+	def buildModel(self, xArray, yArray, numNeighbors, weights):
 		print 'BUILDING MODEL with parameters:', numNeighbors, 'neighbors,', weights, 'weighting'
 		knn = neighbors.KNeighborsRegressor(n_neighbors=numNeighbors, weights=weights)
 		knn.fit(xArray, yArray)
@@ -181,7 +210,7 @@ class Command(NoArgsCommand):
 		numPlayers = 0
 		for p in Player.objects.filter(position=position):
 			curPtsEarned = GameData.objects.filter(player=p, matchup__year=year, 
-				matchup__week_number__lte=week_number).aggregate(
+				matchup__week_number__lt=week_number).aggregate(
 				Sum('data__points'))['data__points__sum']
 			if curPtsEarned is not None and curPtsEarned > 0:
 				totalPtsEarned += curPtsEarned
@@ -196,7 +225,7 @@ class Command(NoArgsCommand):
 		for team in Team.objects.exclude(id=33):
 			defPtsAllowed = GameData.objects.filter(Q(matchup__home_team=team) | 
 				Q(matchup__away_team=team), player__position=position,
-				matchup__year=year, matchup__week_number__lte=week_number).exclude(
+				matchup__year=year, matchup__week_number__lt=week_number).exclude(
 				player__team=team).aggregate(Sum('data__points'))['data__points__sum']
 			totalPtsAllowed += defPtsAllowed
 		avgDefPtsAllowed = totalPtsAllowed*1.0 / self.numTeams
