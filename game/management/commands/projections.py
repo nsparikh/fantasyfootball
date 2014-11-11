@@ -33,6 +33,7 @@ class Command(NoArgsCommand):
 		outfile.write('Week: ' + str(week_number) + '\n')
 		outfile.write('# Neighbors: ' + str(numNeighbors) + '\n')
 		outfile.write('Weighting: ' + weight + '\n')  
+		outfile.write('Mechanism: Total average\n')
 
 		(xArray, yArray) = self.getDataForModel(pos, year, week_number-1)
 		knn = self.buildModel(xArray, yArray, numNeighbors, weight)

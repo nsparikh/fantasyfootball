@@ -28,7 +28,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#week_number = 10
+		week_number = 10
 		#for t in Team.objects.all().exclude(id=33):
 			#print t.name, self.updateDepthPositions(t)
 			#print t.name, self.updateMatchup(t, 2014, week_number)
@@ -36,9 +36,6 @@ class Command(NoArgsCommand):
 		#players = Player.objects.all().order_by('id')
 		#for i in range(0, len(players)):
 			#p = players[i]
-			#print i, p.name, self.updatePlayerTeam(p, 2014)
-			#print i, p.name, self.createEmptyGameData(p, 2014, week_number)
-			#print i, p.name, self.updatePlayerEspnProjection(p, 2014, week_number)
 
 		
 	# Creates empty GameData objects for the player in the given week and year
@@ -179,7 +176,7 @@ class Command(NoArgsCommand):
 
 	# Gets the data for the player in the given year
 	# Updates the corresponding YearData object
-	def updatePlayerYearData(self, player, year):
+	def scrapePlayerYearData(self, player, year):
 		# Get the YearData object (there should be one for every player)
 		try: yd = YearData.objects.get(player=player, year=year)
 		except: return False
@@ -194,6 +191,27 @@ class Command(NoArgsCommand):
 		yd.save()
 		return True
 
+	# Computes the player's year data from the stored game data
+	def updatePlayerYearData(self, player, year):
+		# Get the YearData object (there should be one for every player)
+		try: yd = YearData.objects.get(player=player, year=year)
+		except: return False
+
+		# Add all of the data points together
+		dp = DataPoint.objects.get(id=1)
+		for gd in GameData.objects.filter(player=player, matchup__year=year):
+			dp = self.addDataPoints(dp, gd.data)
+		
+		# Check if resulting point is all null or all zero
+		if self.isAllNullDataPoint(dp): yd.data = DataPoint.objects.get(id=1)
+		elif self.isAllZeroDataPoint(dp): yd.data = DataPoint.objects.get(id=100)
+		else: 
+			dp.id = int(str(player.id) + str(year)[2:] + '00')
+			dp.save()
+			yd.data = dp
+		yd.save()
+		return True
+
 	# Helper method to tell whether the given data point has all null fields
 	def isAllNullDataPoint(self, dp):
 		dpFields = [field for field in dp._meta.get_all_field_names() if (
@@ -201,6 +219,33 @@ class Command(NoArgsCommand):
 		for field in dpFields:
 			if getattr(dp, field) is not None: return False
 		return True
+
+	# Helper method to tell whether the given data point has all zero fields
+	def isAllZeroDataPoint(self, dp):
+		dpFields = [field for field in dp._meta.get_all_field_names() if (
+			'data' not in field and field != 'id')]
+		for field in dpFields:
+			if getattr(dp, field) is not None and getattr(dp, field) > 0: return False
+		return True
+
+	# Helper method to "add" two data points
+	# Returns a data point with ID=100 -- this needs to be updated!
+	# Does not check if all null or all zero
+	def addDataPoints(self, dp1, dp2):
+		dp = DataPoint.objects.get(id=100)
+		dpFields = [field for field in dp._meta.get_all_field_names() if (
+			'data' not in field and field != 'id')]
+		for field in dpFields:
+			if getattr(dp1, field) is None and getattr(dp2, field) is None:
+				setattr(dp, field, None)
+			elif getattr(dp1, field) is None:
+				setattr(dp, field, getattr(dp2, field))
+			elif getattr(dp2, field) is None:
+				setattr(dp, field, getattr(dp1, field))
+			else:
+				setattr(dp, field, getattr(dp1, field) + getattr(dp2, field))
+		return dp
+
 
 	# Scrapes the ESPN projection for the player in the given week and year
 	# Updates the corresponding GameData object
@@ -400,6 +445,22 @@ class Command(NoArgsCommand):
 				matchup.save()
 				return True # Indicates that the Matchup was successfully updated
 		return False
+
+	# Assigns the appropriate matchup to the player's GameData object
+	def assignMatchup(self, player, year, week_number):
+		if player.team.id == 33: return False
+		gdId = int(str(player.id) + str(year)[2:] + str(week_number).zfill(2))
+		try: 
+			gd = GameData.objects.get(id=gdId)
+			matchup = Matchup.objects.get(Q(home_team=player.team) | Q(away_team=player.team), 
+				year=year, week_number=week_number)
+			gd.matchup = matchup
+			gd.save()
+			return True
+		except: 
+			return False
+
+
 
 	# Scrapes the depth positions of players on the team
 	# Updates the Player objects on that team

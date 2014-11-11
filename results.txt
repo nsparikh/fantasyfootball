@@ -3,6 +3,7 @@ Year: 2014
 Week: 6
 # Neighbors: 100
 Weighting: uniform
+Mechanism: Total average
 Computed error: [[ 740.67]]
 ESPN error: 228.0
 
