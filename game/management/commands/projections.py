@@ -28,7 +28,7 @@ class Command(NoArgsCommand):
 
 		for i in range(1, 16):
 			numNeighbors = i*10
-			for week_number in range(2, 10):
+			for week_number in range(2, 11):
 				(xArray, yArray) = self.getDataForModel(pos, year, week_number)
 				knn = self.buildModel(xArray, yArray, numNeighbors, weight)
 				totalError = 0
@@ -212,7 +212,7 @@ class Command(NoArgsCommand):
 		weeklyAvg = sumPlayerAverages*1.0 / numPlayers
 		return weeklyAvg
 
-	# Compute weekly average fantasy points allowed on team's defense by players of position
+	# Computes weekly average fantasy points allowed on team's defense by players of position
 	def computeAveragePointsAllowed(self, team, position, year, week_number):
 		numWeeksPlayed = len(Matchup.objects.filter(Q(home_team=team) | 
 			Q(away_team=team), year=year, week_number__lt=week_number, bye=False))
