@@ -22,13 +22,13 @@ class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		outfile = open('results.txt', 'a')
 
-		pos = Position.objects.get(id=2)
+		pos = Position.objects.get(id=3)
 		year = 2014
 		#numNeighbors = 100
 		weight = 'uniform'
 		mechanism = 'Total average'
 
-		for numNeighbors in [20, 30, 40, 50, 60, 70, 80, 90, 100]:
+		for numNeighbors in [20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]:
 			for week_number in range(2, 10):
 				(xArray, yArray) = self.getDataForModel(pos, year, week_number, False)
 				knn = self.buildModel(xArray, yArray, numNeighbors, weight)
@@ -174,8 +174,10 @@ class Command(NoArgsCommand):
 					]
 
 					# Add fantasy points to labels dict
-					curWeekPts = GameData.objects.get(player=player, 
-						matchup__year=year, matchup__week_number=week).data.points
+					try: 
+						curWeekPts = GameData.objects.get(player=player, 
+							matchup__year=year, matchup__week_number=week).data.points
+					except: curWeekPts = None
 					labelsDict[(player.id, week)] = curWeekPts if curWeekPts is not None else 0
 
 		# Get numpy arrays of data and "labels" (fantasy points)

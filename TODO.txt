@@ -28,7 +28,6 @@ High Priority:
 - Fix team detail, position detail pages to show only players on that team in the selected year?
 
 UI Fixes:
-- Highlight selected tab in nav bar on players/positions/teams pages
 - Fix 'F. Lastname' on position detail page for players with middle name or suffix
 - Fix text overlap when hovering on d/st bottom graph
 	- fix flicker on hover (i.e. hover on whole bar on bottom graph, not each individual piece)
@@ -39,20 +38,16 @@ Quick Fixes:
 
 
 Low Priority:
-- Add new DataPoint with all 0's; replace those in GameDataPoints and YearDataPoints
 - Change url paths to use names instead of IDs for positions, teams, maybe players?
 - figure out how to "toggle" links from asc/desc when clicked again
 - Add current status to player pages
 
 Eventual:
 - Set up something to get data automatically each week
-	- Write something that will write the new data to fixture files after each update
-- Machine learning stuff - augment game data with projection info
 - Get historical data for past 5 years
 - Add side-by-side comparison page
 - User model -- see https://docs.djangoproject.com/en/1.6/topics/auth/
 - Make sure everything works on other browsers
-- Look into ESPN terms of service...are we breaking any rules? for data / images?
 - Figure out AWS for storing images, etc.
 	- https://devcenter.heroku.com/articles/s3
 

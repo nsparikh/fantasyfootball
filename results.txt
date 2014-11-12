@@ -143,3 +143,227 @@ Quarterback,2014,6,90,uniform,Total average,665.88888889,237.0
 Quarterback,2014,7,90,uniform,Total average,506.05555556,197.0
 Quarterback,2014,8,90,uniform,Total average,508.86666667,226.0
 Quarterback,2014,9,90,uniform,Total average,383.82222222,180.0
+Runningback,2014,2,20,uniform,Total average,793.8,352.0
+Runningback,2014,3,20,uniform,Total average,582.1,399.0
+Runningback,2014,4,20,uniform,Total average,507.05,272.0
+Runningback,2014,5,20,uniform,Total average,520.75,371.0
+Runningback,2014,6,20,uniform,Total average,409.9,352.0
+Runningback,2014,7,20,uniform,Total average,475.85,342.0
+Runningback,2014,8,20,uniform,Total average,405.45,312.0
+Runningback,2014,9,20,uniform,Total average,376.6,235.0
+Runningback,2014,2,30,uniform,Total average,797.53333333,352.0
+Runningback,2014,3,30,uniform,Total average,650.3,399.0
+Runningback,2014,4,30,uniform,Total average,511.7,272.0
+Runningback,2014,5,30,uniform,Total average,522.83333333,371.0
+Runningback,2014,6,30,uniform,Total average,438.8,352.0
+Runningback,2014,7,30,uniform,Total average,495.26666667,342.0
+Runningback,2014,8,30,uniform,Total average,409.8,312.0
+Runningback,2014,9,30,uniform,Total average,374.5,235.0
+Runningback,2014,2,40,uniform,Total average,839.6,352.0
+Runningback,2014,3,40,uniform,Total average,663.825,399.0
+Runningback,2014,4,40,uniform,Total average,514.275,272.0
+Runningback,2014,5,40,uniform,Total average,554.175,371.0
+Runningback,2014,6,40,uniform,Total average,448.725,352.0
+Runningback,2014,7,40,uniform,Total average,500.675,342.0
+Runningback,2014,8,40,uniform,Total average,416.175,312.0
+Runningback,2014,9,40,uniform,Total average,369.625,235.0
+Runningback,2014,2,50,uniform,Total average,871.72,352.0
+Runningback,2014,3,50,uniform,Total average,684.72,399.0
+Runningback,2014,4,50,uniform,Total average,519.38,272.0
+Runningback,2014,5,50,uniform,Total average,587.7,371.0
+Runningback,2014,6,50,uniform,Total average,459.66,352.0
+Runningback,2014,7,50,uniform,Total average,498.02,342.0
+Runningback,2014,8,50,uniform,Total average,426.72,312.0
+Runningback,2014,9,50,uniform,Total average,366.98,235.0
+Runningback,2014,2,60,uniform,Total average,896.46666667,352.0
+Runningback,2014,3,60,uniform,Total average,697.45,399.0
+Runningback,2014,4,60,uniform,Total average,535.71666667,272.0
+Runningback,2014,5,60,uniform,Total average,601.36666667,371.0
+Runningback,2014,6,60,uniform,Total average,470.46666667,352.0
+Runningback,2014,7,60,uniform,Total average,495.58333333,342.0
+Runningback,2014,8,60,uniform,Total average,433.28333333,312.0
+Runningback,2014,9,60,uniform,Total average,363.73333333,235.0
+Runningback,2014,2,70,uniform,Total average,0,0
+Runningback,2014,3,70,uniform,Total average,707.32857143,399.0
+Runningback,2014,4,70,uniform,Total average,554.37142857,272.0
+Runningback,2014,5,70,uniform,Total average,608.47142857,371.0
+Runningback,2014,6,70,uniform,Total average,473.54285714,352.0
+Runningback,2014,7,70,uniform,Total average,496.12857143,342.0
+Runningback,2014,8,70,uniform,Total average,442.48571429,312.0
+Runningback,2014,9,70,uniform,Total average,369.,235.0
+Runningback,2014,2,80,uniform,Total average,0,0
+Runningback,2014,3,80,uniform,Total average,705.5375,399.0
+Runningback,2014,4,80,uniform,Total average,568.6,272.0
+Runningback,2014,5,80,uniform,Total average,636.4375,371.0
+Runningback,2014,6,80,uniform,Total average,485.0125,352.0
+Runningback,2014,7,80,uniform,Total average,501.0875,342.0
+Runningback,2014,8,80,uniform,Total average,451.975,312.0
+Runningback,2014,9,80,uniform,Total average,377.65,235.0
+Runningback,2014,2,90,uniform,Total average,0,0
+Runningback,2014,3,90,uniform,Total average,713.9,399.0
+Runningback,2014,4,90,uniform,Total average,573.77777778,272.0
+Runningback,2014,5,90,uniform,Total average,647.18888889,371.0
+Runningback,2014,6,90,uniform,Total average,497.16666667,352.0
+Runningback,2014,7,90,uniform,Total average,505.87777778,342.0
+Runningback,2014,8,90,uniform,Total average,456.58888889,312.0
+Runningback,2014,9,90,uniform,Total average,387.04444444,235.0
+Runningback,2014,2,100,uniform,Total average,0,0
+Runningback,2014,3,100,uniform,Total average,729.63,399.0
+Runningback,2014,4,100,uniform,Total average,581.06,272.0
+Runningback,2014,5,100,uniform,Total average,658.19,371.0
+Runningback,2014,6,100,uniform,Total average,502.32,352.0
+Runningback,2014,7,100,uniform,Total average,514.42,342.0
+Runningback,2014,8,100,uniform,Total average,461.53,312.0
+Runningback,2014,9,100,uniform,Total average,393.33,235.0
+Runningback,2014,2,110,uniform,Total average,0,0
+Runningback,2014,3,110,uniform,Total average,749.16363636,399.0
+Runningback,2014,4,110,uniform,Total average,586.86363636,272.0
+Runningback,2014,5,110,uniform,Total average,662.73636364,371.0
+Runningback,2014,6,110,uniform,Total average,509.78181818,352.0
+Runningback,2014,7,110,uniform,Total average,520.03636364,342.0
+Runningback,2014,8,110,uniform,Total average,470.02727273,312.0
+Runningback,2014,9,110,uniform,Total average,398.55454545,235.0
+Runningback,2014,2,120,uniform,Total average,0,0
+Runningback,2014,3,120,uniform,Total average,760.71666667,399.0
+Runningback,2014,4,120,uniform,Total average,596.975,272.0
+Runningback,2014,5,120,uniform,Total average,668.70833333,371.0
+Runningback,2014,6,120,uniform,Total average,515.04166667,352.0
+Runningback,2014,7,120,uniform,Total average,524.675,342.0
+Runningback,2014,8,120,uniform,Total average,477.25,312.0
+Runningback,2014,9,120,uniform,Total average,403.70833333,235.0
+Runningback,2014,2,130,uniform,Total average,0,0
+Runningback,2014,3,130,uniform,Total average,777.60769231,399.0
+Runningback,2014,4,130,uniform,Total average,609.84615385,272.0
+Runningback,2014,5,130,uniform,Total average,666.49230769,371.0
+Runningback,2014,6,130,uniform,Total average,519.89230769,352.0
+Runningback,2014,7,130,uniform,Total average,532.59230769,342.0
+Runningback,2014,8,130,uniform,Total average,481.97692308,312.0
+Runningback,2014,9,130,uniform,Total average,405.3,235.0
+Runningback,2014,2,140,uniform,Total average,0,0
+Runningback,2014,3,140,uniform,Total average,795.25,399.0
+Runningback,2014,4,140,uniform,Total average,614.56428571,272.0
+Runningback,2014,5,140,uniform,Total average,668.97142857,371.0
+Runningback,2014,6,140,uniform,Total average,522.32857143,352.0
+Runningback,2014,7,140,uniform,Total average,536.72142857,342.0
+Runningback,2014,8,140,uniform,Total average,485.46428571,312.0
+Runningback,2014,9,140,uniform,Total average,410.19285714,235.0
+Runningback,2014,2,150,uniform,Total average,0,0
+Runningback,2014,3,150,uniform,Total average,0,0
+Runningback,2014,4,150,uniform,Total average,618.49333333,272.0
+Runningback,2014,5,150,uniform,Total average,674.36666667,371.0
+Runningback,2014,6,150,uniform,Total average,529.30666667,352.0
+Runningback,2014,7,150,uniform,Total average,539.16666667,342.0
+Runningback,2014,8,150,uniform,Total average,487.91333333,312.0
+Runningback,2014,9,150,uniform,Total average,415.04666667,235.0
+Wide Receiver,2014,2,20,uniform,Total average,671.6,460.0
+Wide Receiver,2014,3,20,uniform,Total average,675.1,505.0
+Wide Receiver,2014,4,20,uniform,Total average,582.05,384.0
+Wide Receiver,2014,5,20,uniform,Total average,609.95,521.0
+Wide Receiver,2014,6,20,uniform,Total average,643.75,549.0
+Wide Receiver,2014,7,20,uniform,Total average,558.1,443.0
+Wide Receiver,2014,8,20,uniform,Total average,545.25,493.0
+Wide Receiver,2014,9,20,uniform,Total average,462.45,406.0
+Wide Receiver,2014,2,30,uniform,Total average,689.26666667,460.0
+Wide Receiver,2014,3,30,uniform,Total average,727.13333333,505.0
+Wide Receiver,2014,4,30,uniform,Total average,594.96666667,384.0
+Wide Receiver,2014,5,30,uniform,Total average,640.5,521.0
+Wide Receiver,2014,6,30,uniform,Total average,669.8,549.0
+Wide Receiver,2014,7,30,uniform,Total average,559.73333333,443.0
+Wide Receiver,2014,8,30,uniform,Total average,557.8,493.0
+Wide Receiver,2014,9,30,uniform,Total average,474.63333333,406.0
+Wide Receiver,2014,2,40,uniform,Total average,744.8,460.0
+Wide Receiver,2014,3,40,uniform,Total average,779.2,505.0
+Wide Receiver,2014,4,40,uniform,Total average,632.275,384.0
+Wide Receiver,2014,5,40,uniform,Total average,641.5,521.0
+Wide Receiver,2014,6,40,uniform,Total average,688.2,549.0
+Wide Receiver,2014,7,40,uniform,Total average,580.65,443.0
+Wide Receiver,2014,8,40,uniform,Total average,555.75,493.0
+Wide Receiver,2014,9,40,uniform,Total average,482.275,406.0
+Wide Receiver,2014,2,50,uniform,Total average,767.66,460.0
+Wide Receiver,2014,3,50,uniform,Total average,804.3,505.0
+Wide Receiver,2014,4,50,uniform,Total average,645.2,384.0
+Wide Receiver,2014,5,50,uniform,Total average,640.88,521.0
+Wide Receiver,2014,6,50,uniform,Total average,681.3,549.0
+Wide Receiver,2014,7,50,uniform,Total average,591.04,443.0
+Wide Receiver,2014,8,50,uniform,Total average,561.92,493.0
+Wide Receiver,2014,9,50,uniform,Total average,497.9,406.0
+Wide Receiver,2014,2,60,uniform,Total average,795.45,460.0
+Wide Receiver,2014,3,60,uniform,Total average,824.5,505.0
+Wide Receiver,2014,4,60,uniform,Total average,655.28333333,384.0
+Wide Receiver,2014,5,60,uniform,Total average,649.8,521.0
+Wide Receiver,2014,6,60,uniform,Total average,682.7,549.0
+Wide Receiver,2014,7,60,uniform,Total average,594.98333333,443.0
+Wide Receiver,2014,8,60,uniform,Total average,568.68333333,493.0
+Wide Receiver,2014,9,60,uniform,Total average,503.61666667,406.0
+Wide Receiver,2014,2,70,uniform,Total average,826.04285714,460.0
+Wide Receiver,2014,3,70,uniform,Total average,837.81428571,505.0
+Wide Receiver,2014,4,70,uniform,Total average,664.77142857,384.0
+Wide Receiver,2014,5,70,uniform,Total average,663.04285714,521.0
+Wide Receiver,2014,6,70,uniform,Total average,695.2,549.0
+Wide Receiver,2014,7,70,uniform,Total average,594.54285714,443.0
+Wide Receiver,2014,8,70,uniform,Total average,570.4,493.0
+Wide Receiver,2014,9,70,uniform,Total average,509.48571429,406.0
+Wide Receiver,2014,2,80,uniform,Total average,822.825,460.0
+Wide Receiver,2014,3,80,uniform,Total average,841.9375,505.0
+Wide Receiver,2014,4,80,uniform,Total average,662.4625,384.0
+Wide Receiver,2014,5,80,uniform,Total average,678.4875,521.0
+Wide Receiver,2014,6,80,uniform,Total average,704.375,549.0
+Wide Receiver,2014,7,80,uniform,Total average,593.8875,443.0
+Wide Receiver,2014,8,80,uniform,Total average,583.075,493.0
+Wide Receiver,2014,9,80,uniform,Total average,517.8,406.0
+Wide Receiver,2014,2,90,uniform,Total average,819.81111111,460.0
+Wide Receiver,2014,3,90,uniform,Total average,836.13333333,505.0
+Wide Receiver,2014,4,90,uniform,Total average,662.17777778,384.0
+Wide Receiver,2014,5,90,uniform,Total average,691.94444444,521.0
+Wide Receiver,2014,6,90,uniform,Total average,705.13333333,549.0
+Wide Receiver,2014,7,90,uniform,Total average,600.83333333,443.0
+Wide Receiver,2014,8,90,uniform,Total average,589.63333333,493.0
+Wide Receiver,2014,9,90,uniform,Total average,527.6,406.0
+Wide Receiver,2014,2,100,uniform,Total average,0,0
+Wide Receiver,2014,3,100,uniform,Total average,831.26,505.0
+Wide Receiver,2014,4,100,uniform,Total average,672.05,384.0
+Wide Receiver,2014,5,100,uniform,Total average,707.93,521.0
+Wide Receiver,2014,6,100,uniform,Total average,707.31,549.0
+Wide Receiver,2014,7,100,uniform,Total average,607.55,443.0
+Wide Receiver,2014,8,100,uniform,Total average,598.82,493.0
+Wide Receiver,2014,9,100,uniform,Total average,536.77,406.0
+Wide Receiver,2014,2,110,uniform,Total average,0,0
+Wide Receiver,2014,3,110,uniform,Total average,829.17272727,505.0
+Wide Receiver,2014,4,110,uniform,Total average,681.12727273,384.0
+Wide Receiver,2014,5,110,uniform,Total average,715.59090909,521.0
+Wide Receiver,2014,6,110,uniform,Total average,713.29090909,549.0
+Wide Receiver,2014,7,110,uniform,Total average,612.67272727,443.0
+Wide Receiver,2014,8,110,uniform,Total average,607.33636364,493.0
+Wide Receiver,2014,9,110,uniform,Total average,545.51818182,406.0
+Wide Receiver,2014,2,120,uniform,Total average,0,0
+Wide Receiver,2014,3,120,uniform,Total average,827.66666667,505.0
+Wide Receiver,2014,4,120,uniform,Total average,691.59166667,384.0
+Wide Receiver,2014,5,120,uniform,Total average,728.93333333,521.0
+Wide Receiver,2014,6,120,uniform,Total average,716.625,549.0
+Wide Receiver,2014,7,120,uniform,Total average,618.70833333,443.0
+Wide Receiver,2014,8,120,uniform,Total average,610.30833333,493.0
+Wide Receiver,2014,9,120,uniform,Total average,550.05833333,406.0
+Wide Receiver,2014,2,130,uniform,Total average,0,0
+Wide Receiver,2014,3,130,uniform,Total average,832.92307692,505.0
+Wide Receiver,2014,4,130,uniform,Total average,695.03846154,384.0
+Wide Receiver,2014,5,130,uniform,Total average,735.13076923,521.0
+Wide Receiver,2014,6,130,uniform,Total average,720.12307692,549.0
+Wide Receiver,2014,7,130,uniform,Total average,624.41538462,443.0
+Wide Receiver,2014,8,130,uniform,Total average,615.68461538,493.0
+Wide Receiver,2014,9,130,uniform,Total average,557.01538462,406.0
+Wide Receiver,2014,2,140,uniform,Total average,0,0
+Wide Receiver,2014,3,140,uniform,Total average,847.62857143,505.0
+Wide Receiver,2014,4,140,uniform,Total average,705.66428571,384.0
+Wide Receiver,2014,5,140,uniform,Total average,738.91428571,521.0
+Wide Receiver,2014,6,140,uniform,Total average,727.86428571,549.0
+Wide Receiver,2014,7,140,uniform,Total average,635.45714286,443.0
+Wide Receiver,2014,8,140,uniform,Total average,619.65,493.0
+Wide Receiver,2014,9,140,uniform,Total average,562.39285714,406.0
+Wide Receiver,2014,2,150,uniform,Total average,0,0
+Wide Receiver,2014,3,150,uniform,Total average,859.81333333,505.0
+Wide Receiver,2014,4,150,uniform,Total average,717.01333333,384.0
+Wide Receiver,2014,5,150,uniform,Total average,751.7,521.0
+Wide Receiver,2014,6,150,uniform,Total average,734.33333333,549.0
+Wide Receiver,2014,7,150,uniform,Total average,643.49333333,443.0
+Wide Receiver,2014,8,150,uniform,Total average,624.2,493.0
+Wide Receiver,2014,9,150,uniform,Total average,567.22,406.0
