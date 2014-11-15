@@ -71,6 +71,8 @@ $yahoo_url = 'http://fantasysports.yahooapis.com/fantasy/v2/players;player_keys=
 
 // Load Player and GameDataPoints from JSON fixture files
 $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'), true);
+$gd_2012 = json_decode(file_get_contents('../data/fixtures/GameData2012_Yahoo.json'), true);
+$gdpoints_2012 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2012_Yahoo.json'), true);
 //$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014_Yahoo.json'), true);
 //$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014_Yahoo.json'), true);
 //$gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013_Yahoo.json'), true);
@@ -84,7 +86,7 @@ $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'
 // EXECUTION ("main")
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-writeGameData(2014);
+writeYearData(2012);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
@@ -170,13 +172,14 @@ function getYahooPlayerGameData($player, $year, $week_num) {
 
 // Computes and writes the data for each player in the given year
 function writeYearData($year) {
-    $outfile_yd = fopen('YearData'.$year.'_Yahoo_Fixed.json', 'w');
-    $outfile_ydpoints = fopen('YearDataPoints'.$year.'_Yahoo_Fixed.json', 'w');
+    $outfile_yd = fopen('YearData'.$year.'_Yahoo.json', 'w');
+    $outfile_ydpoints = fopen('YearDataPoints'.$year.'_Yahoo.json', 'w');
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
         print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'];
-        $yd = getPointById(getYearDataPk($player, $year), $GLOBALS['yd_'.$year]);
+        //$yd = getPointById(getYearDataPk($player, $year), $GLOBALS['yd_'.$year]);
+        $yd = blankYearData($player, $year);
 
         $total = [];
         $count = 0;
@@ -340,6 +343,18 @@ function blankGameData($player, $year, $week_num) {
     $blank_gd['fields']['performance_score'] = 'null';
     $blank_gd['fields']['data'] = 1;
     return $blank_gd;
+}
+
+// Returns a "blank" YearData point for the given player and year
+function blankYearData($player, $year) {
+    $blank_yd = [];
+    $blank_yd['pk'] = getYearDataPk($player, $year);
+    $blank_yd['fields']['year'] = $year;
+    $blank_yd['fields']['player'] = $player['pk'];
+    $blank_yd['fields']['team'] = 'null';
+    $blank_yd['fields']['average'] = '0';
+    $blank_yd['fields']['data'] = 1;
+    return $blank_yd;
 }
 
 // Returns a new data point that has fields as the sum of the 2 given points' fields

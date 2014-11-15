@@ -154,7 +154,7 @@ class CareerData(models.Model):
 class YearData(models.Model):
 	year = models.IntegerField()
 	player = models.ForeignKey('game.Player')
-	team = models.ForeignKey('game.Team', default=33)
+	team = models.ForeignKey('game.Team', default=33, null=True)
 	average = models.DecimalField(max_digits=5, decimal_places=2, default=0) # Avg fantasy points per game for the year
 	data = models.ForeignKey(DataPoint)
 
@@ -165,7 +165,7 @@ class YearData(models.Model):
 		return ('{ ' + '"model":"data.YearData", "pk":'+str(self.id) +  
 			', "fields":{"year":' + str(self.year) + 
 			', "player":' + str(self.player.id) +
-			', "team":' + str(self.team.id) +
+			', "team":' + ('null' if self.team is None else str(self.team.id)) +
 			', "average":' + str(self.average) +
 			', "data":' + str(self.data.id) + '} },')
 

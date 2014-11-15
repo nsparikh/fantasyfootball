@@ -20,6 +20,7 @@ class Command(NoArgsCommand):
 	teamDepthPrefix = 'http://espn.go.com/nfl/team/depth/_/name/'
 	projectionPrefix = 'http://games.espn.go.com/ffl/tools/projections?&scoringPeriodId='
 	playerProfilePrefix = 'http://espn.go.com/nfl/players/profile?playerId='
+	playerStatsPrefix = 'http://espn.go.com/nfl/player/stats/_/id/'
 	months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 
@@ -28,16 +29,9 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#week_number = 10
-		#for t in Team.objects.all().exclude(id=33):
-			#print t.name, self.updateDepthPositions(t)
-			#print t.name, self.updateMatchup(t, 2014, week_number)
-
-		players = Player.objects.all().order_by('id')
-		for i in range(0, len(players)):
-			for week_number in range(8, 11):
-				p = players[i]
-				#print i, p.name, week_number, self.updatePlayerEspnProjection(p, 2014, week_number)
+		for p in Player.objects.all().order_by('id'):
+			for week_number in range(1, 18):
+				print p.id, week_number, self.assignMatchup(p, 2012, week_number)
 
 		
 	# Creates empty GameData objects for the player in the given week and year
@@ -311,8 +305,7 @@ class Command(NoArgsCommand):
 	# Gets and saves the matchups for the team in the given year
 	def getTeamMatchups(self, team, year):
 		# Read the data from the web page
-		abbr = 'jax' if team.name=='Jacksonville Jaguars' else team.abbr.lower()
-		data = urllib2.urlopen(self.teamSchedulePrefix + abbr + '/year/' + str(year)).read()
+		data = urllib2.urlopen(self.teamSchedulePrefix + team.abbr + '/year/' + str(year)).read()
 		data = data[data.index(str(year) + ' Regular Season Schedule') : data.index(str(year) + ' Preseason Schedule')].split('<tr')[2:]
 
 		# Go through each row in the table
@@ -450,11 +443,14 @@ class Command(NoArgsCommand):
 
 	# Assigns the appropriate matchup to the player's GameData object
 	def assignMatchup(self, player, year, week_number):
-		if player.team.id == 33: return False
+		ydId = int(str(player.id) + str(year)[2:])
+		yd = YearData.objects.get(id=ydId)
+		if yd.team is None or yd.team.id == 33: return False
+
 		gdId = int(str(player.id) + str(year)[2:] + str(week_number).zfill(2))
 		try: 
 			gd = GameData.objects.get(id=gdId)
-			matchup = Matchup.objects.get(Q(home_team=player.team) | Q(away_team=player.team), 
+			matchup = Matchup.objects.get(Q(home_team=yd.team) | Q(away_team=yd.team), 
 				year=year, week_number=week_number)
 			gd.matchup = matchup
 			gd.save()
@@ -503,44 +499,47 @@ class Command(NoArgsCommand):
 
 		return True
 
-	# Update's the given player's team
-	def updatePlayerTeam(self, player, year):
+	# Update's the given player's team in the given year
+	def updatePlayerTeam(self, player, year, current_year):
 		if player.position.id == 5: return False # D/ST aren't going to change teams
+		
+		yd = YearData.objects.get(player=player, year=year)
 
 		# Read in the page data and get the chunk with the info we need
-		data = urllib2.urlopen(self.playerProfilePrefix + str(player.espn_id)).read()
-		if '<div class="team-logo"></div>' in data:
-			data = data[data.index('<div class="team-logo"></div>') : ]
-		else:
-			data = data[data.index('<div class="player-bio">') : ]
-
-		data = data[data.index('<div class="line-divider"></div>') : ]
-		numPosText = '<li class="first">#'
-
+		data = urllib2.urlopen(self.playerStatsPrefix + str(player.espn_id)).read()
 		try:
-			data = data[data.index(numPosText)+len(numPosText) : ]
+			data = data[data.index('<tr class="stathead"') : ]
+		except: # Player has no stats
+			yd.team = None
+			yd.save()
+			return None
 
-			# Get the player's team
-			teamCode = data[data.index('_/name/')+7 : data.index('</a>')]
-			teamAbbr = teamCode[ : teamCode.index('/')]
-			team = Team.objects.get(abbr__iexact=teamAbbr)
-			yd = YearData.objects.get(player=player, year=year)
-			if team.id != player.team.id:
-				player.team = team
-				player.save()
+		data = data[ : data.index('</table>')]
+		rows = data.split('<tr')[1:]
+
+		# Go though each row in the table of stats
+		for row in rows:
+			if 'colhead' in row or 'stathead' in row or 'total' in row: continue
+			rowYearTd = row.split('<td>')[1]
+			rowYear = int(rowYearTd[ : rowYearTd.index('</td>')])
+			if rowYear == year:
+				# Get the team for this year
+				rowTeamTd = row.split('<td>')[2]
+				rowTeamTd = rowTeamTd[rowTeamTd.index('_/name/')+7 : rowTeamTd.index('</a>')]
+				teamAbbr = rowTeamTd[ : rowTeamTd.index('/')]
+				team = Team.objects.get(abbr__iexact=teamAbbr)
 				yd.team = team
 				yd.save()
-				return team.name
-		except: # Player has no number/position -- Free Agent
-			if player.team.id != 33:
-				player.team = Team.objects.get(id=33)
-				player.save()
-				yd = YearData.objects.get(player=player, year=year)
-				yd.team = player.team
-				yd.save()
-				return player.team.name
 
-		return False
+				# If current year, update the Player object
+				if year == current_year:
+					player.team = team
+					player.save()
+				return team
+
+		# This means the player didn't have any stats from the given year
+		yd.team = Team.objects.get(id=33)
+		return None
 
 	# Scrapes the player info and creates the new player with the given ESPN ID
 	def createNewPlayer(self, espn_id):

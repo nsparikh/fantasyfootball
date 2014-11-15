@@ -4,9 +4,14 @@ from game.models import Player, Position, Team, Matchup
 from data.models import YearData, GameData, DataPoint
 
 from django.core.management.base import NoArgsCommand, make_option
+from django.core.exceptions import ObjectDoesNotExist
 
 import numpy as np
 from sklearn import neighbors
+from sklearn import preprocessing
+from sklearn.svm import SVR
+
+import os
 
 class Command(NoArgsCommand):
 
@@ -20,39 +25,88 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		outfile = open('results.txt', 'a')
+		outfile = open('resultsWeekly_wr_SVM.txt', 'a')
+		seasonOutfile = open('resultsTotal_wr_SVM.txt', 'a')
 
 		pos = Position.objects.get(id=3)
 		year = 2014
-		weight = 'uniform'
+		norm = 'l2'
+		kernel = 'rbf'
+		#c = 1.0
+		epsilon = 0.1
+		degree = 3
+		gamma = 0.0
+		coef0 = 0.0
+		probability = False
+		shrinking = True
 
-		for i in range(1, 16):
-			numNeighbors = i*10
+		#(xArray2012, yArray20120) = 
+
+		# Load the 2013 data that was previously computed and saved to file
+		xArray2013 = np.loadtxt('xArray2013.txt')
+		yArray2013 = np.loadtxt('yArray2013.txt')
+
+		# Go through different parameters
+		for c in [1.75,2.0,2.25,2.5]:
+			computedSeasonError = 0
+			espnSeasonError = 0
+
+			# Go through each week of the 2014 season
 			for week_number in range(2, 11):
+				# Get the data and concat with 2013 data
 				(xArray, yArray) = self.getDataForModel(pos, year, week_number)
-				knn = self.buildModel(xArray, yArray, numNeighbors, weight)
+				xArray = np.concatenate((xArray2013, xArray))
+				yArray = np.concatenate((yArray2013, yArray))
+
+				# Normalize the data
+				normalizer = preprocessing.Normalizer(norm)
+				xArray = normalizer.fit_transform(xArray)
+
+				# Build the model
+				model = self.buildSVMModel(xArray, yArray, kernel, 
+					c, epsilon, degree, gamma, coef0, probability, shrinking)
 				totalError = 0
 				espnError = 0
+
+				# Predict for every player
 				for p in Player.objects.filter(position=pos).order_by('id'):
 					try:
 						gd = GameData.objects.get(player=p, 
 							matchup__year=year, matchup__week_number=week_number)
-						projection = self.playerProjection(knn, p, year, week_number)
+						projection = self.playerProjection(model, normalizer, p, year, week_number)
+						if projection is None or gd.data.id==1 or gd.espn_projection is None: continue
 						totalError += abs(gd.data.points - projection)
+						computedSeasonError += abs(gd.data.points - projection)
 						espnError += abs(gd.data.points - gd.espn_projection)
-					except: # No matching game data
-						pass
-				outstring = (pos.name+','+str(year)+','+str(week_number)+','+str(numNeighbors)+
-					','+weight+','+str(totalError)+','+str(espnError)+'\n')
+						espnSeasonError += abs(gd.data.points - gd.espn_projection)
+					except ObjectDoesNotExist:
+						continue
+
+				# Write to file
+				outstring = (pos.name+','+str(year)+','+str(week_number)+','+kernel+','+
+					str(c)+','+str(epsilon)+','+str(degree)+','+str(gamma)+','+str(coef0)+
+					','+str(probability)+','+str(shrinking)+','+
+					norm+','+str(totalError)+','+str(espnError)+'\n')
+				if totalError < espnError: print 'LOWER ERROR'
 				print outstring
 				outfile.write(outstring)
-	
+
+			# Write total season results to file
+			seasonOutstring = (pos.name+','+str(year)+','+kernel+','+
+				str(c)+','+str(epsilon)+','+str(degree)+','+str(gamma)+','+str(coef0)+
+				','+str(probability)+','+str(shrinking)+','+
+				norm+','+str(computedSeasonError)+','+str(espnSeasonError)+'\n')
+			print seasonOutstring
+			seasonOutfile.write(seasonOutstring)
+
+		os.system('say "Program is finished"')
 
 
 	# Computes the projection of the given player in the year and week
 	#	using the model provided
-	def playerProjection(self, model, player, year, week_number):
+	def playerProjection(self, model, normalizer, player, year, week_number):
 		# Get the player's team in the given year
+		position = player.position
 		playerTeam = YearData.objects.get(year=year, player=player).team
 		if playerTeam.id == 33: return None
 
@@ -61,15 +115,15 @@ class Command(NoArgsCommand):
 			year=year, week_number=week_number)
 		if matchup.bye: return None
 
-		# Compute avg points earned across all players of this position
-		position = player.position
+		# Compute weekly avg points earned by this player
+		ptsEarned = self.computeAveragePointsEarned(player, year, week_number)
+		if ptsEarned is None: return None
+
+		# Compute avg points earned across all players of this position and difference 
+		# between it and the player's weekly avg
 		if (position.id, week_number) not in self.avgPtsEarnedDict:
 			self.avgPtsEarnedDict[(position.id, week_number)] = self.computeWeeklyAveragePointsEarned(
 				position, year, week_number)
-
-		# Compute weekly avg points earned by this player and difference between it and league avg
-		ptsEarned = self.computeAveragePointsEarned(player, year, week_number)
-		if ptsEarned is None: return None
 		diffPtsEarned = ptsEarned - self.avgPtsEarnedDict[(position.id, week_number)]
 
 		# Compute avg pts allowed to players of this position across all defenses
@@ -84,7 +138,8 @@ class Command(NoArgsCommand):
 		diffPtsAllowed = ptsAllowed - self.avgDefPtsAllowedDict[(opponent.id, week_number)]
 
 		# Make the prediction!
-		vect = np.array([ptsEarned, diffPtsEarned, ptsAllowed, diffPtsAllowed])
+		vect = np.array([[ptsEarned, diffPtsEarned, ptsAllowed, diffPtsAllowed]])
+		vect = normalizer.transform(vect)
 		return model.predict(vect)
 
 	# Gets the data for building the prediction model
@@ -164,19 +219,41 @@ class Command(NoArgsCommand):
 		yArray = self.dictToNumpy(labelsDict, 1)
 		return (xArray, yArray)
 
-	# Builds and fits the model with the provided parameters
+	# Builds and fits the KNN model with the provided parameters
 	# weights is either 'uniform' or 'distance'
-	def buildModel(self, xArray, yArray, numNeighbors, weights):
-		print 'BUILDING MODEL with parameters:', numNeighbors, 'neighbors,', weights, 'weighting'
+	def buildKNNModel(self, xArray, yArray, numNeighbors, weights):
+		print 'BUILDING KNN MODEL with parameters:', numNeighbors, 'neighbors,', weights, 'weighting'
 		knn = neighbors.KNeighborsRegressor(n_neighbors=numNeighbors, weights=weights)
+		#knn = neighbors.RadiusNeighborsRegressor(radius=numNeighbors, weights=weights)
 		knn.fit(xArray, yArray)
 		return knn
+
+	# Builds and fits the SVM model with the provided kernel parameter
+	# kernel is 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'
+	def buildSVMModel(self, xArray, yArray, kernel, c, epsilon, degree, gamma, coef0, probability, shrinking):
+		print ('BUILDING SVM MODEL with parameters:'+kernel+', c:'+str(c)+', epsilon:'+str(epsilon)+
+			', degree:'+str(degree)+', gamma:'+str(gamma)+', coef0:'+str(coef0)+
+			', probability:'+str(probability)+', shrinking:'+str(shrinking))
+		svm = SVR(kernel=kernel, C=c, epsilon=epsilon, degree=degree, gamma=gamma, 
+			coef0=coef0, probability=probability, shrinking=shrinking)
+		svm.fit(xArray, yArray)
+		return svm
+
+	# Accepts an array of distances, and returns an array of the same shape containing the weights
+	def distanceWeight(self, distances):
+		weights = []
+		for dist in distances[0]:
+			w = 1.0 / (dist + 1.0)
+			weights.append(w)
+		return np.array([weights])
+
 
 	# Convert data from inputDict to numpy array
 	# yDim is the number of columns in the array
 	# Returns an array ordered by key
 	def dictToNumpy(self, inputDict, yDim):
-		npArray = np.empty([ len(inputDict), yDim ])
+		npArray = np.zeros([ len(inputDict), yDim ])
+		if yDim == 1: npArray = np.zeros([ len(inputDict) ])
 		i = 0
 		keyList = inputDict.keys()
 		keyList.sort()
@@ -191,10 +268,12 @@ class Command(NoArgsCommand):
 	def computeAveragePointsEarned(self, player, year, week_number):
 		numWeeksPlayed = len(Matchup.objects.filter(Q(home_team=player.team) | 
 			Q(away_team=player.team), year=year, week_number__lt=week_number, bye=False))
+		if numWeeksPlayed == 0: return None
+
 		ptsEarned = GameData.objects.filter(player=player, matchup__year=year, 
 			matchup__week_number__lt=week_number).aggregate(
 			Sum('data__points'))['data__points__sum']
-		if ptsEarned is not None:# and ptsEarned > 0:
+		if ptsEarned is not None: #and ptsEarned > 0:
 			ptsEarned /= (numWeeksPlayed*1.0)
 		return ptsEarned
 
@@ -203,9 +282,7 @@ class Command(NoArgsCommand):
 		sumPlayerAverages = 0
 		numPlayers = 0
 		for p in Player.objects.filter(position=position):
-			weeklyAvgPtsEarned = GameData.objects.filter(player=p, matchup__year=year,
-				matchup__week_number__lt=week_number).exclude(data__id=1).aggregate(
-				Avg('data__points'))['data__points__avg']
+			weeklyAvgPtsEarned = self.computeAveragePointsEarned(p, year, week_number)
 			if weeklyAvgPtsEarned is not None:# and weeklyAvgPtsEarned > 0:
 				sumPlayerAverages += weeklyAvgPtsEarned
 				numPlayers += 1
@@ -227,13 +304,7 @@ class Command(NoArgsCommand):
 	def computeLeagueAveragePointsAllowed(self, position, year, week_number):
 		sumAverages = 0
 		for team in Team.objects.exclude(id=33):
-			numWeeksPlayed = len(Matchup.objects.filter(Q(home_team=team) | 
-				Q(away_team=team), year=year, week_number__lt=week_number, bye=False))
-			weeklyAvgPtsAllowed = (GameData.objects.filter(Q(matchup__home_team=team) | 
-				Q(matchup__away_team=team), player__position=position,
-				matchup__year=year, matchup__week_number__lt=week_number).exclude(
-				player__team=team).aggregate(Sum('data__points'))['data__points__sum'] / 
-				(numWeeksPlayed*1.0))
+			weeklyAvgPtsAllowed = self.computeAveragePointsAllowed(team, position, year, week_number)
 			sumAverages += weeklyAvgPtsAllowed
 		weeklyAvg = sumAverages*1.0 / self.numTeams
 		return weeklyAvg
