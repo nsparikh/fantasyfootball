@@ -30,7 +30,7 @@ class Command(NoArgsCommand):
 
 		pos = Position.objects.get(id=3)
 		year = 2014
-		norm = 'l2'
+		norm = 'l1'
 		kernel = 'rbf'
 		#c = 1.0
 		epsilon = 0.1
@@ -40,14 +40,12 @@ class Command(NoArgsCommand):
 		probability = False
 		shrinking = True
 
-		#(xArray2012, yArray20120) = 
-
 		# Load the 2013 data that was previously computed and saved to file
-		xArray2013 = np.loadtxt('xArray2013.txt')
-		yArray2013 = np.loadtxt('yArray2013.txt')
+		xArray2013 = np.loadtxt('xArray2013_wr.txt')
+		yArray2013 = np.loadtxt('yArray2013_wr.txt')
 
 		# Go through different parameters
-		for c in [1.75,2.0,2.25,2.5]:
+		for c in [1.0]:
 			computedSeasonError = 0
 			espnSeasonError = 0
 
@@ -158,7 +156,7 @@ class Command(NoArgsCommand):
 		print 'GETTING DATA for', position.abbr, 'to week', cur_week_number, year
 
 		# Dictionaries of data that will be used in feature vectors
-		dataDict = {} # Maps (player ID, week) to arrays of features [(1), (2), (3), (4)]
+		dataDict = {} # Maps (player ID, week) to arrays of features
 		labelsDict = {} # Maps (player ID, week) to actual fantasy points earned that week
 
 		# Get data from each week up to the given week number
@@ -176,7 +174,7 @@ class Command(NoArgsCommand):
 			for player in Player.objects.filter(position=position):
 				# Get player's team in this year
 				playerTeam = YearData.objects.get(year=year, player=player).team
-				if playerTeam.id == 33: continue # Don't need FA data
+				if playerTeam is None or playerTeam.id == 33: continue # Don't need FA data
 
 				# Get player's matchup for this week; if bye week, continue
 				curMatchup = matchups.get(Q(home_team=playerTeam) | Q(away_team=playerTeam))

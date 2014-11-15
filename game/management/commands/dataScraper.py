@@ -29,9 +29,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		for p in Player.objects.all().order_by('id'):
-			for week_number in range(1, 18):
-				print p.id, week_number, self.assignMatchup(p, 2012, week_number)
+		pass
 
 		
 	# Creates empty GameData objects for the player in the given week and year
