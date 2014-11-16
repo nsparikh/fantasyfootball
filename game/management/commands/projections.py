@@ -30,7 +30,7 @@ class Command(NoArgsCommand):
 
 		pos = Position.objects.get(id=3)
 		year = 2014
-		norm = 'l1'
+		norm = 'l2'
 		kernel = 'rbf'
 		#c = 1.0
 		epsilon = 0.1
@@ -45,7 +45,7 @@ class Command(NoArgsCommand):
 		yArray2013 = np.loadtxt('yArray2013_wr.txt')
 
 		# Go through different parameters
-		for c in [1.0]:
+		for c in [500.0]:
 			computedSeasonError = 0
 			espnSeasonError = 0
 
@@ -96,8 +96,6 @@ class Command(NoArgsCommand):
 				norm+','+str(computedSeasonError)+','+str(espnSeasonError)+'\n')
 			print seasonOutstring
 			seasonOutfile.write(seasonOutstring)
-
-		os.system('say "Program is finished"')
 
 
 	# Computes the projection of the given player in the year and week
