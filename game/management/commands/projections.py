@@ -25,75 +25,76 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		outfile = open('projectionArrays/resultsWeekly_rb_SVM.txt', 'a')
-		seasonOutfile = open('projectionArrays/resultsTotal_rb_SVM.txt', 'a')
+		outfile = open('projectionArrays/resultsWeekly_te_SVM.txt', 'a')
+		seasonOutfile = open('projectionArrays/resultsTotal_te_SVM.txt', 'a')
 
-		pos = Position.objects.get(id=2)
+		pos = Position.objects.get(id=4)
 		year = 2014
 
 		norm = 'l2'
 		kernel = 'rbf'
 		c = 100
 		epsilon = 0.0
-		gamma = 7.0
+		#gamma = 7.0
 
 		# Load the 2013 data that was previously computed and saved to file
-		xArray2013 = np.loadtxt('projectionArrays/xArray2013_rb.txt')
-		yArray2013 = np.loadtxt('projectionArrays/yArray2013_rb.txt')
+		xArray2013 = np.loadtxt('projectionArrays/xArray2013_te.txt')
+		yArray2013 = np.loadtxt('projectionArrays/yArray2013_te.txt')
 
 		# Go through different parameters
-		computedSeasonError = 0
-		espnSeasonError = 0
+		for gamma in [8, 9]:
+			computedSeasonError = 0
+			espnSeasonError = 0
 
-		# Go through each week of the 2014 season
-		for week_number in range(1, 10):
-			# Get the data and concat with 2013 data
-			xArray = np.loadtxt('projectionArrays/xArray2014_week'+str(week_number)+'_rb.txt')
-			yArray = np.loadtxt('projectionArrays/yArray2014_week'+str(week_number)+'_rb.txt')
-			xArray = np.concatenate((xArray2013, xArray))
-			yArray = np.concatenate((yArray2013, yArray))
+			# Go through each week of the 2014 season
+			for week_number in range(1, 10):
+				# Get the data and concat with 2013 data
+				xArray = np.loadtxt('projectionArrays/xArray2014_week'+str(week_number)+'_te.txt')
+				yArray = np.loadtxt('projectionArrays/yArray2014_week'+str(week_number)+'_te.txt')
+				xArray = np.concatenate((xArray2013, xArray))
+				yArray = np.concatenate((yArray2013, yArray))
 
-			# Normalize the data
-			normalizer = preprocessing.Normalizer(norm)
-			xArray = normalizer.fit_transform(xArray)
+				# Normalize the data
+				normalizer = preprocessing.Normalizer(norm)
+				xArray = normalizer.fit_transform(xArray)
 
-			# Build the model
-			model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
+				# Build the model
+				model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
 
-			# Predict for every player. Have to use week_number+1 for playerProjection
-			# so that we test on data that's not in the training data set
-			totalError = 0
-			espnError = 0
-			test_week_number = week_number + 1
-			print 'TESTING MODEL for week', test_week_number
-			for p in Player.objects.filter(position=pos).order_by('id'):
-				try:
-					gd = GameData.objects.get(player=p, 
-						matchup__year=year, matchup__week_number=test_week_number)
-					projection = self.playerProjection(model, normalizer, p, year, test_week_number, xArray)
-					if projection is None or gd.data.id==1 or gd.espn_projection is None: continue
-					totalError += abs(gd.data.points - projection)
-					espnError += abs(gd.data.points - gd.espn_projection)
-				except ObjectDoesNotExist:
-					continue
+				# Predict for every player. Have to use week_number+1 for playerProjection
+				# so that we test on data that's not in the training data set
+				totalError = 0
+				espnError = 0
+				test_week_number = week_number + 1
+				print 'TESTING MODEL for week', test_week_number
+				for p in Player.objects.filter(position=pos).order_by('id'):
+					try:
+						gd = GameData.objects.get(player=p, 
+							matchup__year=year, matchup__week_number=test_week_number)
+						projection = self.playerProjection(model, normalizer, p, year, test_week_number, xArray)
+						if projection is None or gd.data.id==1 or gd.espn_projection is None: continue
+						totalError += abs(gd.data.points - projection)
+						espnError += abs(gd.data.points - gd.espn_projection)
+					except ObjectDoesNotExist:
+						continue
 
-			computedSeasonError += totalError
-			espnSeasonError += espnError
+				computedSeasonError += totalError
+				espnSeasonError += espnError
 
-			# Write to file
-			outstring = (pos.name+','+str(year)+','+str(test_week_number)+','+kernel+','+
+				# Write to file
+				outstring = (pos.name+','+str(year)+','+str(test_week_number)+','+kernel+','+
+					str(c)+','+str(epsilon)+','+str(gamma)+','+
+					norm+','+str(totalError)+','+str(espnError)+'\n')
+				if totalError < espnError: print 'LOWER ERROR'
+				print outstring
+				outfile.write(outstring)
+			
+			# Write total season results to file
+			seasonOutstring = (pos.name+','+str(year)+','+kernel+','+
 				str(c)+','+str(epsilon)+','+str(gamma)+','+
-				norm+','+str(totalError)+','+str(espnError)+'\n')
-			if totalError < espnError: print 'LOWER ERROR'
-			print outstring
-			outfile.write(outstring)
-		
-		# Write total season results to file
-		seasonOutstring = (pos.name+','+str(year)+','+kernel+','+
-			str(c)+','+str(epsilon)+','+str(gamma)+','+
-			norm+','+str(computedSeasonError)+','+str(espnSeasonError)+'\n')
-		print seasonOutstring
-		seasonOutfile.write(seasonOutstring)
+				norm+','+str(computedSeasonError)+','+str(espnSeasonError)+'\n')
+			print seasonOutstring
+			seasonOutfile.write(seasonOutstring)
 
 
 	# Computes the projection of the given player in the year and week

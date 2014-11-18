@@ -1,2 +1,26 @@
 Position,Year,Kernel,C,Epsilon,Gamma,Norm,Computed Error,ESPN Error
-Runningback,2014,rbf,100,0.0,7.0,l2,[ 2616.50710445],2968.0
+
+** WITH 2014 DATA: varying C, epsilon=0.0, gamma=7 **
+Runningback,2014,rbf,1,0.0,7.0,l2,2601.33541738,2968.0
+Runningback,2014,rbf,10,0.0,7.0,l2,2604.96043227,2968.0
+Runningback,2014,rbf,100,0.0,7.0,l2,2616.50710445,2968.0
+Runningback,2014,rbf,1000,0.0,7.0,l2,2677.16442223,2968.0
+
+** WITH 2014 DATA: varying C, epsilon=0.1, gamma=7 **
+Runningback,2014,rbf,1,0.1,7.0,l2,2626.25245468,2968.0
+Runningback,2014,rbf,10,0.1,7.0,l2,2636.56102406,2968.0
+Runningback,2014,rbf,100,0.1,7.0,l2,2671.50093956,2968.0
+Runningback,2014,rbf,1000,0.1,7.0,l2,2708.99123412,2968.0
+
+** WITH 2014 DATA: varying gamma, epsilon=0.0, C=1 **
+Runningback,2014,rbf,1,0.0,1,l2,2628.70250517,2968.0
+Runningback,2014,rbf,1,0.0,3,l2,2606.27271228,2968.0
+Runningback,2014,rbf,1,0.0,5,l2,2601.88164332,2968.0
+Runningback,2014,rbf,1,0.0,7,l2,2601.33541738,2968.0
+Runningback,2014,rbf,1,0.0,8,l2,2602.21110957,2968.0
+Runningback,2014,rbf,1,0.0,10,l2,2607.33237254,2968.0
+Runningback,2014,rbf,1,0.0,50,l2,2673.74754479,2968.0
+Runningback,2014,rbf,1,0.0,100,l2,2725.05839088,2968.0
+
+** BEST RESULTS: gamma=7, epsilon=0.0, C=1 **
+Runningback,2014,rbf,1,0.0,7,l2,2601.33541738,2968.0

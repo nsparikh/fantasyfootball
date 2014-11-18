@@ -1,1 +1,20 @@
 Position,Year,Kernel,C,Epsilon,Gamma,Norm,Computed Error,ESPN Error
+
+** WITH 2014 DATA: varying C, epsilon=0.0, gamma=7 **
+Tight End,2014,rbf,1,0.0,7.0,l2,1257.80486922,1661.0
+Tight End,2014,rbf,10,0.0,7.0,l2,1249.3100884,1661.0
+Tight End,2014,rbf,50,0.0,7.0,l2,1244.20096845,1661.0
+Tight End,2014,rbf,100,0.0,7.0,l2,1237.81781309,1661.0
+
+** WITH 2014 DATA: varying gamma, epsilon=0.0, C=100 **
+Tight End,2014,rbf,100,0.0,1,l2,1254.12640666,1661.0
+Tight End,2014,rbf,100,0.0,5,l2,1245.47382804,1661.0
+Tight End,2014,rbf,100,0.0,7.0,l2,1237.81781309,1661.0
+Tight End,2014,rbf,100,0.0,8,l2,1240.38060697,1661.0
+Tight End,2014,rbf,100,0.0,9,l2,1240.02671334,1661.0
+Tight End,2014,rbf,100,0.0,10,l2,1237.54462353,1661.0
+Tight End,2014,rbf,100,0.0,15,l2,1254.21504592,1661.0
+Tight End,2014,rbf,100,0.0,25,l2,1335.64871575,1661.0
+
+** BEST RESULTS: epsilon=0.0, C=100, gamma=7 **
+Tight End,2014,rbf,100,0.0,7.0,l2,1237.81781309,1661.0

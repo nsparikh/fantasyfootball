@@ -61,3 +61,6 @@ Wide Receiver,2014,rbf,10,0.1,7.0,l2,3368.13448078,4157.0
 Wide Receiver,2014,rbf,100,0.1,7.0,l2,3335.36355919,4157.0
 Wide Receiver,2014,rbf,500,0.1,7.0,l2,3312.93153207,4157.0
 Wide Receiver,2014,rbf,1000,0.1,7.0,l2,3306.7402743,4157.0
+
+** BEST RESULTS: gamma=7, epsilon=0.0, C=100 **
+Wide Receiver,2014,rbf,100,0.0,7.0,l2,3314.54883803,4157.0

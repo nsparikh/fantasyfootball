@@ -1,1 +1,36 @@
 Position,Year,Kernel,C,Epsilon,Gamma,Norm,Computed Error,ESPN Error
+
+** WITH 2014 DATA: varying C, gamma=7, epsilon=0.0 **
+Quarterback,2014,rbf,0.1,0.0,7.0,l2,2022.70834832,1784.0
+Quarterback,2014,rbf,1,0.0,7.0,l2,1906.59880133,1784.0
+Quarterback,2014,rbf,5,0.0,7.0,l2,1879.70501377,1784.0
+Quarterback,2014,rbf,10,0.0,7.0,l2,1867.32938133,1784.0
+Quarterback,2014,rbf,12,0.0,7.0,l2,1866.31926136,1784.0
+Quarterback,2014,rbf,13,0.0,7.0,l2,1866.24722141,1784.0
+Quarterback,2014,rbf,14,0.0,7.0,l2,1867.06379416,1784.0
+Quarterback,2014,rbf,15,0.0,7.0,l2,1866.95094992,1784.0
+Quarterback,2014,rbf,20,0.0,7.0,l2,1867.46359918,1784.0
+Quarterback,2014,rbf,25,0.0,7.0,l2,1870.30325719,1784.0
+Quarterback,2014,rbf,50,0.0,7.0,l2,1881.42887702,1784.0
+Quarterback,2014,rbf,75,0.0,7.0,l2,1889.16891855,1784.0
+Quarterback,2014,rbf,100,0.0,7.0,l2,1895.54156955,1784.0
+
+** WITH 2014 DATA: varying gamma, C=13, epsilon=0.0 **
+Quarterback,2014,rbf,13,0.0,0,l2,1920.31951751,1784.0
+Quarterback,2014,rbf,13,0.0,1,l2,1876.0138192,1784.0
+Quarterback,2014,rbf,13,0.0,5,l2,1876.04970614,1784.0
+Quarterback,2014,rbf,13,0.0,7,l2,1866.24722141,1784.0
+Quarterback,2014,rbf,13,0.0,8,l2,1869.37877404,1784.0
+Quarterback,2014,rbf,13,0.0,10,l2,1873.93973486,1784.0
+Quarterback,2014,rbf,13,0.0,13,l2,1879.50078286,1784.0
+Quarterback,2014,rbf,13,0.0,50,l2,1924.43784279,1784.0
+Quarterback,2014,rbf,13,0.0,100,l2,1915.16364354,1784.0
+
+** WITH 2014 DATA: varying epsilon, C=13, gamma=7 **
+Quarterback,2014,rbf,13,0.0,7.0,l2,1866.24722141,1784.0
+Quarterback,2014,rbf,13,0.01,7.0,l2,1867.31906636,1784.0
+Quarterback,2014,rbf,13,0.1,7.0,l2,1885.80032327,1784.0
+Quarterback,2014,rbf,13,1,7.0,l2,1936.70025471,1784.0
+
+** BEST RESULTS: epsilon=0.0, C=13, gamma=7 **
+Quarterback,2014,rbf,13,0.0,7.0,l2,1866.24722141,1784.0
