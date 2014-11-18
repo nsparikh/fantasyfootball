@@ -19,7 +19,9 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		#self.writeSeedData(Player, 2014, True)
-		#self.writeDataAndPoints(GameData, 2012, True)
+		#self.writeSeedData(Matchup, 2014, True)
+		#self.writeDataAndPoints(GameData, 2014, True)
+		self.writeDataAndPoints(YearData, 2014, True)
 		
 
 
@@ -29,6 +31,8 @@ class Command(NoArgsCommand):
 	# If overwrite is set to True, will overwrite the default fixture files
 	# Meant to be used with any of the data.models
 	def writeDataAndPoints(self, dataModel, year, overwrite=False):
+		print 'WRITING DATA FOR:', dataModel.__name__, year
+
 		dataFilename = ('data/fixtures/backups/' + dataModel.__name__ + 
 			str(year) + '_' + time.strftime('%Y%m%d%H%M') + '.json')
 		dataPointsFilename = ('data/fixtures/backups/' + dataModel.__name__ 
@@ -38,8 +42,6 @@ class Command(NoArgsCommand):
 
 		dataFile.write('[\n')
 		dataPointsFile.write('[\n')
-
-		print 'writing', dataModel.__name__, year
 
 		if dataModel.__name__ == 'YearData':
 			dataList = dataModel.objects.filter(year=year).order_by('id')

@@ -29,13 +29,15 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		pass
+		for player in Player.objects.all().order_by('id'):
+			print player.id, player.name, self.updatePlayerEspnProjection(player, 2014, 12, True)
 
 		
 	# Creates empty GameData objects for the player in the given week and year
-	def createEmptyGameData(self, player, year, week_number):
+	# Returns the object but DOES NOT SAVE TO DATABASE
+	def getEmptyGameData(self, player, year, week_number):
 		# If player is a FA, no need to create one
-		if player.team.id == 33: return False
+		if player.team.id == 33: return None
 
 		# Get PK for this week and year
 		gdId = int(str(player.id) + str(year)[2:] + str(week_number).zfill(2))
@@ -43,7 +45,7 @@ class Command(NoArgsCommand):
 		# First see if already exists
 		try:
 			gd = GameData.objects.get(id=gdId)
-			return False
+			return None
 		except: # This means it doesn't already exist, so create an "empty" one
 			matchup = Matchup.objects.get(Q(home_team=player.team) | Q(away_team=player.team), 
 				year=year, week_number=week_number)
@@ -51,8 +53,7 @@ class Command(NoArgsCommand):
 			gd = GameData(id=gdId, player=player, matchup=matchup, projection=None, 
 				espn_projection=None, yahoo_projection=None, cbs_projection=None,
 				performance_score=None, data=nullDp)
-			gd.save()
-			return True
+			return gd
 
 	# Scrapes the data for the player in the given week and year
 	# 	If week_number is 0, then scrapes the data for the whole season
@@ -244,9 +245,9 @@ class Command(NoArgsCommand):
 	# Scrapes the ESPN projection for the player in the given week and year
 	# Updates the corresponding GameData object
 	# Returns True if it is updated successfully
-	def updatePlayerEspnProjection(self, player, year, week_number):
+	def updatePlayerEspnProjection(self, player, year, week_number, create_gamedata=False):
 		# If this player is a FA, there's no data
-		if player.team.id == 33: return False
+		if player.team.id == 33: return None
 
 		# Get the GameData object, if there is one
 		try:
@@ -256,9 +257,11 @@ class Command(NoArgsCommand):
 			# If it's a bye week or if it's already done, 
 			# don't try to update
 			if (gd.matchup.bye or gd.espn_projection is not None):
-				return False
+				return None
 		except:
-			return False
+			if create_gamedata:
+				gd = self.getEmptyGameData(player, year, week_number)
+			else: return None
 
 		# Get the player's last name
 		nameArr = player.name.split(' ')
@@ -278,7 +281,7 @@ class Command(NoArgsCommand):
 			data = data[data.index('<table class="playerTableTable') : ]
 			data = data[ : data.index('</table>')]
 		except: 
-			return False
+			return None
 
 		# Multiple players could have the same last name, so we need to find the right one
 		table = data.split('<tr id="plyr') 
@@ -287,7 +290,7 @@ class Command(NoArgsCommand):
 			scrapedEspnId = int(row[1][row[1].index('id="playername_')+15 : 
 				row[1].index('" style')])
 			if scrapedEspnId == player.espn_id: # Just need the projection column
-				if 'BYE' in row[2]: return False # Don't need to do anything if FA or Bye week
+				if 'BYE' in row[2]: return None # Don't need to do anything if FA or Bye week
 
 				r = 14
 				projection = row[r][(row[r].index('>')+1) : row[r].index('</td>')]
@@ -297,8 +300,8 @@ class Command(NoArgsCommand):
 				if projection is not None:
 					gd.espn_projection = projection
 					gd.save()
-					return True
-		return False
+					return projection
+		return None
 
 	# Gets and saves the matchups for the team in the given year
 	def getTeamMatchups(self, team, year):
