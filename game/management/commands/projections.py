@@ -18,89 +18,87 @@ class Command(NoArgsCommand):
 	help = ''
 	numTeams = 32
 	avgPtsEarnedDict = {} # Maps (position ID, week number) => avg pts earned
-	avgDefPtsAllowedDict = {} # Maps (team ID, week number) => avg pts allowed
+	avgDefPtsAllowedDict = {} # Maps (position ID, week number) => avg pts allowed
 
 	option_list = NoArgsCommand.option_list + (
 		make_option('--verbose', action='store_true'),
 	)
 
 	def handle_noargs(self, **options):
-		outfile = open('resultsWeekly_wr_SVM.txt', 'a')
-		seasonOutfile = open('resultsTotal_wr_SVM.txt', 'a')
+		outfile = open('projectionArrays/resultsWeekly_rb_SVM.txt', 'a')
+		seasonOutfile = open('projectionArrays/resultsTotal_rb_SVM.txt', 'a')
 
-		pos = Position.objects.get(id=3)
+		pos = Position.objects.get(id=2)
 		year = 2014
+
 		norm = 'l2'
 		kernel = 'rbf'
-		#c = 1.0
-		epsilon = 0.1
-		degree = 3
-		gamma = 0.0
-		coef0 = 0.0
-		probability = False
-		shrinking = True
+		c = 100
+		epsilon = 0.0
+		gamma = 7.0
 
 		# Load the 2013 data that was previously computed and saved to file
-		xArray2013 = np.loadtxt('xArray2013_wr.txt')
-		yArray2013 = np.loadtxt('yArray2013_wr.txt')
+		xArray2013 = np.loadtxt('projectionArrays/xArray2013_rb.txt')
+		yArray2013 = np.loadtxt('projectionArrays/yArray2013_rb.txt')
 
 		# Go through different parameters
-		for c in [500.0]:
-			computedSeasonError = 0
-			espnSeasonError = 0
+		computedSeasonError = 0
+		espnSeasonError = 0
 
-			# Go through each week of the 2014 season
-			for week_number in range(2, 11):
-				# Get the data and concat with 2013 data
-				(xArray, yArray) = self.getDataForModel(pos, year, week_number)
-				xArray = np.concatenate((xArray2013, xArray))
-				yArray = np.concatenate((yArray2013, yArray))
+		# Go through each week of the 2014 season
+		for week_number in range(1, 10):
+			# Get the data and concat with 2013 data
+			xArray = np.loadtxt('projectionArrays/xArray2014_week'+str(week_number)+'_rb.txt')
+			yArray = np.loadtxt('projectionArrays/yArray2014_week'+str(week_number)+'_rb.txt')
+			xArray = np.concatenate((xArray2013, xArray))
+			yArray = np.concatenate((yArray2013, yArray))
 
-				# Normalize the data
-				normalizer = preprocessing.Normalizer(norm)
-				xArray = normalizer.fit_transform(xArray)
+			# Normalize the data
+			normalizer = preprocessing.Normalizer(norm)
+			xArray = normalizer.fit_transform(xArray)
 
-				# Build the model
-				model = self.buildSVMModel(xArray, yArray, kernel, 
-					c, epsilon, degree, gamma, coef0, probability, shrinking)
-				totalError = 0
-				espnError = 0
+			# Build the model
+			model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
 
-				# Predict for every player
-				for p in Player.objects.filter(position=pos).order_by('id'):
-					try:
-						gd = GameData.objects.get(player=p, 
-							matchup__year=year, matchup__week_number=week_number)
-						projection = self.playerProjection(model, normalizer, p, year, week_number)
-						if projection is None or gd.data.id==1 or gd.espn_projection is None: continue
-						totalError += abs(gd.data.points - projection)
-						computedSeasonError += abs(gd.data.points - projection)
-						espnError += abs(gd.data.points - gd.espn_projection)
-						espnSeasonError += abs(gd.data.points - gd.espn_projection)
-					except ObjectDoesNotExist:
-						continue
+			# Predict for every player. Have to use week_number+1 for playerProjection
+			# so that we test on data that's not in the training data set
+			totalError = 0
+			espnError = 0
+			test_week_number = week_number + 1
+			print 'TESTING MODEL for week', test_week_number
+			for p in Player.objects.filter(position=pos).order_by('id'):
+				try:
+					gd = GameData.objects.get(player=p, 
+						matchup__year=year, matchup__week_number=test_week_number)
+					projection = self.playerProjection(model, normalizer, p, year, test_week_number, xArray)
+					if projection is None or gd.data.id==1 or gd.espn_projection is None: continue
+					totalError += abs(gd.data.points - projection)
+					espnError += abs(gd.data.points - gd.espn_projection)
+				except ObjectDoesNotExist:
+					continue
 
-				# Write to file
-				outstring = (pos.name+','+str(year)+','+str(week_number)+','+kernel+','+
-					str(c)+','+str(epsilon)+','+str(degree)+','+str(gamma)+','+str(coef0)+
-					','+str(probability)+','+str(shrinking)+','+
-					norm+','+str(totalError)+','+str(espnError)+'\n')
-				if totalError < espnError: print 'LOWER ERROR'
-				print outstring
-				outfile.write(outstring)
+			computedSeasonError += totalError
+			espnSeasonError += espnError
 
-			# Write total season results to file
-			seasonOutstring = (pos.name+','+str(year)+','+kernel+','+
-				str(c)+','+str(epsilon)+','+str(degree)+','+str(gamma)+','+str(coef0)+
-				','+str(probability)+','+str(shrinking)+','+
-				norm+','+str(computedSeasonError)+','+str(espnSeasonError)+'\n')
-			print seasonOutstring
-			seasonOutfile.write(seasonOutstring)
+			# Write to file
+			outstring = (pos.name+','+str(year)+','+str(test_week_number)+','+kernel+','+
+				str(c)+','+str(epsilon)+','+str(gamma)+','+
+				norm+','+str(totalError)+','+str(espnError)+'\n')
+			if totalError < espnError: print 'LOWER ERROR'
+			print outstring
+			outfile.write(outstring)
+		
+		# Write total season results to file
+		seasonOutstring = (pos.name+','+str(year)+','+kernel+','+
+			str(c)+','+str(epsilon)+','+str(gamma)+','+
+			norm+','+str(computedSeasonError)+','+str(espnSeasonError)+'\n')
+		print seasonOutstring
+		seasonOutfile.write(seasonOutstring)
 
 
 	# Computes the projection of the given player in the year and week
 	#	using the model provided
-	def playerProjection(self, model, normalizer, player, year, week_number):
+	def playerProjection(self, model, normalizer, player, year, week_number, xArray):
 		# Get the player's team in the given year
 		position = player.position
 		playerTeam = YearData.objects.get(year=year, player=player).team
@@ -118,20 +116,20 @@ class Command(NoArgsCommand):
 		# Compute avg points earned across all players of this position and difference 
 		# between it and the player's weekly avg
 		if (position.id, week_number) not in self.avgPtsEarnedDict:
-			self.avgPtsEarnedDict[(position.id, week_number)] = self.computeWeeklyAveragePointsEarned(
+			self.avgPtsEarnedDict[(position.id, week_number)] = self.computeLeagueAveragePointsEarned(
 				position, year, week_number)
 		diffPtsEarned = ptsEarned - self.avgPtsEarnedDict[(position.id, week_number)]
 
 		# Compute avg pts allowed to players of this position across all defenses
 		opponent = (matchup.home_team if playerTeam.id==matchup.away_team.id else matchup.away_team)
-		if (opponent.id, week_number) not in self.avgDefPtsAllowedDict:
-			self.avgDefPtsAllowedDict[(opponent.id, week_number)] = self.computeWeeklyAveragePointsAllowed(
+		if (position.id, week_number) not in self.avgDefPtsAllowedDict:
+			self.avgDefPtsAllowedDict[(position.id, week_number)] = self.computeLeagueAveragePointsAllowed(
 				position, year, week_number)
 
 		# Compute points allowed to players of this position by opponent's defense and 
 		# difference between it and league average
-		ptsAllowed = self.computeAveragePointsAllowed(opponent, player.position, year, week_number)
-		diffPtsAllowed = ptsAllowed - self.avgDefPtsAllowedDict[(opponent.id, week_number)]
+		ptsAllowed = self.computeAveragePointsAllowed(opponent, position, year, week_number)
+		diffPtsAllowed = ptsAllowed - self.avgDefPtsAllowedDict[(position.id, week_number)]
 
 		# Make the prediction!
 		vect = np.array([[ptsEarned, diffPtsEarned, ptsAllowed, diffPtsAllowed]])
@@ -151,25 +149,25 @@ class Command(NoArgsCommand):
 	# 3) weekly avg fantasy points allowed to players of this position
 	# 4) diff in (3) and league average across all defenses
 	def getDataForModel(self, position, year, cur_week_number):
-		print 'GETTING DATA for', position.abbr, 'to week', cur_week_number, year
+		print 'GETTING DATA for', position.abbr, 'through week', cur_week_number, year
 
 		# Dictionaries of data that will be used in feature vectors
 		dataDict = {} # Maps (player ID, week) to arrays of features
 		labelsDict = {} # Maps (player ID, week) to actual fantasy points earned that week
 
 		# Get data from each week up to the given week number
-		for week_number in range(2, cur_week_number+1):
+		for week_number in range(1, cur_week_number+1):
 			# Get matchups for this week
 			matchups = Matchup.objects.filter(year=year, week_number=week_number)
 
-			# Go through each team and compute each defense's points allowed
-			defDict = {} # Maps team ID to feature (4)
+			# Go through each team and compute each defense's average points allowed
+			defDict = {} # Maps team ID to average points allowed
 			for team in Team.objects.exclude(id=33):
 				defPtsAllowed = self.computeAveragePointsAllowed(team, position, year, week_number)
 				defDict[team.id] = defPtsAllowed
 
 			# Go through each player of this position and compute points earned
-			for player in Player.objects.filter(position=position):
+			for player in Player.objects.filter(position=position).order_by('id'):
 				# Get player's team in this year
 				playerTeam = YearData.objects.get(year=year, player=player).team
 				if playerTeam is None or playerTeam.id == 33: continue # Don't need FA data
@@ -178,7 +176,7 @@ class Command(NoArgsCommand):
 				curMatchup = matchups.get(Q(home_team=playerTeam) | Q(away_team=playerTeam))
 				if curMatchup.bye: continue
 
-				# Compute total fantasy points earned by this player so far
+				# Compute average fantasy points earned by this player so far
 				ptsEarned = self.computeAveragePointsEarned(player, year, week_number)
 				if ptsEarned is None: continue
 
@@ -191,8 +189,8 @@ class Command(NoArgsCommand):
 				if (position.id, week_number) not in self.avgPtsEarnedDict:
 					self.avgPtsEarnedDict[(position.id, week_number)] = self.computeLeagueAveragePointsEarned(
 						position, year, week_number)
-				if (opponent.id, week_number) not in self.avgDefPtsAllowedDict:
-					self.avgDefPtsAllowedDict[(opponent.id, week_number)] = self.computeLeagueAveragePointsAllowed(
+				if (position.id, week_number) not in self.avgDefPtsAllowedDict:
+					self.avgDefPtsAllowedDict[(position.id, week_number)] = self.computeLeagueAveragePointsAllowed(
 						position, year, week_number)
 
 				# Assign the values in the dictionary
@@ -200,10 +198,10 @@ class Command(NoArgsCommand):
 					ptsEarned, 
 					ptsEarned - self.avgPtsEarnedDict[(position.id, week_number)], 
 					defPtsAllowed, 
-					defPtsAllowed - self.avgDefPtsAllowedDict[(opponent.id, week_number)]
+					defPtsAllowed - self.avgDefPtsAllowedDict[(position.id, week_number)]
 				]
 
-				# Add fantasy points to labels dict
+				# Assign actual number of fantasy points earned as "label"
 				try: 
 					curWeekPts = GameData.objects.get(player=player, 
 						matchup__year=year, matchup__week_number=week_number).data.points
@@ -226,12 +224,10 @@ class Command(NoArgsCommand):
 
 	# Builds and fits the SVM model with the provided kernel parameter
 	# kernel is 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'
-	def buildSVMModel(self, xArray, yArray, kernel, c, epsilon, degree, gamma, coef0, probability, shrinking):
-		print ('BUILDING SVM MODEL with parameters:'+kernel+', c:'+str(c)+', epsilon:'+str(epsilon)+
-			', degree:'+str(degree)+', gamma:'+str(gamma)+', coef0:'+str(coef0)+
-			', probability:'+str(probability)+', shrinking:'+str(shrinking))
-		svm = SVR(kernel=kernel, C=c, epsilon=epsilon, degree=degree, gamma=gamma, 
-			coef0=coef0, probability=probability, shrinking=shrinking)
+	def buildSVMModel(self, xArray, yArray, kernel, c, epsilon, gamma):
+		print ('BUILDING SVM MODEL with parameters:'+kernel+', c:'+str(c)+
+			', epsilon:'+str(epsilon)+', gamma:'+str(gamma))
+		svm = SVR(kernel=kernel, C=c, epsilon=epsilon, gamma=gamma)
 		svm.fit(xArray, yArray)
 		return svm
 
@@ -259,15 +255,14 @@ class Command(NoArgsCommand):
 		return npArray
 
 
-	# Computes the player's weekly average fantasy points earned up to week_number
-	# (does not include data from week_number)
+	# Computes the player's weekly average fantasy points earned through week_number
 	def computeAveragePointsEarned(self, player, year, week_number):
 		numWeeksPlayed = len(Matchup.objects.filter(Q(home_team=player.team) | 
-			Q(away_team=player.team), year=year, week_number__lt=week_number, bye=False))
+			Q(away_team=player.team), year=year, week_number__lte=week_number, bye=False))
 		if numWeeksPlayed == 0: return None
 
 		ptsEarned = GameData.objects.filter(player=player, matchup__year=year, 
-			matchup__week_number__lt=week_number).aggregate(
+			matchup__week_number__lte=week_number).aggregate(
 			Sum('data__points'))['data__points__sum']
 		if ptsEarned is not None: #and ptsEarned > 0:
 			ptsEarned /= (numWeeksPlayed*1.0)
@@ -288,10 +283,10 @@ class Command(NoArgsCommand):
 	# Computes weekly average fantasy points allowed on team's defense by players of position
 	def computeAveragePointsAllowed(self, team, position, year, week_number):
 		numWeeksPlayed = len(Matchup.objects.filter(Q(home_team=team) | 
-			Q(away_team=team), year=year, week_number__lt=week_number, bye=False))
+			Q(away_team=team), year=year, week_number__lte=week_number, bye=False))
 		defPtsAllowed = GameData.objects.filter(Q(matchup__home_team=team) | 
 			Q(matchup__away_team=team), player__position=position,
-			matchup__year=year, matchup__week_number__lt=week_number).exclude(
+			matchup__year=year, matchup__week_number__lte=week_number).exclude(
 			player__team=team).aggregate(
 			Sum('data__points'))['data__points__sum'] / (numWeeksPlayed*1.0)
 		return defPtsAllowed

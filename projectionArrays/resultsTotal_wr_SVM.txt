@@ -1,0 +1,63 @@
+Position,Year,Kernel,C,Epsilon,Gamma,Norm,Computed Error,ESPN Error
+
+** ONLY 2013 DATA (for training): varying C **
+Wide Receiver,2014,rbf,1,0.0,0.0,l2,3586.79772174,4598.0
+Wide Receiver,2014,rbf,10,0.0,0.0,l2,3400.92500239,4598.0
+Wide Receiver,2014,rbf,100,0.0,0.0,l2,3460.04922568,4598.0
+Wide Receiver,2014,rbf,1000,0.0,0.0,l2,3394.29544129,4598.0
+
+** WITH 2014 DATA: varying C, gamma=0 **
+Wide Receiver,2014,rbf,1.0,0.0,0.0,l2,3474.0944293,4157.0
+Wide Receiver,2014,rbf,10.0,0.0,0.0,l2,3447.82596239,4157.0
+Wide Receiver,2014,rbf,100.0,0.0,0.0,l2,3420.807428,4157.0
+Wide Receiver,2014,rbf,500.0,0.0,0.0,l2,3383.09335146,4157.0
+Wide Receiver,2014,rbf,1000,0.0,0.0,l2,3367.92225744,4157.0
+Wide Receiver,2014,rbf,10000,0.0,0.0,l2,3283.88573277,4157.0
+
+** WITH 2014 DATA: varying gamma, C=100 **
+Wide Receiver,2014,rbf,100,0.0,1,l2,3369.90850282,4157.0
+Wide Receiver,2014,rbf,100,0.0,3,l2,3316.48653651,4157.0
+Wide Receiver,2014,rbf,100,0.0,5,l2,3314.96993635,4157.0
+Wide Receiver,2014,rbf,100,0.0,5.5,l2,3319.55850237,4157.0
+Wide Receiver,2014,rbf,100,0.0,6,l2,3318.89459434,4157.0
+Wide Receiver,2014,rbf,100,0.0,6.5,l2,3317.2695496,4157.0
+Wide Receiver,2014,rbf,100,0.0,6.75,l2,3316.07391129,4157.0
+Wide Receiver,2014,rbf,100,0.0,7,l2,3314.54883803,4157.0
+Wide Receiver,2014,rbf,100,0.0,7.25,l2,3314.5661368,4157.0
+Wide Receiver,2014,rbf,100,0.0,7.5,l2,3315.29859675,4157.0
+Wide Receiver,2014,rbf,100,0.0,8,l2,3316.0484236,4157.0
+Wide Receiver,2014,rbf,100,0.0,9,l2,3315.90286768,4157.0
+Wide Receiver,2014,rbf,100,0.0,10,l2,3317.1047167,4157.0
+Wide Receiver,2014,rbf,100,0.0,20,l2,3325.7106618,4157.0
+Wide Receiver,2014,rbf,100,0.0,30,l2,3357.47903596,4157.0
+Wide Receiver,2014,rbf,100,0.0,40,l2,3390.43869859,4157.0
+Wide Receiver,2014,rbf,100,0.0,50,l2,3434.66570608,4157.0
+Wide Receiver,2014,rbf,100,0.0,100,l2,3478.70919279,4157.0
+Wide Receiver,2014,rbf,100,0.0,1000,l2,4466.29884669,4157.0
+
+** WITH 2014 DATA: varying epsilon, C=100, gamma=7 **
+Wide Receiver,2014,rbf,100,0,7.0,l2,3314.54883803,4157.0
+Wide Receiver,2014,rbf,100,0.1,7.0,l2,3335.36355919,4157.0
+Wide Receiver,2014,rbf,100,1.0,7.0,l2,3649.38799598,4157.0
+Wide Receiver,2014,rbf,100,10.0,7.0,l2,8887.50592978,4157.0
+
+** WITH 2014 DATA: varying C, epsilon=0.0, gamma=7 **
+Wide Receiver,2014,rbf,1,0.0,7.0,l2,3350.61022455,4157.0
+Wide Receiver,2014,rbf,10,0.0,7.0,l2,3356.26952328,4157.0
+Wide Receiver,2014,rbf,100,0.0,7.0,l2,3314.54883803,4157.0
+Wide Receiver,2014,rbf,500,0.0,7.0,l2,3300.50717977,4157.0
+Wide Receiver,2014,rbf,1000,0.0,7.0,l2,3294.86167325,4157.0
+
+** WITH 2014 DATA: varying C, epsilon=0.01, gamma=7 **
+Wide Receiver,2014,rbf,1,0.01,7.0,l2,3351.44342578,4157.0
+Wide Receiver,2014,rbf,10,0.01,7.0,l2,3356.80932668,4157.0
+Wide Receiver,2014,rbf,100,0.01,7.0,l2,3316.88590331,4157.0
+Wide Receiver,2014,rbf,500,0.01,7.0,l2,3302.99856617,4157.0
+Wide Receiver,2014,rbf,1000,0.01,7.0,l2,3297.39399688,4157.0
+
+** WITH 2014 DATA: varying C, epsilon=0.1, gamma=7 **
+Wide Receiver,2014,rbf,1,0.1,7.0,l2,3360.20190406,4157.0
+Wide Receiver,2014,rbf,10,0.1,7.0,l2,3368.13448078,4157.0
+Wide Receiver,2014,rbf,100,0.1,7.0,l2,3335.36355919,4157.0
+Wide Receiver,2014,rbf,500,0.1,7.0,l2,3312.93153207,4157.0
+Wide Receiver,2014,rbf,1000,0.1,7.0,l2,3306.7402743,4157.0

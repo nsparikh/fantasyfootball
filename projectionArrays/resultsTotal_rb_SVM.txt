@@ -1,0 +1,2 @@
+Position,Year,Kernel,C,Epsilon,Gamma,Norm,Computed Error,ESPN Error
+Runningback,2014,rbf,100,0.0,7.0,l2,[ 2616.50710445],2968.0
