@@ -31,8 +31,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		for week_number in range(1, 13):
-			self.computePlayerPerformanceScores(2014, week_number)
+		pass
 		
 
 	# Computes and saves all player projections for the given position in the week
