@@ -31,90 +31,113 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		pos = Position.objects.get(id=4)
+		for week_number in range(1, 13):
+			self.computePlayerPerformanceScores(2014, week_number)
+		
+
+	# Computes and saves all player projections for the given position in the week
+	# ASSUMES YEAR IS 2014, and given week number must be >=2
+	def computePlayerProjections(self, position, proj_week_number):
+		print 'COMPUTING PROJECTIONS FOR', position.abbr, 'WEEK', proj_week_number
 		year = 2014
+		week_number = proj_week_number - 1
 
 		# Model parameters
 		norm = 'l2'
 		kernel = 'rbf'
-		c = self.cDict[pos.abbr]
+		c = self.cDict[position.abbr]
 		epsilon = 0.0
 		gamma = 7.0
 
 		# Load the 2013 data that was previously computed and saved to file
-		xArray2013 = np.loadtxt('projectionArrays/xArray2013_'+pos.abbr.lower()+'.txt')
-		yArray2013 = np.loadtxt('projectionArrays/yArray2013_'+pos.abbr.lower()+'.txt')
+		xArray2013 = np.loadtxt('projectionArrays/xArray2013_'+
+			position.abbr.lower()+'.txt')
+		yArray2013 = np.loadtxt('projectionArrays/yArray2013_'+
+			position.abbr.lower()+'.txt')
 
-		# Go through each week of the 2014 season
-		for week_number in range(1, 12):
-			# Get the data and concat with 2013 data
-			xArray = np.loadtxt('projectionArrays/xArray2014_week'+str(week_number)+'_'+pos.abbr.lower()+'.txt')
-			yArray = np.loadtxt('projectionArrays/yArray2014_week'+str(week_number)+'_'+pos.abbr.lower()+'.txt')
-			xArray = np.concatenate((xArray2013, xArray))
-			yArray = np.concatenate((yArray2013, yArray))
+		# Get the data for the week and concat with 2013 data
+		xArray2014 = np.loadtxt('projectionArrays/xArray2014_week'+str(week_number)+
+			'_'+position.abbr.lower()+'.txt')
+		yArray2014 = np.loadtxt('projectionArrays/yArray2014_week'+str(week_number)+
+			'_'+position.abbr.lower()+'.txt')
+		xArray = np.concatenate((xArray2013, xArray2014))
+		yArray = np.concatenate((yArray2013, yArray2014))
 
-			# Normalize the data
-			normalizer = preprocessing.Normalizer(norm)
-			xArray = normalizer.fit_transform(xArray)
+		# Normalize the data
+		normalizer = preprocessing.Normalizer(norm)
+		xArray = normalizer.fit_transform(xArray)
 
-			# Build the model
-			model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
+		# Build the model
+		model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
 
-			# Predict for every player. Have to use week_number+1 for playerProjection
-			# so that we test on data that's not in the training data set
-			test_week_number = week_number + 1
-			print '***** COMPUTING PROJECTIONS FOR', pos.abbr, 'WEEK', test_week_number, '*****'
-			for p in Player.objects.filter(position=pos).order_by('id'):
-				try:
-					gd = GameData.objects.get(player=p, 
-						matchup__year=year, matchup__week_number=test_week_number)
-					projection = self.playerProjection(model, normalizer, p, year, test_week_number, xArray)
-					if projection is None: continue
-					print p.id, p.name, projection[0]
-					gd.projection = projection[0]
-					gd.save()
-				except ObjectDoesNotExist:
-					continue
+		# Predict for every player of this position
+		for p in Player.objects.filter(position=position).order_by('id'):
+			try:
+				gd = GameData.objects.get(player=p, 
+					matchup__year=year, matchup__week_number=proj_week_number)
+				projection = self.playerProjection(model, normalizer, p, year, proj_week_number)
+				if projection is None: continue
+				print p.id, p.name, projection[0]
+				gd.projection = projection[0]
+				gd.save()
+			except ObjectDoesNotExist:
+				continue
 
 	# Computes the projection of the given player in the year and week
 	#	using the model provided
-	def playerProjection(self, model, normalizer, player, year, week_number, xArray):
-		# Get the player's team in the given year
-		position = player.position
-		playerTeam = YearData.objects.get(year=year, player=player).team
-		if playerTeam.id == 33: return None
-
-		# Get the week's matchup; if it's a bye week then no projection
-		matchup = Matchup.objects.get(Q(home_team=playerTeam) | Q(away_team=playerTeam), 
-			year=year, week_number=week_number)
-		if matchup.bye: return None
-
-		# Compute weekly avg points earned by this player
-		ptsEarned = self.computeAveragePointsEarned(player, year, week_number)
-		if ptsEarned is None: return None
-
-		# Compute avg points earned across all players of this position and difference 
-		# between it and the player's weekly avg
-		if (position.id, week_number) not in self.avgPtsEarnedDict:
-			self.avgPtsEarnedDict[(position.id, week_number)] = self.computeLeagueAveragePointsEarned(
-				position, year, week_number)
-		diffPtsEarned = ptsEarned - self.avgPtsEarnedDict[(position.id, week_number)]
-
-		# Compute avg pts allowed to players of this position across all defenses
-		opponent = (matchup.home_team if playerTeam.id==matchup.away_team.id else matchup.away_team)
-		if (position.id, week_number) not in self.avgDefPtsAllowedDict:
-			self.avgDefPtsAllowedDict[(position.id, week_number)] = self.computeLeagueAveragePointsAllowed(
-				position, year, week_number)
-
-		# Compute points allowed to players of this position by opponent's defense and 
-		# difference between it and league average
-		ptsAllowed = self.computeAveragePointsAllowed(opponent, position, year, week_number)
-		diffPtsAllowed = ptsAllowed - self.avgDefPtsAllowedDict[(position.id, week_number)]
-
+	def playerProjection(self, model, normalizer, player, year, week_number):
 		# Make the prediction!
-		vect = np.array([[ptsEarned, diffPtsEarned, ptsAllowed, diffPtsAllowed]])
+		vect = self.playerFeatureVector(player, year, week_number)
 		vect = normalizer.transform(vect)
 		return model.predict(vect)
+
+
+	# Computes the performance scores for each player in the given year/week
+	# Saves to database
+	def computePlayerPerformanceScores(self, year, week_number):
+		print 'COMPUTING PERFORMANCE SCORES:', year, 'WEEK', week_number
+		players = Player.objects.all().order_by('id')
+		matchups = Matchup.objects.filter(year=year, week_number=week_number)
+		
+		# Calculate and save score for every player
+		for player in players:
+			yd = YearData.objects.get(player=player, year=year)
+			if yd.team.id == 33: continue
+			try:
+				matchup = matchups.get(Q(home_team=yd.team) | Q(away_team=yd.team))
+				gameData = GameData.objects.get(player=player, matchup=matchup)
+			except ObjectDoesNotExist:
+				continue
+
+			# If it's a bye week, set score as 0
+			if matchup.bye: score = 0
+			else: score = self.playerPerformanceScore(player, year, week_number)
+
+			# Save the score
+			print player.id, player.name, score
+			gameData.performance_score = score
+			gameData.save()
+
+
+	# Computes the performance score of the given player in the year and week 
+	# player is a Player object, opponent is a Team object
+	# The performance score is computed as follows:
+	#	offScore = (avg fantasy pts earned this season) - 
+	#		(league avg fantasy pts earned across all players of this pos and depth_pos)
+	#	defScore = (avg fantasy pts earned by all players of 
+	#			    this pos and depth_pos across each defense) - 
+	#		(leage avg fantasy pts earned by players of this pos and depth_pos against this defense)
+	#	score = offScore - defScore
+	def playerPerformanceScore(self, player, year, week_number):
+		vect = self.playerFeatureVector(player, year, week_number)
+		if vect is None: return None
+		offScore = vect[0][1]
+		defScore = vect[0][3]
+
+		# Compute and return the performance score
+		score = offScore - defScore
+		return score
+
 
 	# Gets the data for building the prediction model
 	# Returns a tuple of (x, y) -- two numpy arrays corresponding to the feature
@@ -148,38 +171,8 @@ class Command(NoArgsCommand):
 
 			# Go through each player of this position and compute points earned
 			for player in Player.objects.filter(position=position).order_by('id'):
-				# Get player's team in this year
-				playerTeam = YearData.objects.get(year=year, player=player).team
-				if playerTeam is None or playerTeam.id == 33: continue # Don't need FA data
-
-				# Get player's matchup for this week; if bye week, continue
-				curMatchup = matchups.get(Q(home_team=playerTeam) | Q(away_team=playerTeam))
-				if curMatchup.bye: continue
-
-				# Compute average fantasy points earned by this player so far
-				ptsEarned = self.computeAveragePointsEarned(player, year, week_number)
-				if ptsEarned is None: continue
-
-				# Get opponent's defense's data from already comptued data
-				opponent = (curMatchup.home_team if playerTeam.id==curMatchup.away_team.id 
-					else curMatchup.away_team)
-				defPtsAllowed = defDict[opponent.id]
-
-				# Compute league average points earned / allowed if not already computed
-				if (position.id, week_number) not in self.avgPtsEarnedDict:
-					self.avgPtsEarnedDict[(position.id, week_number)] = self.computeLeagueAveragePointsEarned(
-						position, year, week_number)
-				if (position.id, week_number) not in self.avgDefPtsAllowedDict:
-					self.avgDefPtsAllowedDict[(position.id, week_number)] = self.computeLeagueAveragePointsAllowed(
-						position, year, week_number)
-
 				# Assign the values in the dictionary
-				dataDict[(player.id, week_number)] = [
-					ptsEarned, 
-					ptsEarned - self.avgPtsEarnedDict[(position.id, week_number)], 
-					defPtsAllowed, 
-					defPtsAllowed - self.avgDefPtsAllowedDict[(position.id, week_number)]
-				]
+				dataDict[(player.id, week_number)] = self.playerFeatureVector(player, year, week_number)
 
 				# Assign actual number of fantasy points earned as "label"
 				try: 
@@ -192,6 +185,7 @@ class Command(NoArgsCommand):
 		xArray = self.dictToNumpy(dataDict, 4)
 		yArray = self.dictToNumpy(labelsDict, 1)
 		return (xArray, yArray)
+
 
 	# Builds and fits the KNN model with the provided parameters
 	# weights is either 'uniform' or 'distance'
@@ -211,15 +205,6 @@ class Command(NoArgsCommand):
 		svm.fit(xArray, yArray)
 		return svm
 
-	# Accepts an array of distances, and returns an array of the same shape containing the weights
-	def distanceWeight(self, distances):
-		weights = []
-		for dist in distances[0]:
-			w = 1.0 / (dist + 1.0)
-			weights.append(w)
-		return np.array([weights])
-
-
 	# Convert data from inputDict to numpy array
 	# yDim is the number of columns in the array
 	# Returns an array ordered by key
@@ -234,6 +219,43 @@ class Command(NoArgsCommand):
 			i += 1
 		return npArray
 
+	# Returns a numpy array that is the feature vector for the given player
+	# for the given year / week
+	def playerFeatureVector(self, player, year, week_number):
+		# Get the player's team in the given year
+		position = player.position
+		playerTeam = YearData.objects.get(year=year, player=player).team
+		if playerTeam.id == 33: return None
+
+		# Get the week's matchup; if it's a bye week then no projection
+		matchup = Matchup.objects.get(Q(home_team=playerTeam) | Q(away_team=playerTeam), 
+			year=year, week_number=week_number)
+		if matchup.bye: return None
+
+		# Compute weekly avg points earned by this player
+		ptsEarned = self.computeAveragePointsEarned(player, year, week_number)
+		if ptsEarned is None: return None
+
+		# Compute avg points earned across all players of this position and difference 
+		# between it and the player's weekly avg
+		if (position.id, week_number) not in self.avgPtsEarnedDict:
+			self.avgPtsEarnedDict[(position.id, week_number)] = self.computeLeagueAveragePointsEarned(
+				position, year, week_number)
+		diffPtsEarned = ptsEarned - self.avgPtsEarnedDict[(position.id, week_number)]
+
+		# Compute avg pts allowed to players of this position across all defenses
+		opponent = (matchup.home_team if playerTeam.id==matchup.away_team.id else matchup.away_team)
+		if (position.id, week_number) not in self.avgDefPtsAllowedDict:
+			self.avgDefPtsAllowedDict[(position.id, week_number)] = self.computeLeagueAveragePointsAllowed(
+				position, year, week_number)
+
+		# Compute points allowed to players of this position by opponent's defense and 
+		# difference between it and league average
+		ptsAllowed = self.computeAveragePointsAllowed(opponent, position, year, week_number)
+		diffPtsAllowed = ptsAllowed - self.avgDefPtsAllowedDict[(position.id, week_number)]
+
+		vect = np.array([[ptsEarned, diffPtsEarned, ptsAllowed, diffPtsAllowed]])
+		return vect
 
 	# Computes the player's weekly average fantasy points earned through week_number
 	def computeAveragePointsEarned(self, player, year, week_number):
@@ -249,9 +271,11 @@ class Command(NoArgsCommand):
 		return ptsEarned
 
 	# Computes the league weekly average points earned across players of position
+	# If depth_pos is given, then compute average across only players of depth_pos
 	def computeLeagueAveragePointsEarned(self, position, year, week_number):
 		sumPlayerAverages = 0
 		numPlayers = 0
+
 		for p in Player.objects.filter(position=position):
 			weeklyAvgPtsEarned = self.computeAveragePointsEarned(p, year, week_number)
 			if weeklyAvgPtsEarned is not None:# and weeklyAvgPtsEarned > 0:
@@ -261,13 +285,16 @@ class Command(NoArgsCommand):
 		return weeklyAvg
 
 	# Computes weekly average fantasy points allowed on team's defense by players of position
+	# If depth_pos is given, then compute average across only players of depth_pos
 	def computeAveragePointsAllowed(self, team, position, year, week_number):
 		numWeeksPlayed = len(Matchup.objects.filter(Q(home_team=team) | 
 			Q(away_team=team), year=year, week_number__lte=week_number, bye=False))
-		defPtsAllowed = GameData.objects.filter(Q(matchup__home_team=team) | 
+		gameDataList = GameData.objects.filter(Q(matchup__home_team=team) | 
 			Q(matchup__away_team=team), player__position=position,
 			matchup__year=year, matchup__week_number__lte=week_number).exclude(
-			player__team=team).aggregate(
+			player__team=team)
+
+		defPtsAllowed = gameDataList.aggregate(
 			Sum('data__points'))['data__points__sum'] / (numWeeksPlayed*1.0)
 		return defPtsAllowed
 
@@ -275,7 +302,8 @@ class Command(NoArgsCommand):
 	def computeLeagueAveragePointsAllowed(self, position, year, week_number):
 		sumAverages = 0
 		for team in Team.objects.exclude(id=33):
-			weeklyAvgPtsAllowed = self.computeAveragePointsAllowed(team, position, year, week_number)
+			weeklyAvgPtsAllowed = self.computeAveragePointsAllowed(
+				team, position, year, week_number)
 			sumAverages += weeklyAvgPtsAllowed
 		weeklyAvg = sumAverages*1.0 / self.numTeams
 		return weeklyAvg
