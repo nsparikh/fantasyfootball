@@ -20,9 +20,8 @@ class Command(NoArgsCommand):
 	def handle_noargs(self, **options):
 		#self.writeSeedData(Player, 2014, True)
 		#self.writeSeedData(Matchup, 2014, True)
-		self.writeDataAndPoints(GameData, 2014, True)
+		#self.writeDataAndPoints(GameData, 2014, True)
 		#self.writeDataAndPoints(YearData, 2014, True)
-		
 
 
 	# Writes the data and corresponding DataPoints to JSON fixture-style files
@@ -111,22 +110,61 @@ class Command(NoArgsCommand):
 
 		
 	# Writes the performance scores and actual pts earned for each player in CSV format
-	def writePerformanceScores(self, year):
-		outfile = open('data/fixtures/PerformanceScores' + str(year) + '.csv', 'w')
+	def writePerformanceScores(self, year, week_number):
+		outfile = open('data/fixtures/PerformanceScores'+str(year)+'W'+str(week_number)+'.csv', 'w')
 		outfile.write('Player,Year,Week,Score,Points\n')
 
-		for p in Player.objects.all().order_by('id'):
+		for p in Player.objects.all().order_by('id').exclude(position__id__gte=5):
 			print p.id, p.name
-			for week_number in range(1, 18):
+			try:
+				gd = GameData.objects.get(player=p, matchup__year=year, 
+					matchup__week_number=week_number)
+				if gd.matchup.bye or gd.data.id == 1: continue
+				outfile.write(p.name + ',' + str(year) + ',' + str(week_number) + 
+					',' + str(gd.performance_score) + ',' + str(gd.data.points) + '\n')
+			except ObjectDoesNotExist:
+				continue
+
+		outfile.close()
+
+	# Writes the projections and actual pts earned for each player in CSV format
+	def writeProjections(self, year, week_number):
+		outfile = open('data/fixtures/Projections'+str(year)+'W'+str(week_number)+'.csv', 'w')
+		outfile.write('Player,Year,Week,Projection,Points\n')
+
+		for p in Player.objects.all().order_by('id').exclude(position__id__gte=5):
+			print p.id, p.name
+			try:
+				gd = GameData.objects.get(player=p, matchup__year=year, 
+					matchup__week_number=week_number)
+				if gd.matchup.bye or gd.data.id == 1: continue
+				outfile.write(p.name + ',' + str(year) + ',' + str(week_number) + 
+					',' + str(gd.projection) + ',' + str(gd.data.points) + '\n')
+			except ObjectDoesNotExist:
+				continue
+
+		outfile.close()
+
+	# Writes the weekly cumulative projection error
+	def writeProjectionErrors(self, year, position):
+		outfile = open('data/fixtures/ProjectionErrors'+position.abbr+str(year)+'.csv', 'w')
+		outfile.write('Year,Week,Position,ProjectionError,EspnError\n')
+		for week_number in range(2, 12):
+			print 'WORKING ON WEEK', week_number, 'for position', position.abbr
+			computedError = 0
+			espnError = 0
+			for p in Player.objects.filter(position=position).order_by('id'):
 				try:
 					gd = GameData.objects.get(player=p, matchup__year=year, 
 						matchup__week_number=week_number)
-					if gd.matchup.bye or gd.data.id <= 100: continue
-					outfile.write(p.name + ',' + str(year) + ',' + str(week_number) + 
-						',' + str(gd.performance_score) + ',' + str(gd.data.points) + '\n')
+					if (gd.matchup.bye or gd.data.id == 1 or gd.projection is None 
+						or gd.espn_projection is None): continue
+					computedError += abs(gd.data.points - gd.projection)
+					espnError += abs(gd.data.points - gd.espn_projection)
 				except ObjectDoesNotExist:
 					continue
-
+			outfile.write(str(year)+','+str(week_number)+','+position.abbr+','+
+				str(computedError)+','+str(espnError)+'\n')
 		outfile.close()
 
 

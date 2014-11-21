@@ -31,7 +31,9 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		pass
+		pos = Position.objects.get(id=6)
+		for week_number in range(2, 13):
+			self.computePlayerProjections(pos, week_number)
 		
 
 	# Computes and saves all player projections for the given position in the week
