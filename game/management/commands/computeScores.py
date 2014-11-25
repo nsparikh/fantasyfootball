@@ -21,7 +21,8 @@ class Command(NoArgsCommand):
 		'QB': 13,
 		'RB': 1,
 		'WR': 100,
-		'TE': 100
+		'TE': 100, 
+		'K': 10
 	}
 	avgPtsEarnedDict = {} # Maps (position ID, week number) => avg pts earned
 	avgDefPtsAllowedDict = {} # Maps (position ID, week number) => avg pts allowed
@@ -31,9 +32,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		pos = Position.objects.get(id=6)
-		for week_number in range(2, 13):
-			self.computePlayerProjections(pos, week_number)
+		pass
 		
 
 	# Computes and saves all player projections for the given position in the week
@@ -89,6 +88,7 @@ class Command(NoArgsCommand):
 	def playerProjection(self, model, normalizer, player, year, week_number):
 		# Make the prediction!
 		vect = self.playerFeatureVector(player, year, week_number)
+		if vect is None: return None
 		vect = normalizer.transform(vect)
 		return model.predict(vect)
 
@@ -173,7 +173,9 @@ class Command(NoArgsCommand):
 			# Go through each player of this position and compute points earned
 			for player in Player.objects.filter(position=position).order_by('id'):
 				# Assign the values in the dictionary
-				dataDict[(player.id, week_number)] = self.playerFeatureVector(player, year, week_number)
+				featureVect = self.playerFeatureVector(player, year, week_number)
+				if featureVect is None: continue
+				dataDict[(player.id, week_number)] = featureVect
 
 				# Assign actual number of fantasy points earned as "label"
 				try: 

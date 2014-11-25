@@ -1,0 +1,10 @@
+Position,Year,Kernel,C,Epsilon,Gamma,Norm,Computed Error,ESPN Error
+
+** WITH 2014 DATA: varying C, gamma=7, epsilon=0.0 **
+Kicker,2014,rbf,1,0.0,7,l2,734.4226565,1068.0
+Kicker,2014,rbf,5,0.0,7,l2,735.46408464,1068.0
+Kicker,2014,rbf,10,0.0,7,l2,733.9362704,1068.0
+Kicker,2014,rbf,13,0.0,7,l2,734.04578023,1068.0
+Kicker,2014,rbf,15,0.0,7,l2,734.02347935,1068.0
+Kicker,2014,rbf,50,0.0,7,l2,749.23767312,1068.0
+Kicker,2014,rbf,100,0.0,7,l2,766.04643746,1068.0
