@@ -71,12 +71,17 @@ $yahoo_url = 'http://fantasysports.yahooapis.com/fantasy/v2/players;player_keys=
 
 // Load Player and GameDataPoints from JSON fixture files
 $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'), true);
-$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014.json'), true);
-$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014.json'), true);
+//$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014.json'), true);
+//$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014.json'), true);
 //$gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013_Yahoo.json'), true);
 //$gdpoints_2013 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2013_Yahoo.json'), true);
 //$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
+$yd_2012 = json_decode(file_get_contents('../data/fixtures/YearData2012.json'), true);
+$ydpoints_2012 = json_decode(file_get_contents('../data/fixtures/YearDataPoints2012.json'), true);
+$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013.json'), true);
+$ydpoints_2013 = json_decode(file_get_contents('../data/fixtures/YearDataPoints2013.json'), true);
 $yd_2014 = json_decode(file_get_contents('../data/fixtures/YearData2014.json'), true);
+$ydpoints_2014 = json_decode(file_get_contents('../data/fixtures/YearDataPoints2014.json'), true);
 //$matchups_2013 = json_decode(file_get_contents('../game/fixtures/Matchup2013.json'), true);
 //$matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.json'), true);
 
@@ -84,7 +89,6 @@ $yd_2014 = json_decode(file_get_contents('../data/fixtures/YearData2014.json'), 
 // EXECUTION ("main")
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-writeYearData(2014);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
@@ -206,6 +210,26 @@ function writeYearData($year) {
         fwrite($outfile_yd, ydFixtureString($yd));
         
     }
+}
+
+// Computes the given player's career data (based on data we have from 2012-present)
+function getCareerDataPoint($player) {
+    $yd2012 = getPointById(getYearDataPk($player, 2012), $GLOBALS['yd_2012']);
+    $yd2013 = getPointById(getYearDataPk($player, 2013), $GLOBALS['yd_2013']);
+    $yd2014 = getPointById(getYearDataPk($player, 2014), $GLOBALS['yd_2014']);
+
+    $dp2012 = getPointById($yd2012['fields']['data'], $GLOBALS['ydpoints_2012']);
+    $dp2013 = getPointById($yd2013['fields']['data'], $GLOBALS['ydpoints_2013']);
+    $dp2014 = getPointById($yd2014['fields']['data'], $GLOBALS['ydpoints_2014']);
+
+    $total = $dp2012;
+    $total = addDataPoints($total, $dp2013);
+    $total = addDataPoints($total, $dp2014);
+
+    print dpFixtureString($total)."\n";
+
+    $average = ($yd2012['fields']['average']+$yd2013['fields']['average']+$yd2014['fields']['average']) / 3.0;
+    print 'AVERAGE: '.$average."\n";
 }
 
 function removeByeWeekData($year) {

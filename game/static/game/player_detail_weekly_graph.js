@@ -35,39 +35,54 @@ d3.selection.prototype.moveToFront = function() {
 	});
 };
 
+// If kicker, need to augment the dataset to have 'fgMade'
+if (pos == 'K') {
+	for (var i = 0; i < dataset.length; i++) {
+		dp = dataset[i]['data'];
+		dataset[i]['data']['fgMade'] = (dp['fg0_19'] + dp['fg20_29'] + 
+			dp['fg30_39'] + dp['fg40_49'] + dp['fg50']);
+	}
+}
 
 // Determine scale based on position
-// TODO: figure out what we want to show for D/ST and K
+// TODO: figure out what we want to show for D/ST
 var orangeMap = {'QB':'passYds', 'RB':'rushYds', 'WR':'recYds', 
-'TE':'recYds'}; 
+'TE':'recYds', 'K':null}; 
 var redMap = {'QB':'rushTDs', 'RB':'rush', 'WR':'rec', 
-'TE':'rec'};
+'TE':'rec', 'K':'fgMade'};
 var greenMap = {'QB':'passTDs', 'RB':'rushTDs', 'WR':'recTDs', 
-'TE':'recTDs', 'D/ST':'miscTDs'};
+'TE':'recTDs', 'K':'pat'};
 
 var orangeTextMap = {'QB':'Passing Yards', 'RB':'Rushing Yards', 'WR':'Receiving Yards', 
-'TE':'Receiving Yards', 'D/ST':'null', 'K':'null'};
+'TE':'Receiving Yards', 'K':null};
 var redTextMap = {'QB':'Rushing TDs', 'RB':'Rushing Attempts', 'WR':'Total Receptions', 
-'TE':'Total Receptions', 'D/ST':'null', 'K':'null'};
+'TE':'Total Receptions', 'K':'Field Goals'};
 var greenTextMap = {'QB':'Passing TDs', 'RB':'Touchdowns', 'WR':'Touchdowns', 
-'TE':'Touchdowns', 'D/ST':'Touchdowns', 'K':'null'};
+'TE':'Touchdowns', 'K':'Extra Points'};
 
 var yAxisLTextMap = {'QB':'Fantasy Points, Rush TDs, Pass TDs', 'RB':'Fantasy Points, Rush, TDs', 
 'WR':'Fantasy Points, Rec, TDs', 'TE':'Fantasy Points, Rec, TDs', 'D/ST':'Points', 'K':'Points'};
 var yAxisRTextMap = {'QB':'Passing yards', 'RB':'Rushing Yards', 'WR':'Receiving Yards', 
-'TE':'Receiving Yards', 'D/ST':'null', 'K':'null'};
+'TE':'Receiving Yards', 'K':null};
 
 // Scales for axes
 var xScale = d3.scale.linear()
 	.domain([ 1, dataset[dataset.length-1]['matchup']['week_number'] ])
 	.range([padding, w-padding]);
-var minYScale = Math.min(d3.min(dataset, function(d) {return d['data'][redMap[pos]];}), 
-						  d3.min(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}),
+var minYScale = Math.min(0, d3.min(dataset, function(d) {return d['data'][redMap[pos]];}), 
 						  d3.min(dataset, function(d) {return d['data']['points'];}),
 						  d3.min(dataset, function(d) {return d['data'][greenMap[pos]];}));
+if (orangeMap[pos] != null) {
+	minYScale = Math.min(minYScale, 
+		d3.min(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}));
+}
 var maxYScale = Math.max(d3.max(dataset, function(d) {return d['data'][redMap[pos]];}), 
-						  d3.max(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}),
-						  d3.max(dataset, function(d) {return d['data']['points'];})) + 1;
+						  d3.max(dataset, function(d) {return d['data']['points'];}));
+if (orangeMap[pos] != null) {
+	maxYScale = Math.max(maxYScale, 
+		d3.max(dataset, function(d) {return d['data'][orangeMap[pos]] / 10.0;}));
+}
+maxYScale += 1;
 var yScaleL = d3.scale.linear()
 	.domain([minYScale, maxYScale])
 	.range([h-bottomPadding, topPadding])
@@ -100,24 +115,12 @@ var svg = d3.select('#player-graph-container')
 	.attr('width', w)
 	.attr('height', h);
 
-// Define X axis
+// Define and draw X and Y axis
 var xAxis = d3.svg.axis()
 	.scale(xScale)
 	.orient('bottom')
 	.tickValues(dataset.map(function(d) {return d['matchup']['week_number'];}))
 	.tickFormat(d3.format('d'));
-
-// Define Y axes
-var yAxisL = d3.svg.axis()
-	.scale(yScaleL)
-	.orient('left')
-	.ticks(10);
-var yAxisR = d3.svg.axis()
-	.scale(yScaleR)
-	.orient('right')
-	.ticks(10);
-
-// Draw axes
 var xTranslate = yScaleL(0);
 svg.append('g')
 	.attr('class', 'axis')
@@ -125,15 +128,15 @@ svg.append('g')
 	.call(xAxis)
 	.selectAll('text')  
 	.style('text-anchor', 'end');
+var yAxisL = d3.svg.axis()
+	.scale(yScaleL)
+	.orient('left')
+	.ticks(10);
 svg.append('g')
 	.attr('class', 'axis')
 	.attr('id', 'yAxisLG')
 	.attr('transform', 'translate(' + padding + ',0)')
 	.call(yAxisL);
-svg.append('g')
-	.attr('class', 'axis')
-	.attr('transform', 'translate(' + (w-padding) + ',0)')
-	.call(yAxisR);
 
 // X and Y axis labels
 svg.append('text')
@@ -149,13 +152,27 @@ svg.append('text')
     .attr('transform', 'rotate(-90) translate(0, 0)')
     .style('text-anchor', 'middle')
     .text(yAxisLTextMap[pos]);
-svg.append('text')
-	.attr('class', 'axis-label')
-    .attr('x', (h/2))
-    .attr('y', 10-w)
-    .attr('transform', 'rotate(90) translate(0, 0)')
-    .style('text-anchor', 'middle')
-    .text(yAxisRTextMap[pos]);
+
+// Only draw right Y axis if there's data for it
+if (orangeMap[pos] != null) { 
+	var yAxisR = d3.svg.axis()
+		.scale(yScaleR)
+		.orient('right')
+		.ticks(10);
+	svg.append('g')
+		.attr('class', 'axis')
+		.attr('transform', 'translate(' + (w-padding) + ',0)')
+		.call(yAxisR);
+	svg.append('text')
+		.attr('class', 'axis-label')
+	    .attr('x', (h/2))
+	    .attr('y', 10-w)
+	    .attr('transform', 'rotate(90) translate(0, 0)')
+	    .style('text-anchor', 'middle')
+	    .text(yAxisRTextMap[pos]);
+}
+
+
     
 // Draw circles
 svg.selectAll('.blue-circle')
@@ -172,20 +189,22 @@ svg.selectAll('.blue-circle')
 	})
 	.attr('r', smallRadius)
 	.attr('opacity', opacity);
-svg.selectAll('.orange-circle')
-	.data(dataset)
-	.enter()
-	.append('circle')
-	.attr('class', 'circle orange-circle')
-	.attr('id', function(d) { return 'circle'+d['matchup']['week_number']; })
-	.attr('cx', function(d) {
-		return xScale(d['matchup']['week_number']);
-	})
-	.attr('cy', function(d) {
-		return yScaleR(d['data'][orangeMap[pos]]);
-	})
-	.attr('r', smallRadius)
-	.attr('opacity', opacity);
+if (orangeMap[pos] != null) {
+	svg.selectAll('.orange-circle')
+		.data(dataset)
+		.enter()
+		.append('circle')
+		.attr('class', 'circle orange-circle')
+		.attr('id', function(d) { return 'circle'+d['matchup']['week_number']; })
+		.attr('cx', function(d) {
+			return xScale(d['matchup']['week_number']);
+		})
+		.attr('cy', function(d) {
+			return yScaleR(d['data'][orangeMap[pos]]);
+		})
+		.attr('r', smallRadius)
+		.attr('opacity', opacity);
+}
 svg.selectAll('.red-circle')
 	.data(dataset)
 	.enter()
@@ -219,9 +238,11 @@ svg.selectAll('.green-circle')
 svg.append('path')
 	.attr('d', blueLineFunc(dataset))
 	.attr('class', 'line blue-line');
-svg.append('path')
-	.attr('d', orangeLineFunc(dataset))
-	.attr('class', 'line orange-line');
+if (orangeMap[pos] != null) {
+	svg.append('path')
+		.attr('d', orangeLineFunc(dataset))
+		.attr('class', 'line orange-line');
+}
 svg.append('path')
 	.attr('d', redLineFunc(dataset))
 	.attr('class', 'line red-line');
@@ -290,19 +311,21 @@ legSvg.append('text')
 	.attr('y', curY)
 	.attr('text-anchor', 'left');
 curY += 20;
-legSvg.append('text')
-	.attr('id', 'hover-box-orangetext-header')
-	.attr('class', 'hover-box-content whitetext')
-	.attr('x', 0)
-	.attr('y', curY)
-	.attr('text-anchor', 'left');
-legSvg.append('text')
-	.attr('id', 'hover-box-orangetext')
-	.attr('class', 'hover-box-content orangetext')
-	.attr('x', numX)
-	.attr('y', curY)
-	.attr('text-anchor', 'left');
-curY += 20;
+if (orangeMap[pos] != null) {
+	legSvg.append('text')
+		.attr('id', 'hover-box-orangetext-header')
+		.attr('class', 'hover-box-content whitetext')
+		.attr('x', 0)
+		.attr('y', curY)
+		.attr('text-anchor', 'left');
+	legSvg.append('text')
+		.attr('id', 'hover-box-orangetext')
+		.attr('class', 'hover-box-content orangetext')
+		.attr('x', numX)
+		.attr('y', curY)
+		.attr('text-anchor', 'left');
+	curY += 20;
+}
 legSvg.append('text')
 	.attr('id', 'hover-box-greentext-header')
 	.attr('class', 'hover-box-content whitetext')
@@ -371,27 +394,29 @@ redBox.append('text')
 	.attr('fill', red)
 	.text(redTextMap[pos]);
 curY += cbDim + 10;
-var orangeBox = legSvg.append('g')
-	.attr('class', 'checkbox-container')
-	.attr('id', 'orange-box')
-	.attr('transform', 'translate('+curX+','+curY+')');
-orangeBox.append('rect')
-	.attr('class', 'checkbox')
-	.attr('width', cbDim)
-	.attr('height', cbDim);
-orangeBox.append('rect')
-	.attr('class', 'checkbox-inner')
-	.attr('width', cbDim-6)
-	.attr('height', cbDim-6)
-	.attr('transform', 'translate(3,3)')
-	.attr('visibility', 'visible');
-orangeBox.append('text')
-	.attr('class', 'legend-text')
-	.attr('text-anchor', 'left')
-	.attr('transform', 'translate('+(cbDim+5)+','+13+')')
-	.attr('fill', orange)
-	.text(orangeTextMap[pos]);
-curY += cbDim + 10;
+if (orangeMap[pos] != null) {
+	var orangeBox = legSvg.append('g')
+		.attr('class', 'checkbox-container')
+		.attr('id', 'orange-box')
+		.attr('transform', 'translate('+curX+','+curY+')');
+	orangeBox.append('rect')
+		.attr('class', 'checkbox')
+		.attr('width', cbDim)
+		.attr('height', cbDim);
+	orangeBox.append('rect')
+		.attr('class', 'checkbox-inner')
+		.attr('width', cbDim-6)
+		.attr('height', cbDim-6)
+		.attr('transform', 'translate(3,3)')
+		.attr('visibility', 'visible');
+	orangeBox.append('text')
+		.attr('class', 'legend-text')
+		.attr('text-anchor', 'left')
+		.attr('transform', 'translate('+(cbDim+5)+','+13+')')
+		.attr('fill', orange)
+		.text(orangeTextMap[pos]);
+	curY += cbDim + 10;
+}
 var greenBox = legSvg.append('g')
 	.attr('class', 'checkbox-container')
 	.attr('id', 'green-box')
@@ -475,8 +500,10 @@ svg.on('mousemove', function() {
 		legSvg.select('#hover-box-result').text(win + ' ' + d['matchup']['home_team_points'] + '-' + d['matchup']['away_team_points']);
 		legSvg.select('#hover-box-bluetext-header').text('Fantasy Points: ');
 		legSvg.select('#hover-box-bluetext').text(d['data']['points']); 
-		legSvg.select('#hover-box-orangetext-header').text(orangeTextMap[pos] + ': ');
-		legSvg.select('#hover-box-orangetext').text(d['data'][orangeMap[pos]]);
+		if (orangeMap[pos] != null) {
+			legSvg.select('#hover-box-orangetext-header').text(orangeTextMap[pos] + ': ');
+			legSvg.select('#hover-box-orangetext').text(d['data'][orangeMap[pos]]);
+		}
 		legSvg.select('#hover-box-redtext-header').text(redTextMap[pos] + ': ');
 		legSvg.select('#hover-box-redtext').text(d['data'][redMap[pos]]);
 		legSvg.select('#hover-box-greentext-header').text(greenTextMap[pos] + ': ');
