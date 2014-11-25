@@ -40,8 +40,7 @@ var rowData = rows.selectAll('td')
 rowData.append('td')
 	.text(function(d) {
 		if (d.column != 'name' && d.column != 'team' && d.column != 'position') {
-			if (d.value == null) return '--';
-			else return d.value;
+			return (d.value == null) ? '--' : d.value;
 		}
 		return null;
 	})
@@ -51,7 +50,7 @@ rowData.append('td')
 	})
 	.append('a')
 	.attr('href', function(d) {
-		if (d.column == 'name') return ''+d['player']['id'];
+		if (d.column == 'name') return (d['player']['position']['id']==5) ? '#' : ''+d['player']['id'];
 		else if (d.column == 'team') return team_url+d['player']['team']['id'];
 		else if (d.column == 'position') return position_url+d['player']['position']['id'];
 		return null;
