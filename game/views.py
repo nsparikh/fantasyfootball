@@ -295,7 +295,7 @@ class PositionDetailView(generic.DetailView):
 					p = team_players[index]
 					# Compute score for this player
 					pScore = 0
-					if opponent is not None and posId in [1, 2, 3, 4]:
+					if opponent is not None:
 						try:
 							pScore = GameData.objects.get(player=p.id, matchup__year=year, 
 								matchup__week_number=week_number).performance_score

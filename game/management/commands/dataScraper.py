@@ -29,8 +29,7 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		for player in Player.objects.all().order_by('id'):
-			print player.id, player.name, self.updatePlayerEspnProjection(player, 2014, 12, True)
+		pass
 
 		
 	# Creates empty GameData objects for the player in the given week and year

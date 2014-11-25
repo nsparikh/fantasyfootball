@@ -10,7 +10,7 @@ var whiteText = '#D4D4D4';
 var opacity = 0.3;
 
 // Global variables
-var w = 600;
+var w = 725;
 var h = 500;
 var legW = 175;
 var legH = 450;
