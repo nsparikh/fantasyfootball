@@ -32,15 +32,36 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		pass
+		for posId in [1, 2, 3, 4, 6]:
+			pos = Position.objects.get(id=posId)
+			print '\n****** COMPUTING PROJECTION ERRORS FOR ' + pos.name + ' ******'
+			resultsTotal = open('projectionArrays/resultsTotal_'+pos.abbr.lower()+'_KNN.txt', 'a')
+			resultsWeekly = open('projectionArrays/resultsWeekly_'+pos.abbr.lower()+'_KNN.txt', 'a')
+
+			for numNeighbors in [110, 120, 130, 140, 150, 160, 170, 180, 190, 200]:
+				totalError = 0
+				espnTotalError = 0
+
+				for w in range(2, 12):
+					(weekError, espnWeekError) = self.computePlayerProjections(pos, w, numNeighbors)
+					totalError += weekError
+					espnTotalError += espnWeekError
+					weekString = pos.name+',2014,'+str(w)+','+str(numNeighbors)+',uniform,l2,'+str(weekError)+','+str(espnWeekError)+'\n'
+					resultsWeekly.write(weekString)
+				totalString = pos.name+',2014,'+str(numNeighbors)+',uniform,l2,'+str(totalError)+','+str(espnTotalError)+'\n'
+				resultsTotal.write(totalString)
+
 		
 
 	# Computes and saves all player projections for the given position in the week
 	# ASSUMES YEAR IS 2014, and given week number must be >=2
-	def computePlayerProjections(self, position, proj_week_number):
+	def computePlayerProjections(self, position, proj_week_number, numNeighbors):
 		print 'COMPUTING PROJECTIONS FOR', position.abbr, 'WEEK', proj_week_number
 		year = 2014
 		week_number = proj_week_number - 1
+
+		weekError = 0
+		espnWeekError = 0
 
 		# Model parameters
 		norm = 'l2'
@@ -68,7 +89,8 @@ class Command(NoArgsCommand):
 		xArray = normalizer.fit_transform(xArray)
 
 		# Build the model
-		model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
+		#model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
+		model = self.buildKNNModel(xArray, yArray, numNeighbors, 'uniform')
 
 		# Predict for every player of this position
 		for p in Player.objects.filter(position=position).order_by('id'):
@@ -76,12 +98,15 @@ class Command(NoArgsCommand):
 				gd = GameData.objects.get(player=p, 
 					matchup__year=year, matchup__week_number=proj_week_number)
 				projection = self.playerProjection(model, normalizer, p, year, proj_week_number)
-				if projection is None: continue
-				print p.id, p.name, projection[0]
-				gd.projection = projection[0]
-				gd.save()
+				if projection is None or gd.data.id==1 or gd.espn_projection is None: continue
+				weekError += abs(gd.data.points - projection)
+				espnWeekError += abs(gd.data.points - gd.espn_projection)
+				#print p.id, p.name, projection[0]
+				#gd.projection = projection[0]
+				#gd.save()
 			except ObjectDoesNotExist:
 				continue
+		return (weekError, espnWeekError)
 
 	# Computes the projection of the given player in the year and week
 	#	using the model provided
@@ -228,7 +253,7 @@ class Command(NoArgsCommand):
 		# Get the player's team in the given year
 		position = player.position
 		playerTeam = YearData.objects.get(year=year, player=player).team
-		if playerTeam.id == 33: return None
+		if playerTeam is None or playerTeam.id == 33: return None
 
 		# Get the week's matchup; if it's a bye week then no projection
 		matchup = Matchup.objects.get(Q(home_team=playerTeam) | Q(away_team=playerTeam), 

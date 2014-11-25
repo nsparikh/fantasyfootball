@@ -1,0 +1,21 @@
+Position,Year,Num Neighbors,Weighting,Norm,Computed Error,ESPN Error
+Wide Receiver,2014,10,uniform,l2,[ 4109.3],4551.0
+Wide Receiver,2014,20,uniform,l2,[ 4031.6],4551.0
+Wide Receiver,2014,30,uniform,l2,[ 3999.13333333],4551.0
+Wide Receiver,2014,40,uniform,l2,[ 3971.075],4551.0
+Wide Receiver,2014,50,uniform,l2,[ 3940.8],4551.0
+Wide Receiver,2014,60,uniform,l2,[ 3946.08333333],4551.0
+Wide Receiver,2014,70,uniform,l2,[ 3942.24285714],4551.0
+Wide Receiver,2014,80,uniform,l2,[ 3925.1375],4551.0
+Wide Receiver,2014,90,uniform,l2,[ 3927.31111111],4551.0
+Wide Receiver,2014,100,uniform,l2,[ 3920.85],4551.0
+Wide Receiver,2014,110,uniform,l2,[ 3914.10909091],4551.0
+Wide Receiver,2014,120,uniform,l2,[ 3908.64166667],4551.0
+Wide Receiver,2014,130,uniform,l2,[ 3902.51538462],4551.0
+Wide Receiver,2014,140,uniform,l2,[ 3909.81428571],4551.0
+Wide Receiver,2014,150,uniform,l2,[ 3907.40666667],4551.0
+Wide Receiver,2014,160,uniform,l2,[ 3906.025],4551.0
+Wide Receiver,2014,170,uniform,l2,[ 3914.62941176],4551.0
+Wide Receiver,2014,180,uniform,l2,[ 3911.57222222],4551.0
+Wide Receiver,2014,190,uniform,l2,[ 3917.51052632],4551.0
+Wide Receiver,2014,200,uniform,l2,[ 3917.375],4551.0
