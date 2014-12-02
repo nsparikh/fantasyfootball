@@ -33,8 +33,8 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		#for pos in Position.objects.all().exclude(id=5):
-		#	self.getDataForModel(pos, 2014, 13, True)
-		#	self.computePlayerProjections(pos, 14)
+			#self.getDataForModel(pos, 2014, 13, True)
+			#self.computePlayerProjections(pos, 14)
 		#self.computePlayerPerformanceScores(2014, 14)
 
 		
@@ -46,8 +46,8 @@ class Command(NoArgsCommand):
 		year = 2014
 		week_number = proj_week_number - 1
 
-		weekError = 0
-		espnWeekError = 0
+		#weekError = 0
+		#espnWeekError = 0
 
 		# Model parameters
 		norm = 'l2'
@@ -83,9 +83,9 @@ class Command(NoArgsCommand):
 				gd = GameData.objects.get(player=p, 
 					matchup__year=year, matchup__week_number=proj_week_number)
 				projection = self.playerProjection(model, normalizer, p, year, proj_week_number)
-				if projection is None or gd.data.id==1 or gd.espn_projection is None: continue
-				weekError += abs(gd.data.points - projection)
-				espnWeekError += abs(gd.data.points - gd.espn_projection)
+				if projection is None: continue
+				#weekError += abs(gd.data.points - projection)
+				#espnWeekError += abs(gd.data.points - gd.espn_projection)
 				print p.id, p.name, projection[0]
 				gd.projection = projection[0]
 				gd.save()
