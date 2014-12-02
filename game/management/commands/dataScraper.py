@@ -29,12 +29,12 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		#for t in Team.objects.all().exclude(id=33):
-		#	print t.name, self.updateMatchup(t, 2014, week_number)
+		for t in Team.objects.all().exclude(id=33):
+			print t.name, self.updateMatchup(t, 2014, 13)
 		#	print t.name, self.updateDepthPositions(t)
-		#for p in Player.objects.all().order_by('id'):
+		for p in Player.objects.all().order_by('id'):
 			#print p.id, p.name, self.updatePlayerTeam(p, 2014, 2014)
-			#print p.id, p.name, self.updatePlayerEspnProjection(p, 2014, week_number, True)
+			print p.id, p.name, self.updatePlayerEspnProjection(p, 2014, 14, True)
 
 	
 

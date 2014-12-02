@@ -33,9 +33,9 @@ class Command(NoArgsCommand):
 
 	def handle_noargs(self, **options):
 		#for pos in Position.objects.all().exclude(id=5):
-			#self.getDataForModel(pos, 2014, 12, True)
-			#self.computePlayerProjections(pos, 13)
-		#self.computePlayerPerformanceScores(2014, 13)
+		#	self.getDataForModel(pos, 2014, 13, True)
+		#	self.computePlayerProjections(pos, 14)
+		#self.computePlayerPerformanceScores(2014, 14)
 
 		
 
@@ -76,7 +76,6 @@ class Command(NoArgsCommand):
 
 		# Build the model
 		model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
-		#model = self.buildKNNModel(xArray, yArray, numNeighbors, 'uniform')
 
 		# Predict for every player of this position
 		for p in Player.objects.filter(position=position).order_by('id'):

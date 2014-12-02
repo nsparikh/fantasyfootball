@@ -89,8 +89,10 @@ $matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.jso
 // EXECUTION ("main")
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//writeGameData(2014, 12);
-//writeYearData(2014, 12);
+//writeGameData(2014, 13);
+
+// NEED TO WRITE GAME DATA BEFORE CALLING writeYearData
+//writeYearData(2014, 13);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
@@ -104,7 +106,7 @@ function writeGameData($year, $week_num) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        if ($player_index < 129) continue;
+        if ($player_index < 1249) continue;
 
         // Get the data for the given week
         print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';

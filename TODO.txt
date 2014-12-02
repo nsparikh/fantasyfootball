@@ -6,7 +6,7 @@ Data tasks:
 - fix players with height=0 or weight=0, no DOB, no number
 	- double check players' positions
 - Get Matchups for pre/postseason games?
-- Get matchups, team assignments, depth positions (?) from Yahoo API
+- Figure out how to get matchups, team assignments, depth positions (?) from Yahoo API
 - Create players for those who are in depth charts (ESPN IDs: 17331, 17423, 12934, 16964, 17231, 16903, 16871, 17045, 17284, 8441)
 
 
