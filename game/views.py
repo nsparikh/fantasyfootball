@@ -15,7 +15,7 @@ def getWeekAndYear(request):
 	(min_week, max_week) = (1, 17)
 	(min_year, max_year) = (2013, 2014) 
 
-	current_week = 12 # TODO: change this each week?
+	current_week = 14 # TODO: change this each week?
 	current_year = 2014
 
 	changedYear = False
