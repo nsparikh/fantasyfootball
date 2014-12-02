@@ -71,24 +71,26 @@ $yahoo_url = 'http://fantasysports.yahooapis.com/fantasy/v2/players;player_keys=
 
 // Load Player and GameDataPoints from JSON fixture files
 $players_json = json_decode(file_get_contents('../game/fixtures/Player2014.json'), true);
-//$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014.json'), true);
-//$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014.json'), true);
+$gd_2014 = json_decode(file_get_contents('../data/fixtures/GameData2014.json'), true);
+$gdpoints_2014 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2014.json'), true);
 //$gd_2013 = json_decode(file_get_contents('../data/fixtures/GameData2013_Yahoo.json'), true);
 //$gdpoints_2013 = json_decode(file_get_contents('../data/fixtures/GameDataPoints2013_Yahoo.json'), true);
 //$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013_Yahoo.json'), true);
-$yd_2012 = json_decode(file_get_contents('../data/fixtures/YearData2012.json'), true);
-$ydpoints_2012 = json_decode(file_get_contents('../data/fixtures/YearDataPoints2012.json'), true);
-$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013.json'), true);
-$ydpoints_2013 = json_decode(file_get_contents('../data/fixtures/YearDataPoints2013.json'), true);
+//$yd_2012 = json_decode(file_get_contents('../data/fixtures/YearData2012.json'), true);
+//$ydpoints_2012 = json_decode(file_get_contents('../data/fixtures/YearDataPoints2012.json'), true);
+//$yd_2013 = json_decode(file_get_contents('../data/fixtures/YearData2013.json'), true);
+//$ydpoints_2013 = json_decode(file_get_contents('../data/fixtures/YearDataPoints2013.json'), true);
 $yd_2014 = json_decode(file_get_contents('../data/fixtures/YearData2014.json'), true);
 $ydpoints_2014 = json_decode(file_get_contents('../data/fixtures/YearDataPoints2014.json'), true);
 //$matchups_2013 = json_decode(file_get_contents('../game/fixtures/Matchup2013.json'), true);
-//$matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.json'), true);
+$matchups_2014 = json_decode(file_get_contents('../game/fixtures/Matchup2014.json'), true);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EXECUTION ("main")
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//writeGameData(2014, 12);
+//writeYearData(2014, 12);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // METHODS FOR GETTING AND WRITING DATA
@@ -102,7 +104,7 @@ function writeGameData($year, $week_num) {
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
-        if ($player_index < 901) continue;
+        if ($player_index < 129) continue;
 
         // Get the data for the given week
         print $player_index.'/1485 '.$player['pk'].' '.$player['fields']['name'] . ' W' . $week_num . ' ';
@@ -169,9 +171,9 @@ function getYahooPlayerGameData($player, $year, $week_num) {
 }
 
 // Computes and writes the data for each player in the given year
-function writeYearData($year) {
-    $outfile_yd = fopen('YearData'.$year.'_Yahoo_W1-11.json', 'w');
-    $outfile_ydpoints = fopen('YearDataPoints'.$year.'_Yahoo_W1-11.json', 'w');
+function writeYearData($year, $max_week) {
+    $outfile_yd = fopen('YearData'.$year.'_Yahoo_W1-'.$max_week.'.json', 'w');
+    $outfile_ydpoints = fopen('YearDataPoints'.$year.'_Yahoo_W1-'.$max_week.'.json', 'w');
 
     // Go through each player
     foreach ($GLOBALS['players_json'] as $player_index=>$player) {
@@ -232,6 +234,7 @@ function getCareerDataPoint($player) {
     print 'AVERAGE: '.$average."\n";
 }
 
+// Removes bye week game data and points from the given year's data
 function removeByeWeekData($year) {
     $outfile_gd = fopen('GameData'.$year.'_Yahoo_NoBye.json', 'a');
     $outfile_gdpoints = fopen('GameDataPoints'.$year.'_Yahoo_NoBye.json', 'a');

@@ -1,0 +1,101 @@
+Position,Year,Num Neighbors,Weighting,Norm,Computed Error,ESPN Error
+Quarterback,2014,10,uniform,l2,2215.7,1942.0
+Quarterback,2014,20,uniform,l2,2185.85,1942.0
+Quarterback,2014,30,uniform,l2,2178.06666667,1942.0
+Quarterback,2014,40,uniform,l2,2158.35,1942.0
+Quarterback,2014,50,uniform,l2,2142.38,1942.0
+Quarterback,2014,60,uniform,l2,2151.86666667,1942.0
+Quarterback,2014,70,uniform,l2,2153.7,1942.0
+Quarterback,2014,80,uniform,l2,2163.4625,1942.0
+Quarterback,2014,90,uniform,l2,2172.55555556,1942.0
+Quarterback,2014,100,uniform,l2,2177.59,1942.0
+Quarterback,2014,110,uniform,l2,2182.30909091,1942.0
+Quarterback,2014,120,uniform,l2,2189.28333333,1942.0
+Quarterback,2014,130,uniform,l2,2194.5,1942.0
+Quarterback,2014,140,uniform,l2,2206.30714286,1942.0
+Quarterback,2014,150,uniform,l2,2208.04666667,1942.0
+Quarterback,2014,160,uniform,l2,2217.15,1942.0
+Quarterback,2014,170,uniform,l2,2223.86470588,1942.0
+Quarterback,2014,180,uniform,l2,2232.71111111,1942.0
+Quarterback,2014,190,uniform,l2,2238.08947368,1942.0
+Quarterback,2014,200,uniform,l2,2239.895,1942.0
+Runningback,2014,10,uniform,l2,3301.9,3272.0
+Runningback,2014,20,uniform,l2,3246.55,3272.0
+Runningback,2014,30,uniform,l2,3198.53333333,3272.0
+Runningback,2014,40,uniform,l2,3194.675,3272.0
+Runningback,2014,50,uniform,l2,3181.52,3272.0
+Runningback,2014,60,uniform,l2,3172.86666667,3272.0
+Runningback,2014,70,uniform,l2,3177.11428571,3272.0
+Runningback,2014,80,uniform,l2,3174.875,3272.0
+Runningback,2014,90,uniform,l2,3181.03333333,3272.0
+Runningback,2014,100,uniform,l2,3175.19,3272.0
+Runningback,2014,110,uniform,l2,3178.70909091,3272.0
+Runningback,2014,120,uniform,l2,3176.31666667,3272.0
+Runningback,2014,130,uniform,l2,3172.64615385,3272.0
+Runningback,2014,140,uniform,l2,3172.82857143,3272.0
+Runningback,2014,150,uniform,l2,3179.79333333,3272.0
+Runningback,2014,160,uniform,l2,3180.41875,3272.0
+Runningback,2014,170,uniform,l2,3185.51176471,3272.0
+Runningback,2014,180,uniform,l2,3183.51111111,3272.0
+Runningback,2014,190,uniform,l2,3186.52631579,3272.0
+Runningback,2014,200,uniform,l2,3195.345,3272.0
+Wide Receiver,2014,10,uniform,l2,4109.3,4551.0
+Wide Receiver,2014,20,uniform,l2,4031.6,4551.0
+Wide Receiver,2014,30,uniform,l2,3999.13333333,4551.0
+Wide Receiver,2014,40,uniform,l2,3971.075,4551.0
+Wide Receiver,2014,50,uniform,l2,3940.8,4551.0
+Wide Receiver,2014,60,uniform,l2,3946.08333333,4551.0
+Wide Receiver,2014,70,uniform,l2,3942.24285714,4551.0
+Wide Receiver,2014,80,uniform,l2,3925.1375,4551.0
+Wide Receiver,2014,90,uniform,l2,3927.31111111,4551.0
+Wide Receiver,2014,100,uniform,l2,3920.85,4551.0
+Wide Receiver,2014,110,uniform,l2,3914.10909091,4551.0
+Wide Receiver,2014,120,uniform,l2,3908.64166667,4551.0
+Wide Receiver,2014,130,uniform,l2,3902.51538462,4551.0
+Wide Receiver,2014,140,uniform,l2,3909.81428571,4551.0
+Wide Receiver,2014,150,uniform,l2,3907.40666667,4551.0
+Wide Receiver,2014,160,uniform,l2,3906.025,4551.0
+Wide Receiver,2014,170,uniform,l2,3914.62941176,4551.0
+Wide Receiver,2014,180,uniform,l2,3911.57222222,4551.0
+Wide Receiver,2014,190,uniform,l2,3917.51052632,4551.0
+Wide Receiver,2014,200,uniform,l2,3917.375,4551.0
+Tight End,2014,10,uniform,l2,1599.7,1845.0
+Tight End,2014,20,uniform,l2,1589.65,1845.0
+Tight End,2014,30,uniform,l2,1581.3,1845.0
+Tight End,2014,40,uniform,l2,1571.85,1845.0
+Tight End,2014,50,uniform,l2,1558.68,1845.0
+Tight End,2014,60,uniform,l2,1558.3,1845.0
+Tight End,2014,70,uniform,l2,1560.72857143,1845.0
+Tight End,2014,80,uniform,l2,1569.7875,1845.0
+Tight End,2014,90,uniform,l2,1573.22222222,1845.0
+Tight End,2014,100,uniform,l2,1578.94,1845.0
+Tight End,2014,110,uniform,l2,1582.7,1845.0
+Tight End,2014,120,uniform,l2,1583.45,1845.0
+Tight End,2014,130,uniform,l2,1585.25384615,1845.0
+Tight End,2014,140,uniform,l2,1593.12142857,1845.0
+Tight End,2014,150,uniform,l2,1593.28666667,1845.0
+Tight End,2014,160,uniform,l2,1600.5625,1845.0
+Tight End,2014,170,uniform,l2,1605.24705882,1845.0
+Tight End,2014,180,uniform,l2,1609.88888889,1845.0
+Tight End,2014,190,uniform,l2,1612.26842105,1845.0
+Tight End,2014,200,uniform,l2,1617.345,1845.0
+Kicker,2014,10,uniform,l2,755.2,1068.0
+Kicker,2014,20,uniform,l2,761.15,1068.0
+Kicker,2014,30,uniform,l2,777.4,1068.0
+Kicker,2014,40,uniform,l2,776.75,1068.0
+Kicker,2014,50,uniform,l2,784.14,1068.0
+Kicker,2014,60,uniform,l2,786.65,1068.0
+Kicker,2014,70,uniform,l2,791.62857143,1068.0
+Kicker,2014,80,uniform,l2,799.45,1068.0
+Kicker,2014,90,uniform,l2,798.35555556,1068.0
+Kicker,2014,100,uniform,l2,801.02,1068.0
+Kicker,2014,110,uniform,l2,802.84545455,1068.0
+Kicker,2014,120,uniform,l2,807.44166667,1068.0
+Kicker,2014,130,uniform,l2,810.44615385,1068.0
+Kicker,2014,140,uniform,l2,815.22142857,1068.0
+Kicker,2014,150,uniform,l2,818.95333333,1068.0
+Kicker,2014,160,uniform,l2,822.35,1068.0
+Kicker,2014,170,uniform,l2,826.21764706,1068.0
+Kicker,2014,180,uniform,l2,828.02222222,1068.0
+Kicker,2014,190,uniform,l2,831.8,1068.0
+Kicker,2014,200,uniform,l2,834.91,1068.0

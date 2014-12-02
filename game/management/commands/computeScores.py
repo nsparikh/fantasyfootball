@@ -32,30 +32,16 @@ class Command(NoArgsCommand):
 	)
 
 	def handle_noargs(self, **options):
-		for posId in [1, 2, 3, 4, 6]:
-			pos = Position.objects.get(id=posId)
-			print '\n****** COMPUTING PROJECTION ERRORS FOR ' + pos.name + ' ******'
-			resultsTotal = open('projectionArrays/resultsTotal_'+pos.abbr.lower()+'_KNN.txt', 'a')
-			resultsWeekly = open('projectionArrays/resultsWeekly_'+pos.abbr.lower()+'_KNN.txt', 'a')
-
-			for numNeighbors in [110, 120, 130, 140, 150, 160, 170, 180, 190, 200]:
-				totalError = 0
-				espnTotalError = 0
-
-				for w in range(2, 12):
-					(weekError, espnWeekError) = self.computePlayerProjections(pos, w, numNeighbors)
-					totalError += weekError
-					espnTotalError += espnWeekError
-					weekString = pos.name+',2014,'+str(w)+','+str(numNeighbors)+',uniform,l2,'+str(weekError)+','+str(espnWeekError)+'\n'
-					resultsWeekly.write(weekString)
-				totalString = pos.name+',2014,'+str(numNeighbors)+',uniform,l2,'+str(totalError)+','+str(espnTotalError)+'\n'
-				resultsTotal.write(totalString)
+		#for pos in Position.objects.all().exclude(id=5):
+			#self.getDataForModel(pos, 2014, 12, True)
+			#self.computePlayerProjections(pos, 13)
+		#self.computePlayerPerformanceScores(2014, 13)
 
 		
 
 	# Computes and saves all player projections for the given position in the week
 	# ASSUMES YEAR IS 2014, and given week number must be >=2
-	def computePlayerProjections(self, position, proj_week_number, numNeighbors):
+	def computePlayerProjections(self, position, proj_week_number):
 		print 'COMPUTING PROJECTIONS FOR', position.abbr, 'WEEK', proj_week_number
 		year = 2014
 		week_number = proj_week_number - 1
@@ -89,8 +75,8 @@ class Command(NoArgsCommand):
 		xArray = normalizer.fit_transform(xArray)
 
 		# Build the model
-		#model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
-		model = self.buildKNNModel(xArray, yArray, numNeighbors, 'uniform')
+		model = self.buildSVMModel(xArray, yArray, kernel, c, epsilon, gamma)
+		#model = self.buildKNNModel(xArray, yArray, numNeighbors, 'uniform')
 
 		# Predict for every player of this position
 		for p in Player.objects.filter(position=position).order_by('id'):
@@ -101,12 +87,12 @@ class Command(NoArgsCommand):
 				if projection is None or gd.data.id==1 or gd.espn_projection is None: continue
 				weekError += abs(gd.data.points - projection)
 				espnWeekError += abs(gd.data.points - gd.espn_projection)
-				#print p.id, p.name, projection[0]
-				#gd.projection = projection[0]
-				#gd.save()
+				print p.id, p.name, projection[0]
+				gd.projection = projection[0]
+				gd.save()
 			except ObjectDoesNotExist:
 				continue
-		return (weekError, espnWeekError)
+		#return (weekError, espnWeekError)
 
 	# Computes the projection of the given player in the year and week
 	#	using the model provided
@@ -177,7 +163,7 @@ class Command(NoArgsCommand):
 	# 2) difference in (1) and league average across all players of this position
 	# 3) weekly avg fantasy points allowed to players of this position
 	# 4) diff in (3) and league average across all defenses
-	def getDataForModel(self, position, year, cur_week_number):
+	def getDataForModel(self, position, year, cur_week_number, write_file=True):
 		print 'GETTING DATA for', position.abbr, 'through week', cur_week_number, year
 
 		# Dictionaries of data that will be used in feature vectors
@@ -212,6 +198,11 @@ class Command(NoArgsCommand):
 		# Get numpy arrays of data and "labels" (fantasy points)
 		xArray = self.dictToNumpy(dataDict, 4)
 		yArray = self.dictToNumpy(labelsDict, 1)
+		if write_file:
+			np.savetxt(('projectionArrays/xArray'+str(year)+'_week'+str(cur_week_number)+
+				'_'+position.abbr.lower()+'.txt'), xArray)
+			np.savetxt(('projectionArrays/yArray'+str(year)+'_week'+str(cur_week_number)+
+				'_'+position.abbr.lower()+'.txt'), yArray)
 		return (xArray, yArray)
 
 
